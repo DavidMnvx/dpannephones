@@ -50,6 +50,32 @@
     
 {# Banière #}
 
+{# Card Model #}
+
+    
+        .card {
+            width: 100%;
+            height: 230px; /* Définir une hauteur fixe pour les cartes */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card-body {
+            flex-grow: 2;
+        }
+        .card-title {
+            margin-top: auto; /* Pousse le titre vers le bas */
+        }
+
+        #img-model {
+            height: 150px;
+            widht: 100%;
+            margin-top: 5px;
+            obejct-fit: cover;
+        }
+
+{# Card Model #}
+
 
 </style>
 
@@ -73,13 +99,13 @@
 {# Card Model #}
 
 <div class="container mt-4">
-    <h1 class="text-center">Modèles pour {{ marque.name }}</h1>
+    <h1 class="text-center mb-5">Modèles pour {{ marque.name }}</h1>
     <div class="row">
         {% for model in modeles %}
-            <div class="col-md-2 mb-2">
+            <div class="col-md-2 mb-3">
                 <div class="card">
                     <a href="{{ path('liste_reparations', {'modeleName': model.name, 'type': type == 'phone' ? 'phone' : 'tablet'}) }}">
-                        <img  src="{{ asset('uploads/images/' ~ model.image) }}" class="card-img-top" alt="Image de {{ model.name }}">
+                        <img  src="{{ asset('uploads/images/' ~ model.image) }}" class="card-img-top " id="img-model" alt="Image de {{ model.name }}">
                         <div class="card-body text-center">
                     </a>
                             <h6 class="card-title">{{ model.name }}</h6>

@@ -118,7 +118,7 @@ class AdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('admin_home');
+            return $this->redirectToRoute('admin_index');
         }
 
         return $this->render('admin/marque/edit.html.twig', [
@@ -133,7 +133,7 @@ class AdminController extends AbstractController
         $entityManager->remove($marque);
         $entityManager->flush();
 
-        return $this->redirectToRoute('admin_home');
+        return $this->redirectToRoute('admin_index');
     }
 
 

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello HomeController!{% endblock %}
+{% block title %}D'Pannes Phone{% endblock %}
 
 {% block body %}
 <style>
@@ -354,4 +354,23 @@
 
 <!--- Container Accueil -->
 
+
+{# Reviews Google #}
+
+    <h2>Commentaires</h2>
+    {% if reviews is defined and reviews|length > 0 %}
+        <ul>
+            {% for review in reviews %}
+                <li>
+                    <strong>{{ review.author_name }}</strong>: {{ review.text }}
+                    <br>
+                    Note: {{ review.rating }} / 5
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucun avis disponible.</p>
+    {% endif %}
+
+{# Reviews Google #}
 {% endblock %}
