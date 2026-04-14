@@ -1,0 +1,134 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'articles' %}
+
+{% block admin_content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+        <div class="admin-page-title">Articles boutique</div>
+        <div class="admin-page-subtitle">Gérez les produits disponibles à la vente.</div>
+    </div>
+    <a href="{{ path('admin_article_new') }}" class="btn-admin-submit" style="text-decoration:none;">
+        <i class="fas fa-plus mr-1"></i> Nouvel article
+    </a>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+<div class="admin-card">
+    <h3><i class="fas fa-list"></i> Liste des articles
+        <span style="font-weight:400;color:#adb5bd;">({{ articles|length }})</span>
+    </h3>
+
+    {# Onglets — comptage via filter Twig #}
+    <div class="filter-tabs" id="article-tabs">
+        <div class="filter-tab active" onclick="filterArticles('tous', this)">
+            Tous <span class="tab-count">{{ articles|length }}</span>
+        </div>
+        {% set cats = {
+            'pc_gamer':       'PC Gamer',
+            'pc_bureautique': 'PC Bureautique',
+            'pc_portable':    'PC Portable',
+            'accessoires':    'Accessoires',
+            'film_hydrogel':  'Film Hydrogel',
+            'telephone':      'Téléphones'
+        } %}
+        {% for slug, label in cats %}
+            {% set count = articles|filter(a => a.categorie == slug)|length %}
+            <div class="filter-tab {{ count == 0 ? 'filter-tab--empty' : '' }}" onclick="filterArticles('{{ slug }}', this)">
+                {{ label }} <span class="tab-count">{{ count }}</span>
+            </div>
+        {% endfor %}
+        {% set countSans = articles|filter(a => a.categorie is null or a.categorie == '')|length %}
+        {% if countSans > 0 %}
+            <div class="filter-tab" onclick="filterArticles('__none__', this)">
+                Sans catégorie <span class="tab-count">{{ countSans }}</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <table class="table" id="articles-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Prix</th>
+                <th>Grade</th>
+                <th>État</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr data-cat="{{ article.categorie ?? '__none__' }}">
+                    <td>
+                        {% if article.image %}
+                            <img src="{{ asset('uploads/images/' ~ article.image) }}" width="46" height="46"
+                                 style="border-radius:8px;object-fit:cover;">
+                        {% else %}
+                            <div style="width:46px;height:46px;background:#f0f2f5;border-radius:8px;
+                                        display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-image" style="color:#dee2e6;"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ article.name }}</strong></td>
+                    <td>
+                        {% if article.categorie %}
+                            <span class="badge-cat">{{ article.categorie|replace({'_': ' '})|capitalize }}</span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td><strong style="color:rgb(9,71,113)">{{ article.price }} €</strong></td>
+                    <td>
+                        {% if article.grade %}
+                            <span style="background:#e8f0fe;color:#1a56db;font-size:11px;
+                                         font-weight:700;padding:3px 8px;border-radius:20px;">
+                                Grade {{ article.grade }}
+                            </span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <span class="{{ article.isNew ? 'badge-new' : 'badge-occasion' }}">
+                            {{ article.isNew ? 'Neuf' : 'Occasion' }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+                        <a href="{{ path('admin_article_delete', {id: article.id}) }}" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Supprimer cet article ?')">Supprimer</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">Aucun article enregistré.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="no-results" style="display:none;text-align:center;padding:28px;color:#adb5bd;font-size:13px;">
+        <i class="fas fa-inbox" style="font-size:26px;display:block;margin-bottom:8px;"></i>
+        Aucun article dans cette catégorie.
+    </div>
+</div>
+
+<script>
+function filterArticles(cat, tabEl) {
+    document.querySelectorAll('#article-tabs .filter-tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+    var rows = document.querySelectorAll('#articles-table tbody tr[data-cat]');
+    var visible = 0;
+    rows.forEach(function(row) {
+        var show = cat === 'tous' || row.getAttribute('data-cat') === cat;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('no-results').style.display = visible === 0 ? 'block' : 'none';
+}
+</script>
+
+{% endblock %}

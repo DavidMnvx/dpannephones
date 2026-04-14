@@ -1,163 +1,482 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+{{ parent() }}
+{% endblock %}
+
 {% block body %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Admin - Gestion des Marques, Modèles et Réparations</h1>
-    
-    <!-- Onglets -->
-    <ul class="nav nav-tabs" id="adminTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="marques-tab" data-toggle="tab" href="#marques" role="tab" aria-controls="marques" aria-selected="true">Marques</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="modeles-tab" data-toggle="tab" href="#modeles" role="tab" aria-controls="modeles" aria-selected="false">Modèles</a>
-        </li>
-        <li class="nav-item" role="presentation">
-            <a class="nav-link" id="reparations-tab" data-toggle="tab" href="#reparations" role="tab" aria-controls="reparations" aria-selected="false">Réparations</a>
-        </li>
-    </ul>
+<div class="container-fluid p-0">
+    <div class="row no-gutters">
 
-    <div class="tab-content" id="adminTabsContent">
-        <!-- Marques -->
-        <div class="tab-pane fade show active" id="marques" role="tabpanel" aria-labelledby="marques-tab">
-            <h2 class="mt-4">Gestion des Marques</h2>
-            {{ form_start(marqueForm) }}
-                {{ form_row(marqueForm.name) }}
-                {{ form_row(marqueForm.image) }}
-                {{ form_row(marqueForm.hasPhone) }}
-                {{ form_row(marqueForm.hasTablet) }}
-                <button type="submit" class="btn btn-primary mb-3 mt-3">Ajouter une Marque</button>
-            {{ form_end(marqueForm) }}
-            <h3 class="mt-4">Liste des Marques</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Image</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for marque in marques %}
-                        <tr>
-                            <td>{{ marque.name }}</td>
-                            <td><img src="{{ asset('uploads/images/' ~ marque.image) }}" alt="{{ marque.name }}" width="50"></td>
-                            <td>
-                                <a href="{{ path('admin_marque_edit', {'id': marque.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
-                                <a href="{{ path('admin_marque_delete', {'id': marque.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {# Sidebar — liens simples, pas de listes imbriquées #}
+        <nav id="sidebar" class="col-md-2 d-md-block">
+            <div class="sidebar-header">Navigation</div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showContent('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showContent('marques')">
+                        <i class="fas fa-tags"></i> Marques
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showContent('modeles')">
+                        <i class="fas fa-mobile-alt"></i> Modèles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showContent('reparations')">
+                        <i class="fas fa-tools"></i> Réparations
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_article_index') }}">
+                        <i class="fas fa-shopping-bag"></i> Articles boutique
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-        <!-- Modèles -->
-        <div class="tab-pane fade" id="modeles" role="tabpanel" aria-labelledby="modeles-tab">
-            <h2 class="mt-4">Gestion des Modèles</h2>
-            {{ form_start(modelForm) }}
-                {{ form_row(modelForm.name) }}
-                {{ form_row(modelForm.marque) }}
-                {{ form_row(modelForm.image) }}
-                {{ form_row(modelForm.hasPhone) }}
-                {{ form_row(modelForm.hasTablet) }}
-                <button type="submit" class="btn btn-primary mb-3 mt-3">Ajouter un Modèle</button>
-            {{ form_end(modelForm) }}
-            
-            <!-- Liste des Modèles pour Téléphone -->
-            <h3 class="mt-4">Liste des Modèles pour Téléphone</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Marque</th>
-                        <th>Image</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for model in models %}
-                        {% if model.hasPhone %}
-                        <tr>
-                            <td>{{ model.name }}</td>
-                            <td>{{ model.marque.name }}</td>
-                            <td><img src="{{ asset('uploads/images/' ~ model.image) }}" alt="{{ model.name }}" width="50"></td>
-                            <td>
-                                <a href="{{ path('admin_modele_edit', {'id': model.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
-                                <a href="{{ path('admin_modele_delete', {'id': model.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>
-                            </td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
+        {# Contenu principal #}
+        <main id="admin-main" class="col-md-10">
 
-            <!-- Liste des Modèles pour Tablette -->
-            <h3 class="mt-4">Liste des Modèles pour Tablette</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Marque</th>
-                        <th>Image</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for model in models %}
-                        {% if model.hasTablet %}
-                        <tr>
-                            <td>{{ model.name }}</td>
-                            <td>{{ model.marque.name }}</td>
-                            <td><img src="{{ asset('uploads/images/' ~ model.image) }}" alt="{{ model.name }}" width="50"></td>
-                            <td>
-                                <a href="{{ path('admin_modele_edit', {'id': model.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
-                                <a href="{{ path('admin_modele_delete', {'id': model.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>
-                            </td>
-                        </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            {# Bannière de bienvenue #}
+            <div class="admin-welcome">
+                <div>
+                    <h2>Tableau de bord</h2>
+                    <p>Gérez vos marques, modèles et réparations</p>
+                </div>
+                <div class="admin-stats">
+                    <div class="stat-box">
+                        <span class="stat-number">{{ marques|length }}</span>
+                        <span class="stat-label">Marques</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">{{ models|length }}</span>
+                        <span class="stat-label">Modèles</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">{{ reparations|length }}</span>
+                        <span class="stat-label">Réparations</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">{{ articles|length }}</span>
+                        <span class="stat-label">Articles</span>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Réparations -->
-        <div class="tab-pane fade" id="reparations" role="tabpanel" aria-labelledby="reparations-tab">
-            <h2 class="mt-4">Gestion des Réparations</h2>
-            {{ form_start(reparationForm) }}
-                {{ form_row(reparationForm.name) }}
-                {{ form_row(reparationForm.model) }}
-                {{ form_row(reparationForm.description) }}
-                {{ form_row(reparationForm.prix) }}
-                <button type="submit" class="btn btn-primary mb-3 mt-3">Ajouter une Réparation</button>
-            {{ form_end(reparationForm) }}
-            <h3 class="mt-4">Liste des Réparations</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Modèle</th>
-                        <th>Description</th>
-                        <th>Prix</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for reparation in reparations %}
-                        <tr>
-                            <td>{{ reparation.name }}</td>
-                            <td>{{ reparation.model.name }}</td>
-                            <td>{{ reparation.description }}</td>
-                            <td>{{ reparation.prix }} €</td>
-                            <td>
-                                <a href="{{ path('admin_reparation_edit', {'id': reparation.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
-                                <a href="{{ path('admin_reparation_delete', {'id': reparation.id}) }}" class="btn btn-sm btn-danger">Supprimer</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            {# Flash messages #}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i> {{ message }}
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                </div>
+            {% endfor %}
+
+            <div id="content-details">
+
+                {# Dashboard #}
+                <div id="dashboard-content" class="content-section">
+
+                    {# KPI cards #}
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="dash-card" onclick="showContent('marques')">
+                                <i class="fas fa-tags"></i>
+                                <h4>Marques</h4>
+                                <p>{{ marques|length }} enregistrée(s)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="dash-card" onclick="showContent('modeles')">
+                                <i class="fas fa-mobile-alt"></i>
+                                <h4>Modèles</h4>
+                                <p>{{ models|length }} enregistré(s)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="dash-card" onclick="showContent('reparations')">
+                                <i class="fas fa-tools"></i>
+                                <h4>Réparations</h4>
+                                <p>{{ reparations|length }} enregistrée(s)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ path('admin_article_index') }}" style="text-decoration:none;">
+                                <div class="dash-card">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    <h4>Articles boutique</h4>
+                                    <p>{{ articles|length }} article(s)</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
+                    {# Graphique + dernières commandes #}
+                    <div class="row">
+                        <div class="col-md-8 mb-4">
+                            <div class="admin-card" style="padding-bottom:20px;">
+                                <h3 style="margin-bottom:6px;">
+                                    <i class="fas fa-chart-bar"></i> Ventes {{ annee }}
+                                </h3>
+                                <div style="font-size:13px;color:#6c757d;margin-bottom:20px;">
+                                    Total annuel :
+                                    <strong style="color:rgb(9,71,113);font-size:16px;">
+                                        {{ totalAnnee|number_format(2, '.', ' ') }} €
+                                    </strong>
+                                </div>
+                                <canvas id="salesChart" height="110"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-4">
+                            <div class="admin-card" style="padding-bottom:20px;">
+                                <h3><i class="fas fa-receipt"></i> Dernières commandes</h3>
+                                {% if commandes is empty %}
+                                    <p class="text-muted text-center" style="font-size:13px;padding:20px 0;">
+                                        Aucune commande pour l'instant.
+                                    </p>
+                                {% else %}
+                                    <table class="table" style="font-size:13px;">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Date</th>
+                                                <th>Total</th>
+                                                <th>Statut</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for cmd in commandes %}
+                                                <tr>
+                                                    <td><strong>#{{ cmd.id }}</strong></td>
+                                                    <td>{{ cmd.createdAt|date('d/m/Y') }}</td>
+                                                    <td style="color:rgb(9,71,113);font-weight:700;">{{ cmd.total|number_format(2, '.', ' ') }} €</td>
+                                                    <td>
+                                                        <span style="font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;
+                                                            background:{% if cmd.statut == 'confirmee' %}#d4edda{% elseif cmd.statut == 'annulee' %}#f8d7da{% else %}#fff3cd{% endif %};
+                                                            color:{% if cmd.statut == 'confirmee' %}#155724{% elseif cmd.statut == 'annulee' %}#721c24{% else %}#856404{% endif %};">
+                                                            {{ cmd.statut|replace({'_': ' '})|capitalize }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {# Marques #}
+                <div id="marques-content" class="content-section" style="display: none;">
+                    <div class="admin-card">
+                        <h3><i class="fas fa-tags"></i> Ajouter une Marque</h3>
+                        {{ form_start(marqueForm, {'attr': {'enctype': 'multipart/form-data', 'class': 'admin-form'}}) }}
+                            <div class="form-section-title">Identité</div>
+                            <div class="row">
+                                <div class="col-md-6">{{ form_row(marqueForm.name) }}</div>
+                                <div class="col-md-6">{{ form_row(marqueForm.image) }}</div>
+                            </div>
+                            <hr class="form-divider">
+                            <div class="form-section-title">Compatible avec</div>
+                            <div class="row">
+                                <div class="col-md-3">{{ form_row(marqueForm.hasPhone) }}</div>
+                                <div class="col-md-3">{{ form_row(marqueForm.hasTablet) }}</div>
+                            </div>
+                            <div style="margin-top:24px;">
+                                <button type="submit" class="btn-admin-submit">
+                                    <i class="fas fa-plus mr-1"></i> Ajouter la marque
+                                </button>
+                            </div>
+                        {{ form_end(marqueForm) }}
+                    </div>
+
+                    <div class="admin-card">
+                        <h3><i class="fas fa-list"></i> Liste des Marques ({{ marques|length }})</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Logo</th>
+                                    <th>Téléphone</th>
+                                    <th>Tablette</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for marque in marques %}
+                                    <tr>
+                                        <td><strong>{{ marque.name }}</strong></td>
+                                        <td>
+                                            {% if marque.image %}
+                                                <img src="{{ asset('uploads/images/' ~ marque.image) }}" alt="{{ marque.name }}" width="40" height="40">
+                                            {% else %}—{% endif %}
+                                        </td>
+                                        <td>{% if marque.hasPhone %}<span class="badge-new">✓</span>{% else %}—{% endif %}</td>
+                                        <td>{% if marque.hasTablet %}<span class="badge-new">✓</span>{% else %}—{% endif %}</td>
+                                        <td>
+                                            <a href="{{ path('admin_marque_edit', {'id': marque.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+                                            <a href="{{ path('admin_marque_delete', {'id': marque.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette marque ?')">Supprimer</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="5" class="text-center text-muted">Aucune marque enregistrée.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {# Modèles #}
+                <div id="modeles-content" class="content-section" style="display: none;">
+                    <div class="admin-card">
+                        <h3><i class="fas fa-mobile-alt"></i> Ajouter un Modèle</h3>
+                        {{ form_start(modelForm, {'attr': {'enctype': 'multipart/form-data', 'class': 'admin-form'}}) }}
+                            <div class="form-section-title">Identité</div>
+                            <div class="row">
+                                <div class="col-md-5">{{ form_row(modelForm.name) }}</div>
+                                <div class="col-md-4">{{ form_row(modelForm.marque) }}</div>
+                                <div class="col-md-3">{{ form_row(modelForm.image) }}</div>
+                            </div>
+                            <hr class="form-divider">
+                            <div class="form-section-title">Compatible avec</div>
+                            <div class="row">
+                                <div class="col-md-3">{{ form_row(modelForm.hasPhone) }}</div>
+                                <div class="col-md-3">{{ form_row(modelForm.hasTablet) }}</div>
+                            </div>
+                            <div style="margin-top:24px;">
+                                <button type="submit" class="btn-admin-submit">
+                                    <i class="fas fa-plus mr-1"></i> Ajouter le modèle
+                                </button>
+                            </div>
+                        {{ form_end(modelForm) }}
+                    </div>
+
+                    <div class="admin-card">
+                        <h3><i class="fas fa-list"></i> Liste des Modèles <span style="font-weight:400;color:#adb5bd;">({{ models|length }})</span></h3>
+
+                        {# Onglets par marque #}
+                        <div class="filter-tabs mb-3" id="modeles-tabs">
+                            <div class="filter-tab active" onclick="filterModeles('tous', this)">
+                                Toutes <span class="tab-count">{{ models|length }}</span>
+                            </div>
+                            {% set seen = [] %}
+                            {% for model in models %}
+                                {% if model.marque.name not in seen %}
+                                    {% set seen = seen|merge([model.marque.name]) %}
+                                    {% set cnt = models|filter(m => m.marque.name == model.marque.name)|length %}
+                                    <div class="filter-tab" onclick="filterModeles('{{ model.marque.name|e('html_attr') }}', this)">
+                                        {% if model.marque.image %}
+                                            <img src="{{ asset('uploads/images/' ~ model.marque.image) }}"
+                                                 width="16" height="16"
+                                                 style="border-radius:3px;vertical-align:middle;margin-right:4px;object-fit:contain;">
+                                        {% endif %}
+                                        {{ model.marque.name }}
+                                        <span class="tab-count">{{ cnt }}</span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <table class="table" id="modeles-table">
+                            <thead>
+                                <tr>
+                                    <th>Modèle</th>
+                                    <th>Marque</th>
+                                    <th>Image</th>
+                                    <th>Tél.</th>
+                                    <th>Tab.</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for model in models %}
+                                    <tr data-marque="{{ model.marque.name }}">
+                                        <td><strong>{{ model.name }}</strong></td>
+                                        <td>
+                                            {% if model.marque.image %}
+                                                <img src="{{ asset('uploads/images/' ~ model.marque.image) }}" width="22" height="22" style="border-radius:4px;vertical-align:middle;margin-right:6px;object-fit:contain;">
+                                            {% endif %}
+                                            {{ model.marque.name }}
+                                        </td>
+                                        <td>
+                                            {% if model.image %}
+                                                <img src="{{ asset('uploads/images/' ~ model.image) }}" alt="{{ model.name }}" width="40" height="40">
+                                            {% else %}—{% endif %}
+                                        </td>
+                                        <td>{% if model.hasPhone %}<span class="badge-new">✓</span>{% else %}—{% endif %}</td>
+                                        <td>{% if model.hasTablet %}<span class="badge-new">✓</span>{% else %}—{% endif %}</td>
+                                        <td>
+                                            <a href="{{ path('admin_modele_edit', {'id': model.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+                                            <a href="{{ path('admin_modele_delete', {'id': model.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce modèle ?')">Supprimer</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="6" class="text-center text-muted">Aucun modèle enregistré.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div id="no-modeles" style="display:none;text-align:center;padding:24px;color:#adb5bd;font-size:13px;">
+                            Aucun modèle pour cette marque.
+                        </div>
+                    </div>
+                </div>
+
+                {# Réparations #}
+                <div id="reparations-content" class="content-section" style="display: none;">
+                    <div class="admin-card">
+                        <h3><i class="fas fa-tools"></i> Ajouter une Réparation</h3>
+                        {{ form_start(reparationForm, {'attr': {'class': 'admin-form'}}) }}
+                            <div class="form-section-title">Identification</div>
+                            <div class="row">
+                                <div class="col-md-5">{{ form_row(reparationForm.name) }}</div>
+                                <div class="col-md-4">{{ form_row(reparationForm.model) }}</div>
+                                <div class="col-md-3">{{ form_row(reparationForm.prix) }}</div>
+                            </div>
+                            <hr class="form-divider">
+                            <div class="form-section-title">Description</div>
+                            {{ form_row(reparationForm.description) }}
+                            <div style="margin-top:24px;">
+                                <button type="submit" class="btn-admin-submit">
+                                    <i class="fas fa-plus mr-1"></i> Ajouter la réparation
+                                </button>
+                            </div>
+                        {{ form_end(reparationForm) }}
+                    </div>
+
+                    <div class="admin-card">
+                        <h3><i class="fas fa-list"></i> Liste des Réparations ({{ reparations|length }})</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Modèle</th>
+                                    <th>Description</th>
+                                    <th>Prix</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reparation in reparations %}
+                                    <tr>
+                                        <td><strong>{{ reparation.name }}</strong></td>
+                                        <td>{{ reparation.model.name }}</td>
+                                        <td>{{ reparation.description }}</td>
+                                        <td><strong>{{ reparation.prix }} €</strong></td>
+                                        <td>
+                                            <a href="{{ path('admin_reparation_edit', {'id': reparation.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+                                            <a href="{{ path('admin_reparation_delete', {'id': reparation.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette réparation ?')">Supprimer</a>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr><td colspan="5" class="text-center text-muted">Aucune réparation enregistrée.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </main>
     </div>
 </div>
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    function showContent(content) {
+        document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+        document.getElementById(content + '-content').style.display = 'block';
+    }
+
+    function filterModeles(marque, tabEl) {
+        document.querySelectorAll('#modeles-tabs .filter-tab').forEach(t => t.classList.remove('active'));
+        tabEl.classList.add('active');
+        var rows = document.querySelectorAll('#modeles-table tbody tr[data-marque]');
+        var visible = 0;
+        rows.forEach(function(row) {
+            var show = marque === 'tous' || row.getAttribute('data-marque') === marque;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+        document.getElementById('no-modeles').style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    // Graphique ventes
+    const ventesData = {{ ventesParMois|json_encode|raw }};
+    const moisLabels = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+    const totaux = ventesData.map(v => v.total);
+    const nbCmds = ventesData.map(v => v.nb);
+
+    const ctx = document.getElementById('salesChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: moisLabels,
+                datasets: [
+                    {
+                        label: 'CA mensuel (€)',
+                        data: totaux,
+                        backgroundColor: 'rgba(9, 71, 113, 0.75)',
+                        borderColor: 'rgb(9, 71, 113)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y',
+                    },
+                    {
+                        label: 'Nb commandes',
+                        data: nbCmds,
+                        type: 'line',
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40,167,69,0.1)',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#28a745',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y2',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { labels: { font: { size: 12 }, boxWidth: 14 } },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.datasetIndex === 0
+                                ? ` ${ctx.parsed.y.toFixed(2)} €`
+                                : ` ${ctx.parsed.y} commande(s)`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear', position: 'left', beginAtZero: true,
+                        ticks: { callback: v => v + ' €', font: { size: 11 } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y2: {
+                        type: 'linear', position: 'right', beginAtZero: true,
+                        ticks: { stepSize: 1, font: { size: 11 } },
+                        grid: { drawOnChartArea: false }
+                    },
+                    x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
+
 {% endblock %}

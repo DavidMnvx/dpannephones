@@ -1,0 +1,109 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier — D'panne Phones{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5 mb-5">
+
+    <div class="cart-page-title"><i class="fas fa-shopping-cart mr-2" style="color:rgb(9,71,113)"></i> Mon Panier</div>
+    <p style="font-size:14px;color:#6c757d;margin-bottom:28px;">
+        {% if cart is not empty %}
+            {{ cart|length }} article{{ cart|length > 1 ? 's' : '' }} dans votre panier
+        {% endif %}
+    </p>
+
+    {% if cart is empty %}
+        <div class="empty-cart">
+            <i class="fas fa-shopping-basket"></i>
+            <p>Votre panier est vide</p>
+            <small>Ajoutez des articles depuis la boutique pour les retrouver ici.</small>
+            <br><br>
+            <a href="{{ path('boutique_index') }}" style="display:inline-block;background:rgb(9,71,113);color:white;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;">
+                <i class="fas fa-arrow-left mr-2"></i> Retour à la boutique
+            </a>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="cart-table-wrap">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Article</th>
+                                <th>Prix unitaire</th>
+                                <th>Qté</th>
+                                <th>Sous-total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cartItem in cart %}
+                                <tr>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:14px;">
+                                            {% if cartItem.article.image %}
+                                                <img src="{{ asset('uploads/images/' ~ cartItem.article.image) }}" class="cart-product-img" alt="{{ cartItem.article.name }}">
+                                            {% else %}
+                                                <div class="cart-product-img" style="display:flex;align-items:center;justify-content:center;"><i class="fas fa-image" style="color:#dee2e6;font-size:20px;"></i></div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="cart-product-name">{{ cartItem.article.name }}</div>
+                                                {% if cartItem.options and cartItem.options.model is defined %}
+                                                    <small class="d-block text-muted">Modèle : {{ cartItem.options.model }}</small>
+                                                {% endif %}
+                                                {% if cartItem.article.categorie %}
+                                                    <div class="cart-product-cat">{{ cartItem.article.categorie|replace({'_': ' '})|capitalize }}</div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cart-price">{{ cartItem.article.price }} €</td>
+                                    <td>
+                                        <span style="background:#f0f6fc;color:rgb(9,71,113);font-weight:700;padding:4px 12px;border-radius:6px;">
+                                            {{ cartItem.quantity }}
+                                        </span>
+                                    </td>
+                                    <td class="cart-price">{{ (cartItem.article.price * cartItem.quantity)|number_format(2, '.', ' ') }} €</td>
+                                    <td>
+                                        <a href="{{ path('cart_remove', {id: cartItem.article.id}) }}" class="btn-remove" onclick="return confirm('Retirer cet article ?')">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="cart-summary">
+                    <h5 style="font-size:15px;font-weight:700;color:#1b2e45;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #f0f2f5;">
+                        Récapitulatif
+                    </h5>
+                    {% for cartItem in cart %}
+                        <div class="cart-summary-row">
+                            <span>{{ cartItem.article.name }} x{{ cartItem.quantity }}</span>
+                            <span>{{ (cartItem.article.price * cartItem.quantity)|number_format(2, '.', ' ') }} €</span>
+                        </div>
+                    {% endfor %}
+                    <div class="cart-total-row">
+                        <span class="cart-total-label">Total TTC</span>
+                        <span class="cart-total-amount">{{ total|number_format(2, '.', ' ') }} €</span>
+                    </div>
+                    <a href="{{ path('payment_checkout') }}" class="btn-checkout btn-checkout--stripe">
+                        <i class="fab fa-stripe-s mr-2"></i>
+                        Payer par carte — {{ total|number_format(2, ',', ' ') }} €
+                    </a>
+                    <a href="{{ path('boutique_index') }}" class="btn-continue">
+                        <i class="fas fa-arrow-left mr-1"></i> Continuer mes achats
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

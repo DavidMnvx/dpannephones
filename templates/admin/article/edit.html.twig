@@ -1,0 +1,163 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'articles' %}
+
+{% block admin_content %}
+
+<div style="margin-bottom:20px;">
+    <a href="{{ path('admin_article_index') }}" style="font-size:13px;color:#6c757d;text-decoration:none;">
+        <i class="fas fa-arrow-left mr-1"></i> Retour aux articles
+    </a>
+</div>
+
+<div class="admin-page-title">Modifier l'article</div>
+<div class="admin-page-subtitle" style="margin-bottom:24px;">{{ article.name }}</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-edit"></i> Informations</h3>
+
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'article-form'}}) }}
+
+        <div class="form-section-title">Identité</div>
+        <div class="row">
+            <div class="col-md-8">
+                {{ form_row(form.name) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.price) }}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="form-section-title">Classification</div>
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.categorie) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.grade) }}
+            </div>
+            <div class="col-md-3" style="display:flex;align-items:center;padding-top:28px;">
+                {{ form_row(form.isNew) }}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="form-section-title">Description & image</div>
+        {{ form_row(form.description) }}
+
+        {# Specs Section #}
+        <div id="specs-section" style="display:none;">
+
+            {# PC Gamer Group #}
+            <div class="specs-group" id="group-pc_gamer" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-gamepad mr-2"></i>Configuration PC Gamer</div>
+                <div class="specs-grid">
+                    {{ form_row(form.gamer_cpu) }}
+                    {{ form_row(form.gamer_gpu) }}
+                    {{ form_row(form.gamer_ram) }}
+                    {{ form_row(form.gamer_storage) }}
+                    {{ form_row(form.gamer_motherboard) }}
+                    {{ form_row(form.gamer_psu) }}
+                    {{ form_row(form.gamer_case) }}
+                    {{ form_row(form.gamer_cooling) }}
+                    {{ form_row(form.gamer_os) }}
+                </div>
+            </div>
+
+            {# PC Bureautique Group #}
+            <div class="specs-group" id="group-pc_bureautique" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-desktop mr-2"></i>Configuration PC Bureautique</div>
+                <div class="specs-grid">
+                    {{ form_row(form.bureau_cpu) }}
+                    {{ form_row(form.bureau_ram) }}
+                    {{ form_row(form.bureau_storage) }}
+                    {{ form_row(form.bureau_os) }}
+                    {{ form_row(form.bureau_screen) }}
+                </div>
+            </div>
+
+            {# PC Portable Group #}
+            <div class="specs-group" id="group-pc_portable" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-laptop mr-2"></i>Configuration PC Portable</div>
+                <div class="specs-grid">
+                    {{ form_row(form.portable_cpu) }}
+                    {{ form_row(form.portable_gpu) }}
+                    {{ form_row(form.portable_ram) }}
+                    {{ form_row(form.portable_storage) }}
+                    {{ form_row(form.portable_os) }}
+                    {{ form_row(form.portable_screen) }}
+                    {{ form_row(form.portable_battery) }}
+                </div>
+            </div>
+
+            {# Hydrogel Group #}
+            <div class="specs-group" id="group-film_hydrogel" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-mobile-alt mr-2"></i>Modèles compatibles</div>
+                {{ form_row(form.hydrogel_models) }}
+                <small class="form-text text-muted">Entrez un modèle par ligne. Ces modèles seront proposés au client sur la page boutique.</small>
+            </div>
+
+            {# Téléphone Group #}
+            <div class="specs-group" id="group-telephone" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-mobile-alt mr-2"></i>Détails du téléphone</div>
+                <div class="specs-grid">
+                    {{ form_row(form.tel_storage) }}
+                    {{ form_row(form.tel_color) }}
+                    {{ form_row(form.tel_network) }}
+                    {{ form_row(form.tel_battery) }}
+                </div>
+            </div>
+
+        </div>
+
+        <div style="margin-top:20px;">
+            {% if article.image %}
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:8px;">Image actuelle</div>
+                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}" class="img-preview">
+                </div>
+            {% endif %}
+            {{ form_row(form.imageFilename) }}
+        </div>
+
+        <div style="margin-top:28px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-save mr-1"></i> Enregistrer les modifications
+            </button>
+        </div>
+
+    {{ form_end(form) }}
+</div>
+
+<script>
+(function() {
+    var catSelect = document.getElementById('article_categorie');
+    var specsSection = document.getElementById('specs-section');
+    var groups = {
+        'pc_gamer':       ['group-pc_gamer'],
+        'pc_bureautique': ['group-pc_bureautique'],
+        'pc_portable':    ['group-pc_portable'],
+        'film_hydrogel':  ['group-film_hydrogel'],
+        'telephone':      ['group-telephone']
+    };
+
+    function updateSpecs() {
+        var val = catSelect.value;
+        var hasSpecs = groups[val] !== undefined;
+        specsSection.style.display = hasSpecs ? 'block' : 'none';
+        Object.keys(groups).forEach(function(k) {
+            groups[k].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.style.display = (k === val) ? 'block' : 'none';
+            });
+        });
+    }
+
+    catSelect.addEventListener('change', updateSpecs);
+    updateSpecs();
+})();
+</script>
+
+{% endblock %}

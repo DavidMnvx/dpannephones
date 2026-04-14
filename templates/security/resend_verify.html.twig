@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% block title %}Renvoyer l'email de confirmation{% endblock %}
+
+{% block body %}
+<div class="auth-page-wrap">
+  <div class="auth-card">
+    <div class="auth-icon-wrap" style="background:#e8f0f8;color:rgb(9,71,113)">
+      <i class="fas fa-paper-plane"></i>
+    </div>
+    <h1 class="auth-title">Renvoyer l'email de confirmation</h1>
+    <p class="auth-subtitle">Entrez votre adresse email pour recevoir un nouveau lien de vérification.</p>
+
+    {% for message in app.flashes('success') %}
+      <div class="auth-flash auth-flash--success">
+        <i class="fas fa-check-circle mr-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+
+    {{ form_start(resendForm, {attr: {class: 'auth-form'}}) }}
+      <div class="auth-form-group">
+        {{ form_label(resendForm.email, 'Adresse email', {label_attr: {class: 'auth-label'}}) }}
+        {{ form_widget(resendForm.email) }}
+        {{ form_errors(resendForm.email) }}
+      </div>
+      <button type="submit" class="auth-btn-primary">
+        <i class="fas fa-paper-plane mr-2"></i>Renvoyer le lien
+      </button>
+    {{ form_end(resendForm) }}
+
+    <div class="auth-footer-links">
+      <a href="{{ path('app_login') }}">← Retour à la connexion</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

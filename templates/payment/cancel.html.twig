@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}Paiement annulé — D'Panne Phones{% endblock %}
+
+{% block body %}
+<div class="auth-page-wrap">
+  <div class="auth-card auth-card--center" style="max-width:480px;">
+
+    <div class="auth-icon-wrap" style="background:#fff3cd;color:#856404;">
+      <i class="fas fa-times-circle"></i>
+    </div>
+
+    <h1 class="auth-title">Paiement annulé</h1>
+    <p class="check-email-intro">
+      Votre paiement a été annulé. Aucun montant n'a été débité.
+    </p>
+
+    <div class="auth-info-box" style="text-align:left;">
+      <i class="fas fa-info-circle mr-2"></i>
+      Votre panier a été conservé. Vous pouvez reprendre votre commande à tout moment ou nous contacter si vous avez besoin d'aide.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
+      <a href="{{ path('cart_index') }}" class="auth-btn-primary" style="text-decoration:none;display:inline-flex;justify-content:center;">
+        <i class="fas fa-shopping-cart mr-2"></i> Retourner au panier
+      </a>
+      <a href="{{ path('home') }}" class="auth-link" style="display:block;text-align:center;">
+        <i class="fas fa-home mr-1"></i> Retour à l'accueil
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

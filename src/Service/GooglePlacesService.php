@@ -25,12 +25,12 @@ class GooglePlacesService
     public function getPlaceReviews(): array
     {
         // URL de base
-            $base_url = 'https://maps.googleapis.com/maps/api/place/details/json?fields=reviews';
+            $base_url = 'https://maps.googleapis.com/maps/api/place/details/json?fields=reviews&language=fr';
 
         // Construction de l'URL avec concaténation manuelle
             $final_url = $base_url . '&place_id=' . urlencode($this->placeId) . '&key=' . urlencode($this->apiKey);;
         try {
-            $response = $this->client->request('GET', $final_url);
+            $response = $this->client->request('GET', $final_url, ['timeout' => 5, 'connect_timeout' => 3]);
 
             $data = json_decode($response->getBody()->getContents(), true);
             $this->logger->info('Google Places API response',['data' => $data]);

@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+{% block title %}Confirmez votre email — D'Panne Phones{% endblock %}
+
+{% block body %}
+<div class="auth-page-wrap">
+  <div class="auth-card auth-card--center check-email-card">
+
+    {# Icône animée #}
+    <div class="check-email-icon-wrap">
+      <div class="check-email-icon-ring"></div>
+      <div class="check-email-icon-core">
+        <i class="fas fa-paper-plane"></i>
+      </div>
+    </div>
+
+    {# Titre principal #}
+    <h1 class="auth-title check-email-title">
+      Félicitations, votre compte est créé&nbsp;! 🎉
+    </h1>
+
+    {# Sous-titre #}
+    <p class="check-email-intro">
+      Il vous reste <strong>une dernière étape</strong> avant de pouvoir vous connecter.
+    </p>
+
+    {# Séparateur #}
+    <div class="check-email-divider"></div>
+
+    {# Étapes visuelles #}
+    <div class="check-email-steps">
+
+      <div class="check-email-step check-email-step--done">
+        <div class="step-dot step-dot--done">
+          <i class="fas fa-check"></i>
+        </div>
+        <div class="step-text">
+          <strong>Compte créé</strong>
+          <span>Vos informations ont bien été enregistrées</span>
+        </div>
+      </div>
+
+      <div class="check-email-step check-email-step--active">
+        <div class="step-dot step-dot--active">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div class="step-text">
+          <strong>Confirmez votre adresse email</strong>
+          <span>Un email de vérification vient d'être envoyé.<br>
+            Cliquez sur le lien qu'il contient pour activer votre compte.</span>
+        </div>
+      </div>
+
+      <div class="check-email-step check-email-step--pending">
+        <div class="step-dot step-dot--pending">
+          <i class="fas fa-lock-open"></i>
+        </div>
+        <div class="step-text">
+          <strong>Connexion débloquée</strong>
+          <span>Vous pourrez alors accéder à votre espace et passer commande</span>
+        </div>
+      </div>
+
+    </div>
+
+    {# Info spam #}
+    <div class="auth-info-box check-email-info-box">
+      <i class="fas fa-info-circle mr-2"></i>
+      L'email peut prendre <strong>quelques minutes</strong> à arriver.
+      Pensez à vérifier vos <strong>spams / courrier indésirable</strong>.
+    </div>
+
+    {# Lien renvoi #}
+    <div class="check-email-resend">
+      Vous n'avez rien reçu ?
+      <a href="{{ path('app_resend_verify') }}" class="auth-link">
+        <i class="fas fa-redo mr-1"></i>Renvoyer l'email
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

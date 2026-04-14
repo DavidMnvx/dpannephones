@@ -1,33 +1,35 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'marques' %}
 
-{% block body %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Éditer la Marque</h1>
-    
-    {{ form_start(form) }}
-        <div class="form-group">
-            {{ form_label(form.name) }}
-            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.name) }}
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Marques › Éditer
+</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-tags"></i> Éditer la Marque : {{ marque.name }}</h3>
+
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.name) }}</div>
+            <div class="col-md-6">{{ form_row(form.image) }}</div>
         </div>
-        <div class="form-group">
-            {{ form_label(form.image) }}
-            {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.image) }}
+        {% if marque.image %}
+            <div class="mb-3">
+                <label class="d-block">Image actuelle :</label>
+                <img src="{{ asset('uploads/images/' ~ marque.image) }}" alt="{{ marque.name }}" height="60" style="border-radius:8px;">
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-3">{{ form_row(form.hasPhone) }}</div>
+            <div class="col-md-3">{{ form_row(form.hasTablet) }}</div>
         </div>
-        <div class="form-group">
-            {{ form_label(form.hasPhone) }}
-            {{ form_widget(form.hasPhone, {'attr': {'class': 'form-check-input'}}) }}
-            {{ form_errors(form.hasPhone) }}
-        </div>
-        <div class="form-group">
-            {{ form_label(form.hasTablet) }}
-            {{ form_widget(form.hasTablet, {'attr': {'class': 'form-check-input'}}) }}
-            {{ form_errors(form.hasTablet) }}
-        </div>
-        <button type="submit" class="btn btn-primary">Sauvegarder les modifications</button>
+        <button type="submit" class="btn-admin-submit">
+            <i class="fas fa-save mr-1"></i> Sauvegarder
+        </button>
+        <a href="{{ path('admin_index') }}" class="btn-admin-back">
+            <i class="fas fa-arrow-left mr-1"></i> Retour
+        </a>
     {{ form_end(form) }}
-
-    <a href="{{ path('admin_index') }}" class="btn btn-secondary mt-4 mb-5">Retour</a>
 </div>
 {% endblock %}

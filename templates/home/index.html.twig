@@ -1,376 +1,383 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}D'Pannes Phone{% endblock %}
+{% block title %}D'Pannes Phone — Réparation & Vente à Pélissanne{% endblock %}
 
 {% block body %}
-<style>
 
-    .carousel {
-            width: 90%;
-            height: 350px;
-            margin: 0 auto;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
-    .carousel-item {
-        height: 100%;
-    }
-
-    .carousel-caption {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.4); /* Optional: adds a semi-transparent background */ 
-        padding: 10px;
-        border-radius: 10px;
-        width: 100%; /* Adjust the width of the caption */
-        height: 100%; /* Adjust the height of the caption */
-        font-size: 1.2em; /* Adjust the font size of the caption */
-    }
-    .carousel-item {
-        transition: transform 0.7s ease, opacity 0.8s ease; /* Adjust transition duration */
-    }
-
-    #textCarou{
-        font-size: 30px;
-        font-weight: bold;
-        color: white;
-    }
-
-    .card {
-            border-top: none;
-            border-bottom: none;
-            border-left: none;
-            border-right: none;
-            background-color: transparent;
-        }
-    .card-body {
-        background-color: none;
-    }
-    .card-text {
-        font-size: 15px;
-    }
-    #containerAccueil {
-        width: 90%;
-        margin: auto;
-        overflow: hidden;
-        margin-top: 150px;
-    }
-
-    #imgAccueil{
-        widht: 50%;
-        height: 50%;
-        object-fit: cover;
-    }
-
-    #imgAccueil2{
-        widht: 70%;
-        height: 70%;
-        object-fit: cover;
-    }
-
-    .highlight {
-        color: rgb(9, 71, 113);
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-    .card-title {
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    .card-img-top {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        .divider {
-            height: 2px;
-            background-color: #ccc;
-            margin: 30px 0;
-        }
-
-/* divider */
-
-    .divider {
-    width: 30%; /* Largeur du diviseur */
-    height: 1px; /* Hauteur maximale du diviseur */
-    background: linear-gradient(to right, transparent, rgb(9, 71, 113), transparent); /* Dégradé linéaire */
-    margin: 20px 0; /* Marge autour du diviseur */
-    position: relative; /* Nécessaire pour les pseudo-éléments */
-    }
-
-
-/* divider */
-
-{# card section appareils #}
-
-        #card1 {
-            height: 200px;
-            width: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            background-color: transparent;
-            border: none;
-        }
-
-        #card-img-top1 {
-            max-height: 200px; 
-            width: auto;
-            max-width: 100%; 
-            
-        }
-
-        #card-body1 {
-            padding: 0.5rem; /* Réduit le padding intérieur pour économiser de l'espace */
-        }
-
-{# card section appareils #}
-
-</style>
-   <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="5000">
+{# ═══════════════════════════════════════════════
+   CAROUSEL HERO
+═══════════════════════════════════════════════ #}
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="5000">
     <ol class="carousel-indicators">
         <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
         <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
         <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-        <li data-target="#carouselExampleIndicators" data-slide-to="3"></li> <!-- Fourth indicator -->
+        <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
     </ol>
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/carousel/carousel1.jpg') }}" alt="First slide">
-            <div class="carousel-caption">
-                <h5>Diagnostique</h5>
-                <p id="textCarou">Venez en boutique pour établir un devis précis des réparations à effectuer sur vos appareils</p>
+            <img class="d-block w-100" src="{{ asset('images/carousel/carousel1.jpg') }}" alt="Réparation smartphone">
+            <div class="carousel-caption home">
+                <h5>Réparation rapide &amp; prix juste</h5>
+                <p>Diagnostique gratuit en boutique — devis précis avant toute intervention</p>
+                <div class="carousel-ctas">
+                    <a href="{{ path('reparations_home') }}" class="carousel-btn-primary">Démarrer une réparation</a>
+                    <a href="{{ path('contact') }}" class="carousel-btn-secondary">Nous contacter</a>
+                </div>
             </div>
         </div>
         <div class="carousel-item">
-            <img class="d-block w-100" src="{{ asset('images/carousel/carousel2.jpeg') }}" alt="Second slide">
-            <div class="carousel-caption">
-                <h5>Second Slide Title</h5>
-                <p id="textCarou">Some description for the second slide.</p>
+            <img class="d-block w-100" src="{{ asset('images/carousel/carousel2.jpeg') }}" alt="Téléphones reconditionnés">
+            <div class="carousel-caption home">
+                <h5>Téléphones reconditionnés &amp; occasions</h5>
+                <p>Des appareils vérifiés, testés et garantis — à des prix accessibles</p>
+                <div class="carousel-ctas">
+                    <a href="{{ path('boutique_index') }}" class="carousel-btn-primary">Voir la boutique</a>
+                </div>
             </div>
         </div>
         <div class="carousel-item">
-            <img class="d-block w-100" src="{{ asset('images/carousel/carousel3.jpeg') }}" alt="Third slide">
-            <div class="carousel-caption">
-                <h5>Third Slide Title</h5>
-                <p id="textCarou">Some description for the third slide.</p>
+            <img class="d-block w-100" src="{{ asset('images/carousel/carousel3.jpeg') }}" alt="Accessoires et protection">
+            <div class="carousel-caption home">
+                <h5>Protégez votre appareil</h5>
+                <p>Coques, films hydrogel posés sur mesure — protection maximale en quelques minutes</p>
+                <div class="carousel-ctas">
+                    <a href="{{ path('boutique_index') }}" class="carousel-btn-primary">Découvrir les accessoires</a>
+                </div>
             </div>
         </div>
-        <div class="carousel-item"> <!-- Fourth slide -->
-            <img class="d-block w-100" src="{{ asset('images/carousel/carousel4.jpeg') }}" alt="Fourth slide">
-            <div class="carousel-caption">
-                <h5>Fourth Slide Title</h5>
-                <p id="textCarou">Some description for the fourth slide.</p>
+        <div class="carousel-item">
+            <img class="d-block w-100" src="{{ asset('images/carousel/carousel4.jpeg') }}" alt="PC et ordinateurs">
+            <div class="carousel-caption home">
+                <h5>PC Gaming, Bureautique &amp; Portables</h5>
+                <p>Vente de PC configurés sur mesure et réparation d'ordinateurs toutes marques</p>
+                <div class="carousel-ctas">
+                    <a href="{{ path('boutique_index') }}" class="carousel-btn-primary">Voir les PC</a>
+                    <a href="{{ path('app_ordinateur') }}" class="carousel-btn-secondary">Réparer mon PC</a>
+                </div>
             </div>
         </div>
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    </a>
+</div>
+
+
+{# ═══════════════════════════════════════════════
+   SÉLECTION D'APPAREIL — action principale, en 1er
+═══════════════════════════════════════════════ #}
+<div class="appareil-section reveal">
+    <div class="appareil-header">
+        <div class="appareil-eyebrow">Réparation</div>
+        <h2 class="appareil-title">Quel appareil souhaitez-vous réparer ?</h2>
+        <p class="appareil-subtitle">Sélectionnez votre type d'appareil pour commencer</p>
+    </div>
+    <div class="appareil-grid appareil-grid--large">
+
+        <a href="{{ path('choix_marque', {'type': 'phone'}) }}" class="appareil-card appareil-card--large">
+            <div class="appareil-img-wrap">
+                <img src="{{ asset('images/accueil/rep_phone_accueil.png') }}" alt="Téléphone">
+            </div>
+            <div class="appareil-card-footer">
+                <span class="appareil-label"><i class="fas fa-mobile-alt mr-2"></i>Téléphone</span>
+                <span class="appareil-arrow"><i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="{{ path('choix_marque', {'type': 'tablet'}) }}" class="appareil-card appareil-card--large">
+            <div class="appareil-img-wrap">
+                <img src="{{ asset('images/accueil/rep_tablette_accueil.png') }}" alt="Tablette">
+            </div>
+            <div class="appareil-card-footer">
+                <span class="appareil-label"><i class="fas fa-tablet-alt mr-2"></i>Tablette</span>
+                <span class="appareil-arrow"><i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+
+        <a href="{{ path('app_ordinateur') }}" class="appareil-card appareil-card--large">
+            <div class="appareil-img-wrap">
+                <img src="{{ asset('images/accueil/rep_pc_accueil.png') }}" alt="Ordinateur">
+            </div>
+            <div class="appareil-card-footer">
+                <span class="appareil-label"><i class="fas fa-laptop mr-2"></i>Ordinateur</span>
+                <span class="appareil-arrow"><i class="fas fa-arrow-right"></i></span>
+            </div>
+        </a>
+
     </div>
 </div>
 
-{# card section appareils #}
 
-<div class="container mt-5 mb-5 ">
-    <div class="d-flex justify-content-center mb-5 mt-5">
-        <h2 class="mb-5">Selectionnez votre appareil.</h2>
-    </div>
-    <div class="row d-flex justify-content-center mt-5">
-        <!-- Card 1 -->
-        <div class="col-md-4 mb-4 d-flex justify-content-center align-items-center">
-            <div class="card" id="card1">
-                <a href="{{ path('choix_marque', {'type': 'phone'}) }}">
-                    <img src="{{ asset('images/accueil/rep_phone_accueil.png') }}" class="card-img-top  mt-3" id="image_rep_mobile card-img-top1" alt="Téléphone">
-                </a>
-                <div class="card-body1 text-center" id="card-body1">
-                    <p class="card-text1 mt-3">Téléphone</p>
-                </div>
-            </div>
-        </div>
-        <!-- Card 2 -->
-        <div class="col-md-4 mb-4 d-flex justify-content-center align-items-center">
-            <div class="card" id="card1">
-                <a href="{{ path('choix_marque', {'type': 'tablet'}) }}">
-                    <img src="{{ asset('images/accueil/rep_tablette_accueil.png') }}" class="card-img-top" id="card-img-top1" alt="Tablette">
-                </a>
-                <div class="card-body1 text-center" id="card-body1">
-                    <p class="card-text1 mt-3">Tablette</p>
-                </div>
-            </div>
-        </div>
-        <!-- Card 3 -->
-        <div class="col-md-4 mb-4 d-flex justify-content-center align-items-center">
-            <div class="card" id="card1">
-                <a href="{{path('app_ordinateur')}}">
-                    <img src="{{ asset('images/accueil/rep_pc_accueil.png') }}" class="card-img-top" id="card-img-top1" alt="Ordinateur">
-                </a>
-                <div class="card-body1 text-center" id="card-body1">
-                    <p class="card-text1 mt-3">Ordinateur</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{# ═══════════════════════════════════════════════
+   NOTRE BOUTIQUE
+═══════════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
 
-{# card section appareils #}
-
-<!-- Divider -->
-
-<div class=" d-flex justify-content-center" >
-    <div class="divider "></div>
-</div>
-
-<!-- Divider -->
-
-<!-- Large Card -->
-<div class="container mt-5 card mb-4">
-    <div class="row no-gutters">
-        <div class="col-md-4">
-            <img src="{{ asset('images/accueil/boutique_accueil2.jpeg') }}" class="card-img" alt="Boutique">
-        </div>
-        <div class="col-md-8">
-            <div class="card-body">
-                <h5 class="card-title">Notre Boutique</h5>
-                <p class="card-text">Bienvenue dans notre boutique. Nous offrons une large gamme de produits et services pour répondre à tous vos besoins en matière de téléphonie, tablettes et ordinateurs. Venez nous rendre visite et découvrez notre sélection exceptionnelle.</p>
-                <p class="card-text"><strong>Horaires d'ouverture :</strong><br>
-                    Lundi - Vendredi : 9h00 - 19h00<br>
-                    Samedi : 10h00 - 18h00<br>
-                    Dimanche : Fermé
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Divider -->
-<div class=" d-flex justify-content-center" >
-    <div class="divider "></div>
-</div>
-<!-- Divider -->
-
-
-<!--- Container Accueil -->
-
-<div class="container mb-5 mt-5" id="containerAccueil">
-    <!-- First Card -->
-    <div class="row mb-5">
-        <div class="col-md-6 d-flex justify-content-center align-items-center">
-            <img src="{{ asset('images/accueil/real-mobile_accueil.png') }}" class="img-fluid d-block" id="imgAccueil2" alt="Image 1">
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Smartphones Reconditionnés et Occasions</h5>
-                    <p class="card-text">
-                        L'achat de <span class="highlight">téléphones d'occasion</span> est bénéfique pour l'environnement car ils ne nécessitent aucune réparation, étant vendus dans leur état d'origine. Cela évite la consommation de nouvelles ressources et les émissions de CO2 liées à la fabrication et au transport des pièces.
-
-                        Le reconditionnement est aussi crucial dans le recyclage électronique. Les <span class="highlight">téléphones reconditionnés</span> sont réparés, testés et nettoyés pour garantir leur bon fonctionnement. Cela prolonge leur durée de vie et réduit les déchets électroniques.
-
-                        Choisir des téléphones d'occasion ou reconditionnés contribue à réduire l'<span class="highlight">empreinte écologique</span>. Les deux options offrent des alternatives écologiques et économiques à l'achat de <span class="highlight">téléphones neufs</span>, favorisant une consommation durable.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Second Card -->
-    <div class="row mb-5 mt-5">
-        <div class="col-md-6 order-md-2 d-flex justify-content-center align-items-center">
-            <img src="{{ asset('images/accueil/pcAccueil.png') }}" class="img-fluid" alt="Image 2">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Réparation de PC et Vente de PC d'Occasion </h5>
-                    <p class="card-text">
-                        Réparer votre PC ou acheter un <span class="highlight">PC d'occasion</span> prolonge la durée de vie des ordinateurs et les remet en état de marche. La réparation permet d'<span class="highlight">optimiser les performances</span> sans investir dans un nouvel appareil. Nos techniciens diagnostiquent et résolvent divers problèmes, remplaçant les composants défectueux et améliorant le système.
-
-                        Acheter un PC d'occasion est une alternative <span class="highlight">économique et écologique</span>. Ces ordinateurs sont vérifiés et remis en état pour garantir leur fiabilité. Cela réduit la demande de nouveaux appareils et l'empreinte écologique liée à leur production.
-
-                        En choisissant ces options, vous <span class="highlight">réduisez les déchets</span> électroniques tout en profitant d'un matériel performant. Cela favorise une consommation durable et responsable, donnant une seconde vie aux ordinateurs sans sacrifier votre budget.
-                    </p>
-                </div>
-            </div>
+<section class="accueil-boutique-section reveal">
+    <div class="accueil-boutique-img-wrap">
+        <img src="{{ asset('images/accueil/boutique_accueil2.jpeg') }}" alt="Notre boutique D'panne Phones">
+        <div class="accueil-boutique-img-overlay">
+            <span class="accueil-boutique-badge"><i class="fas fa-store mr-2"></i>En boutique à Pélissanne</span>
         </div>
     </div>
 
-    <!-- Third Card -->
-    <div class="row mb-5 mt-5">
-        <div class="col-md-6 d-flex justify-content-center align-items-center ">
-            <img src="{{ asset('images/accueil/coqueAccueil2.png') }}" class="img-fluid" id="imgAccueil2" alt="Image 3">
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Protégez Votre Téléphone</h5>
-                    <p class="card-text">
-                        Notre boutique offre un vaste choix de coques pour tous les modèles de téléphones. <span class="highlight">Protéger votre téléphone</span> est essentiel pour éviter la casse et prolonger sa durée de vie. Une coque de qualité absorbe les chocs et prévient les rayures, réduisant ainsi les risques de réparations coûteuses.
+    <div class="accueil-boutique-content">
+        <div class="accueil-boutique-eyebrow">Depuis 2017</div>
+        <h2 class="accueil-boutique-title">Notre Boutique</h2>
+        <p class="accueil-boutique-desc">
+            Bienvenue chez <strong>D'panne Phones</strong> — votre spécialiste en réparation de smartphones, tablettes et ordinateurs.
+            Venez découvrir notre sélection de téléphones reconditionnés, accessoires et bien plus encore.
+        </p>
 
-                        Investir dans une <span class="highlight">bonne protection</span> vous permet de faire des économies à long terme. Remplacer un écran cassé ou réparer un téléphone endommagé peut coûter cher. Une coque adaptée aide à éviter ces dépenses imprévues.
-
-                        Notre gamme de coques combine <span class="highlight">style et fonctionnalité</span>, avec des options pour tous les goûts. En plus des coques, nous offrons des accessoires complémentaires pour une <span class="highlight">protection maximale</span>. Protéger votre téléphone est un geste simple qui peut vous épargner bien des tracas et des dépenses. <span class="highlight">Visitez notre boutique</span> pour découvrir notre sélection.
-                    </p>
+        <div class="accueil-horaires">
+            <div class="accueil-horaires-title"><i class="fas fa-clock mr-2"></i>Horaires d'ouverture</div>
+            <div class="accueil-horaires-grid">
+                <div class="accueil-horaires-row">
+                    <span class="accueil-horaires-day">Lun — Ven</span>
+                    <span class="accueil-horaires-dot"></span>
+                    <span class="accueil-horaires-time">9h00 – 12h00 &nbsp;|&nbsp; 14h00 – 18h00</span>
+                </div>
+                <div class="accueil-horaires-row">
+                    <span class="accueil-horaires-day">Samedi</span>
+                    <span class="accueil-horaires-dot"></span>
+                    <span class="accueil-horaires-time">9h00 – 12h00</span>
+                </div>
+                <div class="accueil-horaires-row closed">
+                    <span class="accueil-horaires-day">Dimanche</span>
+                    <span class="accueil-horaires-dot"></span>
+                    <span class="accueil-horaires-time">Fermé</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Fourth Card -->
-    <div class="row mb-5 mt-5">
-        <div class="col-md-6 order-md-2 d-flex justify-content-center ">
-            <img src="{{ asset('images/accueil/Hydrogel3.png') }}" class="img-fluid" id="imgAccueil2" alt="Image 4">
-        </div>
-        <div class="col-md-6 order-md-1">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">L'Importance du Film Hydrogel pour Votre Téléphone</h5>
-                    <p class="card-text">
-                        <span class="highlight">Protéger l'écran</span> de votre téléphone est crucial. Chez D'panne Phones, nous proposons le film hydrogel, une solution de protection avancée. Ce film offre une protection supérieure contre les coups et les rayures du quotidien, tout en maintenant la clarté et la sensibilité de l'écran. <br>
-
-                        Le <span class="highlight">film hydrogel</span> absorbe les impacts, réduisant les risques de fissures et de dommages. Il s'adapte parfaitement aux contours de votre appareil, assurant une couverture complète.
-
-                        Nous disposons d'une machine pour découper et poser le film hydrogel <span class="highlight">sur mesure immédiatement</span>. En quelques minutes, votre téléphone bénéficie d'une protection optimale, ajustée à ses dimensions spécifiques.
-
-                        Le film hydrogel est <span class="highlight">auto-réparant</span>, les petites rayures disparaissent avec le temps. Venez chez D'panne Phones pour découvrir les avantages du film hydrogel et profiter d'une pose sur mesure. Protégez votre téléphone efficacement contre les défis du quotidien.
-                    </p>
-                </div>
-            </div>
+        <div class="accueil-boutique-actions">
+            <a href="{{ path('boutique_index') }}" class="accueil-btn-primary">
+                <i class="fas fa-shopping-bag mr-2"></i>Voir la boutique
+            </a>
+            <a href="{{ path('contact') }}" class="accueil-btn-secondary">
+                <i class="fas fa-phone mr-2"></i>Nous contacter
+            </a>
         </div>
     </div>
-</div>
-
-<!--- Container Accueil -->
+</section>
 
 
-{# Reviews Google #}
+{# ═══════════════════════════════════════════════
+   DERNIERS ARTICLES — masqués si vides
+═══════════════════════════════════════════════ #}
+{% if dernierArticles is defined and dernierArticles is not empty %}
 
-    <h2>Commentaires</h2>
-    {% if reviews is defined and reviews|length > 0 %}
-        <ul>
-            {% for review in reviews %}
-                <li>
-                    <strong>{{ review.author_name }}</strong>: {{ review.text }}
-                    <br>
-                    Note: {{ review.rating }} / 5
-                </li>
+<div class="home-section-divider"></div>
+
+{# Bande défilante #}
+<div class="articles-ticker-wrap">
+    <div class="articles-ticker-label">
+        <i class="fas fa-shopping-bag mr-2"></i>Nouveautés
+    </div>
+    <div class="articles-ticker-track-wrap">
+        <div class="articles-ticker-track">
+            {% for article in dernierArticles %}
+            <a href="{{ path('boutique_index') }}" class="articles-ticker-item">
+                {% if article.image %}
+                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                {% else %}
+                    <span class="articles-ticker-noimg"><i class="fas fa-image"></i></span>
+                {% endif %}
+                <span class="articles-ticker-name">{{ article.name }}</span>
+                <span class="articles-ticker-price">{{ article.price }} €</span>
+            </a>
             {% endfor %}
-        </ul>
-    {% else %}
-        <p>Aucun avis disponible.</p>
-    {% endif %}
+            {% for article in dernierArticles %}
+            <a href="{{ path('boutique_index') }}" class="articles-ticker-item">
+                {% if article.image %}
+                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                {% else %}
+                    <span class="articles-ticker-noimg"><i class="fas fa-image"></i></span>
+                {% endif %}
+                <span class="articles-ticker-name">{{ article.name }}</span>
+                <span class="articles-ticker-price">{{ article.price }} €</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 
-{# Reviews Google #}
+{# Grille articles #}
+<section class="home-articles-section reveal">
+    <div class="home-articles-header">
+        <div class="home-articles-eyebrow"><i class="fas fa-shopping-bag mr-2"></i>Notre boutique</div>
+        <h2 class="home-articles-title">Derniers articles ajoutés</h2>
+        <p class="home-articles-subtitle">Découvrez nos dernières nouveautés disponibles à la vente</p>
+    </div>
+    <div class="home-articles-grid">
+        {% for article in dernierArticles|slice(0, 4) %}
+        <div class="product-card">
+            <div class="product-img-wrap">
+                {% if article.image %}
+                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                {% else %}
+                    <i class="fas fa-image no-img"></i>
+                {% endif %}
+            </div>
+            <div class="product-body">
+                <div class="product-badges">
+                    <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
+                        {{ article.isNew ? 'Neuf' : "D'occasion" }}
+                    </span>
+                    {% if article.grade %}
+                        <span class="badge-grade">Grade {{ article.grade }}</span>
+                    {% endif %}
+                </div>
+                <div class="product-name">{{ article.name }}</div>
+                <div class="product-footer">
+                    <span class="product-price">{{ article.price }} €</span>
+                    <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">
+                        <i class="fas fa-cart-plus"></i> Ajouter
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="home-articles-cta">
+        <a href="{{ path('boutique_index') }}" class="home-articles-btn">
+            Voir tous les articles <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+</section>
+
+{% endif %}{# fin bloc articles #}
+
+
+{# ═══════════════════════════════════════════════
+   4 BLOCS PRÉSENTATION
+═══════════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<div class="presentation-container">
+
+    {# Bloc 1 — Smartphones #}
+    <div class="presentation-row reveal">
+        <div class="presentation-img">
+            <img src="{{ asset('images/accueil/real-mobile_accueil.png') }}" class="img-fluid-1" alt="Smartphones reconditionnés">
+        </div>
+        <div class="presentation-content">
+            <div class="presentation-eyebrow">Téléphones</div>
+            <h3 class="presentation-title">Smartphones Reconditionnés &amp; Occasions</h3>
+            <p class="presentation-text">
+                L'achat de <strong>téléphones d'occasion ou reconditionnés</strong> réduit l'empreinte écologique et évite la consommation de nouvelles ressources. Ces appareils vérifiés et testés offrent une alternative <strong>durable et économique</strong> aux téléphones neufs.
+            </p>
+            <a href="{{ path('boutique_index', {'categorie': 'telephone'}) }}" class="presentation-btn">
+                <i class="fas fa-shopping-bag mr-2"></i>Voir les téléphones
+            </a>
+        </div>
+    </div>
+
+    {# Bloc 2 — PC #}
+    <div class="presentation-row presentation-row--reverse reveal">
+        <div class="presentation-img">
+            <img src="{{ asset('images/accueil/pcAccueil.png') }}" class="img-fluid" alt="PC d'occasion">
+        </div>
+        <div class="presentation-content">
+            <div class="presentation-eyebrow">Ordinateurs</div>
+            <h3 class="presentation-title">Réparation &amp; Vente de PC d'Occasion</h3>
+            <p class="presentation-text">
+                Réparer votre PC ou acheter un <strong>ordinateur d'occasion</strong> prolonge la durée de vie des appareils et réduit les déchets électroniques. Nos techniciens diagnostiquent et réparent tous types de pannes pour vous éviter un investissement inutile.
+            </p>
+            <a href="{{ path('app_ordinateur') }}" class="presentation-btn">
+                <i class="fas fa-laptop mr-2"></i>Réparer mon PC
+            </a>
+        </div>
+    </div>
+
+    {# Bloc 3 — Coques #}
+    <div class="presentation-row reveal">
+        <div class="presentation-img">
+            <img src="{{ asset('images/accueil/coqueAccueil2.png') }}" class="img-fluid" alt="Coques téléphone">
+        </div>
+        <div class="presentation-content">
+            <div class="presentation-eyebrow">Accessoires</div>
+            <h3 class="presentation-title">Protégez Votre Téléphone</h3>
+            <p class="presentation-text">
+                Une <strong>coque de qualité</strong> absorbe les chocs et prévient les rayures pour éviter des réparations coûteuses. Notre boutique propose une large sélection de coques pour tous les modèles, alliant <strong>style et protection</strong>.
+            </p>
+            <a href="{{ path('boutique_index', {'categorie': 'accessoires'}) }}" class="presentation-btn">
+                <i class="fas fa-shield-alt mr-2"></i>Voir les accessoires
+            </a>
+        </div>
+    </div>
+
+    {# Bloc 4 — Hydrogel #}
+    <div class="presentation-row presentation-row--reverse reveal">
+        <div class="presentation-img">
+            <img src="{{ asset('images/accueil/Hydrogel3.png') }}" class="img-fluid" alt="Film hydrogel">
+        </div>
+        <div class="presentation-content">
+            <div class="presentation-eyebrow">Protection écran</div>
+            <h3 class="presentation-title">Film Hydrogel Sur Mesure</h3>
+            <p class="presentation-text">
+                Le <strong>film hydrogel</strong> est la protection la plus avancée pour votre écran. Il absorbe les impacts, est <strong>auto-réparant</strong> et s'adapte parfaitement aux contours de votre appareil. Pose immédiate en boutique, en quelques minutes.
+            </p>
+            <a href="{{ path('boutique_index', {'categorie': 'film_hydrogel'}) }}" class="presentation-btn">
+                <i class="fas fa-mobile-alt mr-2"></i>Découvrir le film hydrogel
+            </a>
+        </div>
+    </div>
+
+</div>
+
+
+{# ═══════════════════════════════════════════════
+   AVIS GOOGLE — masqués si vides
+═══════════════════════════════════════════════ #}
+{% if reviews is defined and reviews|length > 0 %}
+
+<div class="home-section-divider"></div>
+
+<div class="reviews-section reveal">
+    <div class="reviews-header">
+        <div class="reviews-eyebrow"><i class="fas fa-star mr-2"></i>Avis clients</div>
+        <h2 class="reviews-title">Les clients ont laissé leurs avis</h2>
+        {% if rating is defined %}
+        <div class="reviews-global-rating">
+            <span class="reviews-score">{{ rating }}</span>
+            <div class="reviews-stars">
+                {% for i in range(1, 5) %}
+                    <i class="fas fa-star{% if i > rating|round %}-half-alt{% endif %}"></i>
+                {% endfor %}
+            </div>
+            {% if totalRatings is defined %}
+                <span class="reviews-count">{{ totalRatings }} avis</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="review-container">
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-card-header">
+                <img src="{{ review.profile_photo_url }}" alt="{{ review.author_name }}" class="review-avatar">
+                <div class="review-meta">
+                    <div class="review-author">{{ review.author_name }}</div>
+                    <div class="review-time">{{ review.relative_time_description }}</div>
+                </div>
+                <div class="review-stars-small">
+                    {% for i in range(1, 5) %}
+                        <i class="{{ i <= review.rating ? 'fas' : 'far' }} fa-star"></i>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="review-text">{{ review.text }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endif %}{# fin bloc avis #}
+
 {% endblock %}

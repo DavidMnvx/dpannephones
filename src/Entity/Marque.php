@@ -17,7 +17,7 @@ class Marque
     #[ORM\Column(length: 25)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
     #[ORM\Column(length:10)]
@@ -56,7 +56,7 @@ class Marque
         return $this->image;
     }
 
-    public function setImage(string $image): self
+    public function setImage(?string $image): self
     {
         $this->image = $image;
 
@@ -83,7 +83,7 @@ class Marque
     public function setHasTablet(bool $hasTablet): self
     {
         $this->hasTablet = $hasTablet;
-            
+
             return $this;
         }
 

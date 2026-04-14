@@ -2,135 +2,15 @@
 
 {% block title %}Choix de la marque {% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+{% endblock %}
+
 {% block body %}
-<style>
 
 {# Banière #}
 
-    .carousel {
-        width: 90%;
-        height: 300px;
-        margin: 0 auto;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
-
-    .carousel-item {
-        height: 100%;
-    }
-
-    .carousel-caption {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.4); /* Optional: adds a semi-transparent background */
-        padding: 10px;
-        border-radius: 10px;
-        width: 100%; /* Adjust the width of the caption */
-        height: 100%; /* Adjust the height of the caption */
-        font-size: 1.2em; /* Adjust the font size of the caption */
-    }
-
-    .carousel-item {
-        transition: transform 0.7s ease, opacity 0.8s ease; /* Adjust transition duration */
-    }
-
-{# Banière #}
-    
-
-    
-    .highlight {
-        color: rgb(9, 71, 113);
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-   
-    .card-custom {
-        height: 150px;
-        width: 150px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-    }
-
-    .card-img-top {
-        max-height: 100px; 
-        width: auto;
-        max-width: 100%; 
-        
-    }
-
-    .card-body {
-        padding: 0.5rem; /* Réduit le padding intérieur pour économiser de l'espace */
-    }
-
-    .image_marque {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .card-princ {
-        widht: 150px
-    }
-
-    .contact-section {
-        text-align: center;
-        margin-top: 40px;
-    }
-
-    .contact-section p {
-        font-size: 1.1em;
-    }
-
-    .contact-section .btn-contact {
-        margin-top: 20px;
-    }
-
-    #pDoute {
-        font-size: 30px;
-        font-weight: bold;
-    }
-
-/* bouton */
-
-    #contactezNous {
-            border-color: rgb(9, 71, 113);
-            color: rgb(9, 71, 113);
-        }
-        #contactezNous:hover {
-            background-color: rgb(9, 71, 113);
-            color: white;
-            text-color: white;
-        }
-
-/* bouton */
-
-</style>
-
-
-
-</style>
-
-{# Banière #}
-
-<div id="carouselExampleIndicators" class="carousel slide mb-5" data-ride="carousel" data-interval="4000">
-    
+<div id="carouselExampleIndicators2"  class="carousel slide mb-5" data-ride="carousel" data-interval="4000" >
     <div class="carousel-inner">
         <div class="carousel-item active">
             <img class="d-block w-100" src="{{ asset('images/reparation/reparation_mobile2.jpeg') }}" alt="First slide">
@@ -146,48 +26,42 @@
 
 {# card section marques #}
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12 text-center">
-            <h1>Choisir une Marque</h1><br>
-            <p>Veuillez sélectionner la marque de votre appareil :</p>
-        </div>
-    </div>
+<div class="container mt-5 mb-2 text-center">
+    <h1 class="marques-title">Quelle est la marque de votre appareil ?</h1>
+    <p class="marques-subtitle">Sélectionnez votre marque ci-dessous — nous vous afficherons toutes les réparations disponibles pour votre modèle.</p>
 </div>
 
-
-
-<div class="container mt-4">
-    <div class="row">
-        {% if marques is empty %}
-            <p>Aucune marque trouvée pour le type: "{{ name }}".</p>
-        {% else %}
+<div class="container mt-5 pt-3">
+    {% if marques is empty %}
+        <p class="text-center text-muted">Aucune marque disponible pour ce type d'appareil.</p>
+    {% else %}
+        <div class="marques-grid">
             {% for marque in marques %}
-                <div class="col-md-3 mb-4 card-princ">
-                    <div class="card">
-                        <a href="{{ path('choix_modele', {'marqueId': marque.id, 'type': type}) }}" class="mt-4 text-decoration-none text-dark image_marque">
-                            <img src="{{ asset('uploads/images/' ~ marque.image) }}" class="card-img-top" alt="Image de {{ marque.name }}">
-                            <div class="card-body text-center">
-                                <h5 class="card-title">{{ marque.name }}</h5>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                <a href="{{ path('choix_modele', {'marqueId': marque.id, 'type': type}) }}"
+                   class="marque-card reveal delay-{{ loop.index <= 4 ? loop.index : 4 }}"
+                   style="width:100%;max-width:180px;">
+                    {% if marque.image %}
+                        <img src="{{ asset('uploads/images/' ~ marque.image) }}" alt="{{ marque.name }}">
+                    {% else %}
+                        <div style="height:70px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fas fa-mobile-alt fa-2x" style="color:#dee2e6;"></i>
+                        </div>
+                    {% endif %}
+                    <span>{{ marque.name }}</span>
+                </a>
             {% endfor %}
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 </div>
-
 
 {# card section marques #}
 
 {# contact #}
 
-
-<div class="container contact-section mb-5">
+<div class="container contact-section mt-5 mb-5">
     <div class="row justify-content-center text-center mb-3">
         <div class="col-12">
-            <p id="pDoute" class="mb-3">Vous avez un doute sur la panne de votre téléphone ?</p>
+            <p id="pDoute" class="mb-3">Vous ne trouvez pas votre marque ou vous avez un doute sur la panne ?</p>
         </div>
         <div class="col-md-3 mt-5 d-flex flex-column align-items-center">
             <p>Contactez nous par mail</p>
@@ -202,8 +76,6 @@
         </div>
     </div>
 </div>
-
-
 
 {# contact #}
 

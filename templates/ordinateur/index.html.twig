@@ -1,149 +1,366 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Qui sommes-nous ?{% endblock %}
+{% block title %}Réparation & Services PC — D'Pannes Phone{% endblock %}
 
 {% block body %}
-<style>
-    .carousel {
-        width: 90%;
-        height: 300px;
-        margin: 0 auto;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
 
-    .carousel-item {
-        height: 100%;
-    }
-
-    .carousel-caption {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.4); /* Optional: adds a semi-transparent background */
-        padding: 10px;
-        border-radius: 10px;
-        width: 100%; /* Adjust the width of the caption */
-        height: 100%; /* Adjust the height of the caption */
-        font-size: 1.2em; /* Adjust the font size of the caption */
-    }
-    
-    .carousel-item {
-        transition: transform 0.7s ease, opacity 0.8s ease; /* Adjust transition duration */
-    }
-
-    #quiSommesNous{
-        font-size: 35px;
-        font-weight: bold;
-        color: white;
-    }
-
-    #container {
-        width: 90%;
-        margin: auto;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-    .content {
-        background: transparent;
-        padding: 20px;
-        margin: 20px 0;
-        /* border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
-    }
-    h1 {
-        color: #333;
-    }
-    h2 {
-        color: #555;
-    }
-    p {
-        margin: 10px 0;
-    }
-    .highlight {
-        color: rgb(9, 71, 113);
-        font-weight: bold;
-    }
-</style>
-
-{# banière #}
-
-<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="4000">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/baner/quiSommesNous.webp') }}" alt="First slide">
-            <div class="carousel-caption">
-                <h5 id="quiSommesNous" >Qui sommes-nous ?</h5>
-            </div>
-        </div>
+{# ═══════════════════════════════════════════
+   BANNIÈRE
+═══════════════════════════════════════════ #}
+<div class="ordi-hero">
+    <div class="ordi-hero-img-wrap">
+        <img src="{{ asset('images/ordinateur/hero_ordi.jpg') }}" alt="Services PC D'Panne Phones" class="ordi-hero-img">
+        <div class="ordi-hero-overlay"></div>
+    </div>
+    <div class="ordi-hero-content">
+        <div class="ordi-hero-eyebrow"><i class="fas fa-laptop mr-2"></i>Ordinateurs</div>
+        <h1 class="ordi-hero-title">Vos PC entre de bonnes mains</h1>
+        <p class="ordi-hero-subtitle">Mise à niveau, création sur mesure, transfert de données — diagnostique gratuit en boutique à Pélissanne.</p>
+        <a href="{{ path('contact') }}" class="ordi-hero-cta">
+            <i class="fas fa-comment-alt mr-2"></i>Demander un devis
+        </a>
     </div>
 </div>
 
-{# banière #}
 
-{# Ordinateur #}
+{# ═══════════════════════════════════════════
+   NAVIGATION RAPIDE (ancres)
+═══════════════════════════════════════════ #}
+<nav class="ordi-quicknav">
+    <a href="#boost" class="ordi-quicknav-item">
+        <i class="fas fa-tachometer-alt"></i>
+        <span>Boost PC Portable</span>
+    </a>
+    <a href="#creation" class="ordi-quicknav-item">
+        <i class="fas fa-tools"></i>
+        <span>Création sur mesure</span>
+    </a>
+    <a href="#transfert" class="ordi-quicknav-item">
+        <i class="fas fa-exchange-alt"></i>
+        <span>Transfert de données</span>
+    </a>
+    <a href="#devis" class="ordi-quicknav-item">
+        <i class="fas fa-clipboard-list"></i>
+        <span>Devis &amp; Évaluation</span>
+    </a>
+</nav>
 
-<div class="container mt-4">
-    <h1 class="text-center mb-5">Nos Services pour Ordinateurs</h1>
 
-    <div class="row mb-4">
-        <div class="col-md-4 mb-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="{{ asset('images/services/installation_os.jpg') }}" class="card-img-top" alt="Installation de système d'exploitation">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Installation de système d'exploitation</h5>
-                    <p class="card-text">Nous installons ou réinstallons le système d'exploitation de votre choix, en optimisant les performances de votre ordinateur.</p>
-                </div>
-            </div>
+{# ═══════════════════════════════════════════
+   SECTION 1 — BOOST PC PORTABLE
+═══════════════════════════════════════════ #}
+<section class="ordi-section reveal" id="boost">
+    <div class="ordi-section-inner">
+
+        <div class="ordi-section-header">
+            <div class="ordi-eyebrow"><i class="fas fa-tachometer-alt mr-2"></i>Mise à niveau</div>
+            <h2 class="ordi-section-title">Boost PC Portable</h2>
+            <p class="ordi-section-subtitle">Donnez une seconde vie à votre ordinateur portable sans en acheter un nouveau</p>
         </div>
-        <div class="col-md-4 mb-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="{{ asset('images/services/boost_pc.jpg') }}" class="card-img-top" alt="Boost PC">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Boost PC : mise en place d'un SSD et de la RAM</h5>
-                    <p class="card-text">Améliorez la vitesse et les performances de votre ordinateur avec l'installation d'un SSD et une mise à niveau de la RAM.</p>
+
+        <div class="ordi-boost-grid">
+
+            <div class="ordi-boost-card">
+                <div class="ordi-boost-img-wrap">
+                    <img src="{{ asset('images/ordinateur/boost_ssd.jpg') }}" alt="Remplacement SSD">
+                    <div class="ordi-boost-img-placeholder">
+                        <i class="fas fa-hdd"></i>
+                    </div>
+                </div>
+                <div class="ordi-boost-body">
+                    <div class="ordi-boost-icon"><i class="fas fa-hdd"></i></div>
+                    <h3 class="ordi-boost-title">Passage au SSD</h3>
+                    <p class="ordi-boost-text">
+                        Remplacer votre disque dur traditionnel (HDD) par un <strong>SSD NVMe</strong> est la mise à niveau la plus impactante sur un PC portable. Démarrage en quelques secondes, applications instantanées, finies les lenteurs.
+                    </p>
+                    <ul class="ordi-boost-list">
+                        <li><i class="fas fa-check"></i> Clonage complet de votre disque</li>
+                        <li><i class="fas fa-check"></i> Aucune perte de données</li>
+                        <li><i class="fas fa-check"></i> Démarrage 5× plus rapide</li>
+                        <li><i class="fas fa-check"></i> Compatible tous portables</li>
+                    </ul>
                 </div>
             </div>
+
+            <div class="ordi-boost-card">
+                <div class="ordi-boost-img-wrap">
+                    <img src="{{ asset('images/ordinateur/boost_ram.jpg') }}" alt="Ajout de RAM">
+                    <div class="ordi-boost-img-placeholder">
+                        <i class="fas fa-memory"></i>
+                    </div>
+                </div>
+                <div class="ordi-boost-body">
+                    <div class="ordi-boost-icon"><i class="fas fa-memory"></i></div>
+                    <h3 class="ordi-boost-title">Ajout de RAM</h3>
+                    <p class="ordi-boost-text">
+                        <strong>Windows 11 exige 8 Go de RAM minimum</strong> — et tourne idéalement avec 16 Go. On augmente la capacité mémoire de votre portable pour une compatibilité totale et des performances fluides au quotidien.
+                    </p>
+                    <ul class="ordi-boost-list">
+                        <li><i class="fas fa-check"></i> Compatible Windows 11</li>
+                        <li><i class="fas fa-check"></i> Multitâche amélioré</li>
+                        <li><i class="fas fa-check"></i> Plus de freezes / ralentissements</li>
+                        <li><i class="fas fa-check"></i> Vérification de compatibilité offerte</li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
-        <div class="col-md-4 mb-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="{{ asset('images/services/data_recovery.jpg') }}" class="card-img-top" alt="Récupération de données">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Récupération de données</h5>
-                    <p class="card-text">Nous récupérons vos données importantes à partir d'ordinateurs en panne ou de disques durs endommagés.</p>
+
+        <div class="ordi-combo-banner">
+            <div class="ordi-combo-icon"><i class="fas fa-bolt"></i></div>
+            <div class="ordi-combo-text">
+                <strong>Pack Boost complet — SSD + RAM</strong>
+                <span>La combinaison des deux transforme littéralement votre PC. Votre portable aura les performances d'une machine neuve.</span>
+            </div>
+            <a href="{{ path('contact') }}" class="ordi-combo-btn">Je veux le Pack Boost</a>
+        </div>
+
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════
+   SECTION 2 — CRÉATION PC SUR MESURE
+═══════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<section class="ordi-section ordi-section--alt reveal" id="creation">
+    <div class="ordi-section-inner">
+
+        <div class="ordi-section-header">
+            <div class="ordi-eyebrow"><i class="fas fa-tools mr-2"></i>Création sur mesure</div>
+            <h2 class="ordi-section-title">PC Gamer &amp; Bureautique</h2>
+            <p class="ordi-section-subtitle">On assemble votre PC selon vos besoins et votre budget — composants de qualité, montage professionnel</p>
+        </div>
+
+        <div class="ordi-creation-grid">
+
+            {# PC GAMER #}
+            <div class="ordi-creation-card">
+                <div class="ordi-creation-img-wrap">
+                    <img src="{{ asset('images/ordinateur/pc_gamer.jpg') }}" alt="PC Gamer sur mesure">
+                    <div class="ordi-creation-img-placeholder">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="ordi-creation-badge ordi-creation-badge--gamer">PC Gamer</div>
+                </div>
+                <div class="ordi-creation-body">
+                    <h3 class="ordi-creation-title"><i class="fas fa-gamepad mr-2"></i>PC Gamer</h3>
+                    <p class="ordi-creation-text">
+                        Configuration assemblée sur mesure pour le gaming. On sélectionne les composants selon votre usage (compétitif, streaming, VR…) et votre budget, en privilégiant le meilleur rapport performance/prix.
+                    </p>
+                    <div class="ordi-specs-grid">
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Processeur</span>
+                            <span class="ordi-spec-val">Intel Core / AMD Ryzen</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Carte graphique</span>
+                            <span class="ordi-spec-val">NVIDIA RTX / AMD RX</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">RAM</span>
+                            <span class="ordi-spec-val">16 Go DDR5 (évolutif)</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Stockage</span>
+                            <span class="ordi-spec-val">SSD NVMe 1 To+</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Refroidissement</span>
+                            <span class="ordi-spec-val">Air / Watercooling</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">RGB & Boîtier</span>
+                            <span class="ordi-spec-val">Selon préférences</span>
+                        </div>
+                    </div>
+                    <a href="{{ path('contact') }}" class="ordi-creation-btn ordi-creation-btn--gamer">
+                        <i class="fas fa-comment-alt mr-2"></i>Configurer mon PC Gamer
+                    </a>
                 </div>
             </div>
+
+            {# PC BUREAUTIQUE #}
+            <div class="ordi-creation-card">
+                <div class="ordi-creation-img-wrap">
+                    <img src="{{ asset('images/ordinateur/pc_bureau.jpg') }}" alt="PC Bureautique sur mesure">
+                    <div class="ordi-creation-img-placeholder">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <div class="ordi-creation-badge ordi-creation-badge--bureau">PC Bureautique</div>
+                </div>
+                <div class="ordi-creation-body">
+                    <h3 class="ordi-creation-title"><i class="fas fa-desktop mr-2"></i>PC Bureautique</h3>
+                    <p class="ordi-creation-text">
+                        Une machine fiable, silencieuse et économique pour le bureau, le télétravail ou les usages polyvalents (photo, vidéo légère, comptabilité…). Montage soigné, garanti et évolutif.
+                    </p>
+                    <div class="ordi-specs-grid">
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Processeur</span>
+                            <span class="ordi-spec-val">Intel Core i5 / AMD Ryzen 5</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">RAM</span>
+                            <span class="ordi-spec-val">16 Go DDR4/DDR5</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Stockage</span>
+                            <span class="ordi-spec-val">SSD NVMe 500 Go / 1 To</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Système</span>
+                            <span class="ordi-spec-val">Windows 11 Pro inclus</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Connectique</span>
+                            <span class="ordi-spec-val">USB-A, USB-C, HDMI</span>
+                        </div>
+                        <div class="ordi-spec-item">
+                            <span class="ordi-spec-label">Garantie</span>
+                            <span class="ordi-spec-val">Composants garantis</span>
+                        </div>
+                    </div>
+                    <a href="{{ path('contact') }}" class="ordi-creation-btn ordi-creation-btn--bureau">
+                        <i class="fas fa-comment-alt mr-2"></i>Configurer mon PC Bureautique
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
+</section>
 
-    <h2 class="text-center mb-5">Conception de PC Gamer</h2>
 
-    <div class="row mb-4">
-        <div class="col-md-4 mb-4 d-flex justify-content-center">
-            <div class="card">
-                <img src="{{ asset('images/services/gamer_pc.jpg') }}" class="card-img-top" alt="Conception de PC Gamer">
-                <div class="card-body text-center">
-                    <h5 class="card-title">Conception de PC Gamer</h5>
-                    <p class="card-text">Nous concevons des PC Gamer sur mesure, adaptés à vos besoins et à votre budget, en utilisant des composants de haute qualité.</p>
+{# ═══════════════════════════════════════════
+   SECTION 3 — TRANSFERT DE DONNÉES
+═══════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<section class="ordi-section reveal" id="transfert">
+    <div class="ordi-section-inner">
+
+        <div class="ordi-transfert-row">
+            <div class="ordi-transfert-img">
+                <img src="{{ asset('images/ordinateur/transfert_donnees.jpg') }}" alt="Transfert de données HDD vers SSD">
+                <div class="ordi-transfert-img-placeholder">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+            </div>
+            <div class="ordi-transfert-content">
+                <div class="ordi-eyebrow"><i class="fas fa-exchange-alt mr-2"></i>Migration</div>
+                <h2 class="ordi-section-title">Transfert &amp; Copie de données</h2>
+                <p class="ordi-transfert-text">
+                    Vous remplacez votre disque dur ou migrez vers un SSD ? On s'occupe du <strong>clonage complet de votre HDD vers votre nouveau SSD</strong> — système d'exploitation, logiciels, fichiers personnels, tout est conservé à l'identique.
+                </p>
+                <div class="ordi-transfert-steps">
+                    <div class="ordi-step">
+                        <div class="ordi-step-num">1</div>
+                        <div class="ordi-step-text">
+                            <strong>Analyse du disque source</strong>
+                            <span>Vérification de l'état du HDD / SSD d'origine</span>
+                        </div>
+                    </div>
+                    <div class="ordi-step">
+                        <div class="ordi-step-num">2</div>
+                        <div class="ordi-step-text">
+                            <strong>Clonage secteur par secteur</strong>
+                            <span>Copie intégrale — OS, données, paramètres, logiciels</span>
+                        </div>
+                    </div>
+                    <div class="ordi-step">
+                        <div class="ordi-step-num">3</div>
+                        <div class="ordi-step-text">
+                            <strong>Vérification &amp; installation</strong>
+                            <span>Test de démarrage et montage dans votre machine</span>
+                        </div>
+                    </div>
+                    <div class="ordi-step">
+                        <div class="ordi-step-num">4</div>
+                        <div class="ordi-step-text">
+                            <strong>Remise en main propre</strong>
+                            <span>Vous repartez avec tout votre environnement intact</span>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ path('contact') }}" class="ordi-creation-btn ordi-creation-btn--bureau mt-3 d-inline-flex">
+                    <i class="fas fa-comment-alt mr-2"></i>Me renseigner sur le transfert
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════
+   SECTION 4 — DEVIS & ÉVALUATION
+═══════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<section class="ordi-section ordi-section--alt reveal" id="devis">
+    <div class="ordi-section-inner">
+
+        <div class="ordi-section-header">
+            <div class="ordi-eyebrow"><i class="fas fa-clipboard-list mr-2"></i>Diagnostique &amp; Devis</div>
+            <h2 class="ordi-section-title">Évaluation de votre machine</h2>
+            <p class="ordi-section-subtitle">Avant toute intervention, on évalue votre PC et on vous propose un devis clair et sans surprise</p>
+        </div>
+
+        <div class="ordi-devis-grid">
+
+            <div class="ordi-devis-card">
+                <div class="ordi-devis-icon-wrap ordi-devis-icon--diagnostic">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4 class="ordi-devis-title">Diagnostique offert</h4>
+                <p class="ordi-devis-text">Amenez votre machine en boutique — on l'analyse gratuitement pour identifier les problèmes et vous orienter vers la meilleure solution.</p>
+            </div>
+
+            <div class="ordi-devis-card">
+                <div class="ordi-devis-icon-wrap ordi-devis-icon--devis">
+                    <i class="fas fa-file-invoice"></i>
+                </div>
+                <h4 class="ordi-devis-title">Devis sur demande</h4>
+                <p class="ordi-devis-text">Création PC sur mesure, mise à niveau ou réparation — on vous fournit un <strong>devis détaillé et transparent</strong> avant de commencer, sans frais cachés.</p>
+            </div>
+
+            <div class="ordi-devis-card">
+                <div class="ordi-devis-icon-wrap ordi-devis-icon--conseil">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h4 class="ordi-devis-title">Conseil personnalisé</h4>
+                <p class="ordi-devis-text">Vous ne savez pas quelle mise à niveau choisir ? On évalue vos usages et votre budget pour vous recommander la solution la plus adaptée.</p>
+            </div>
+
+            <div class="ordi-devis-card">
+                <div class="ordi-devis-icon-wrap ordi-devis-icon--garanti">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 class="ordi-devis-title">Intervention garantie</h4>
+                <p class="ordi-devis-text">Toutes nos interventions sont garanties. On utilise uniquement des composants de qualité et on vous remet un rapport d'intervention.</p>
+            </div>
+
+        </div>
+
+        {# CTA FINALE #}
+        <div class="ordi-cta-finale">
+            <div class="ordi-cta-finale-content">
+                <h3>Votre PC mérite le meilleur</h3>
+                <p>Venez en boutique ou contactez-nous — diagnostique gratuit, devis rapide.</p>
+            </div>
+            <div class="ordi-cta-finale-actions">
+                <a href="{{ path('contact') }}" class="ordi-cta-btn-primary">
+                    <i class="fas fa-comment-alt mr-2"></i>Nous contacter
+                </a>
+                <div class="ordi-cta-phone">
+                    <i class="fas fa-phone mr-2"></i>
+                    <span>07 83 74 83 11</span>
                 </div>
             </div>
         </div>
+
     </div>
-</div>
-
-{# Ordinateur #}
-
+</section>
 
 {% endblock %}

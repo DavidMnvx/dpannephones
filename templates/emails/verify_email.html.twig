@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Confirmez votre email — D'Panne Phones</title>
+<style>
+  body { margin:0; padding:0; background:#f4f6f9; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  .wrapper { max-width:580px; margin:40px auto; background:white; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08); }
+  .header { background: linear-gradient(135deg, rgb(9,71,113) 0%, #0a5a8f 100%); padding:36px 40px; text-align:center; }
+  .header h1 { color:white; font-size:22px; font-weight:800; margin:0; }
+  .header p { color:rgba(255,255,255,0.75); font-size:13px; margin:6px 0 0; }
+  .body { padding:40px; }
+  .greeting { font-size:17px; font-weight:700; color:#1b2e45; margin-bottom:16px; }
+  .text { font-size:14px; color:#6c757d; line-height:1.7; margin-bottom:24px; }
+  .btn-wrap { text-align:center; margin:32px 0; }
+  .btn { display:inline-block; background:rgb(9,71,113); color:white; font-size:15px; font-weight:700; padding:15px 36px; border-radius:50px; text-decoration:none; }
+  .link-fallback { font-size:12px; color:#adb5bd; word-break:break-all; text-align:center; margin-top:16px; }
+  .expiry { background:#f8f9fa; border-radius:10px; padding:14px 18px; font-size:12px; color:#6c757d; text-align:center; margin-top:24px; }
+  .expiry strong { color:#1b2e45; }
+  .footer { background:#f8f9fa; padding:24px 40px; text-align:center; border-top:1px solid #f0f2f5; }
+  .footer p { font-size:11px; color:#adb5bd; margin:0; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header">
+    <h1>D'Panne Phones</h1>
+    <p>Réparation &amp; Vente à Pélissanne</p>
+  </div>
+  <div class="body">
+    <p class="greeting">Bonjour {{ user.prenom }} {{ user.nom }},</p>
+    <p class="text">
+      Merci de vous être inscrit sur <strong>D'Panne Phones</strong> !<br>
+      Pour activer votre compte et accéder à la boutique, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous.
+    </p>
+    <div class="btn-wrap">
+      <a href="{{ signedUrl }}" class="btn">✅ Confirmer mon adresse email</a>
+    </div>
+    <p class="link-fallback">
+      Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+      <a href="{{ signedUrl }}" style="color:rgb(9,71,113)">{{ signedUrl }}</a>
+    </p>
+    <div class="expiry">
+      <strong>⏰ Ce lien est valable 1 heure.</strong><br>
+      Passé ce délai, rendez-vous sur <a href="{{ url('app_resend_verify') }}" style="color:rgb(9,71,113)">cette page</a> pour en obtenir un nouveau.
+    </div>
+  </div>
+  <div class="footer">
+    <p>
+      Vous recevez cet email car vous vous êtes inscrit sur D'Panne Phones.<br>
+      Si vous n'êtes pas à l'origine de cette inscription, ignorez simplement ce message.<br><br>
+      <strong>D'Panne Phones</strong> — Centre Commercial Le Galion, Pélissanne, France
+    </p>
+  </div>
+</div>
+</body>
+</html>

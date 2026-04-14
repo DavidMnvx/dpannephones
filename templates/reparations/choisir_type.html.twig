@@ -1,224 +1,442 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Une Réparation ?{% endblock %}
+{% block title %}Réparation Smartphone, Tablette & PC à Pélissanne — D'Panne Phones{% endblock %}
+
+{% block meta_description %}Faites réparer votre smartphone, tablette ou ordinateur à Pélissanne chez D'Panne Phones. Diagnostique gratuit, pièces de qualité, garantie 6 mois. iPhone, Samsung, iPad, PC — réparation rapide sur place.{% endblock %}
+
+{% block meta_keywords %}réparation smartphone Pélissanne, réparation téléphone Pélissanne, réparation iPhone Pélissanne, réparation Samsung Pélissanne, réparation écran cassé, remplacement batterie smartphone, réparation tablette iPad, réparation PC Pélissanne, technicien téléphone Pélissanne, D'Panne Phones{% endblock %}
+
+{% block og_title %}Réparation Smartphone, Tablette & PC — D'Panne Phones Pélissanne{% endblock %}
+{% block og_description %}Diagnostique gratuit, pièces de qualité, garantie 6 mois. Votre spécialiste en réparation d'appareils électroniques à Pélissanne depuis 2017.{% endblock %}
 
 {% block body %}
-<style>
-    .carousel {
-        width: 90%;
-        height: 300px;
-        margin: 0 auto;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
+
+{# ── Schema.org FAQ (données structurées pour Google) ── #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Mon écran est cassé, dois-je remplacer uniquement la vitre ou le bloc écran entier ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sur les smartphones récents, l'écran est une pièce composite solidaire. Le remplacement du bloc écran complet est nécessaire pour garantir un résultat optimal et durable."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Dois-je prendre rendez-vous pour ma réparation ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vous pouvez venir avec ou sans rendez-vous. Nous recommandons cependant d'appeler avant pour vérifier la disponibilité immédiate de la pièce."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quelle est la durée de garantie sur les réparations ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Toutes nos réparations sont couvertes par une garantie de 6 mois sur la pièce remplacée et la main-d'œuvre."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Pouvez-vous débloquer un iPhone verrouillé par un compte iCloud ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Le déblocage est réservé au propriétaire légitime du compte Apple, sur présentation d'une preuve d'achat. Tout déblocage sans consentement du propriétaire est illégal et ne sera pas effectué."
+      }
     }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
+  ]
+}
+</script>
 
-    .carousel-item {
-        height: 100%;
-    }
-
-    .carousel-caption {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.4); /* Optional: adds a semi-transparent background */
-        padding: 10px;
-        border-radius: 10px;
-        width: 100%; /* Adjust the width of the caption */
-        height: 100%; /* Adjust the height of the caption */
-        font-size: 1.2em; /* Adjust the font size of the caption */
-    }
-
-    .carousel-item {
-        transition: transform 0.7s ease, opacity 0.8s ease; /* Adjust transition duration */
-    }
-
-    
-
-    .card-title {
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    .card-img-top {
-            width: 100%;
-            height: 200px; /* Taille fixe pour les images */
-            object-fit: cover; /* Pour couvrir toute la zone sans déformation */
-        }
-        .divider {
-            height: 2px;
-            background-color: #ccc;
-            margin: 30px 0;
-        }
-
-        #image_rep_mobile {
-            height: 200px;
-        }
-
-        #uneRep {
-            font-size: 2em;
-            font-weight: bold;
-        }
-
-    .header-content {
-        background-color: #f7f7f7;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-
-    .faq-section {
-        padding: 20px;
-        background-color: #e9ecef;
-        border-radius: 8px;
-    }
-
-    .faq-question {
-        font-weight: bold;
-    }
-
-    .section-title {
-        margin-top: 20px;
-    }
+{# ── Schema.org LocalBusiness ── #}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "D'Panne Phones",
+  "description": "Spécialiste en réparation de smartphones, tablettes et ordinateurs à Pélissanne depuis 2017.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Pélissanne",
+    "addressCountry": "FR"
+  },
+  "telephone": "+33783748311",
+  "openingHours": ["Mo-Fr 09:00-12:00", "Mo-Fr 14:00-18:00", "Sa 09:00-12:00"],
+  "priceRange": "€€"
+}
+</script>
 
 
-    .highlight {
-        color: rgb(9, 71, 113);
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-    .card {
-        height: 200px;
-        width: 250px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        background-color: transparent;
-        border: none;
-    }
-
-    .card-img-top {
-        max-height: 200px; 
-        width: auto;
-        max-width: 100%; 
-        
-    }
-
-    .card-body {
-        padding: 0.5rem; /* Réduit le padding intérieur pour économiser de l'espace */
-    }
-
-
-</style>
-
-<div id="carouselExampleIndicators" class="carousel slide mb-5" data-ride="carousel" data-interval="4000">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/reparation/reparation_mobile2.jpeg') }}" alt="First slide">
-            <div class="carousel-caption">
-                <h5 id="uneRep" >Une Réparation ?</h5>
-
-            </div>
+{# ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ #}
+<div class="rep-hero">
+    <div class="rep-hero-img-wrap">
+        <img src="{{ asset('images/reparation/reparation_mobile2.jpeg') }}" alt="Réparation smartphone Pélissanne" class="rep-hero-img">
+        <div class="rep-hero-overlay"></div>
+    </div>
+    <div class="rep-hero-content">
+        <div class="rep-hero-eyebrow"><i class="fas fa-tools mr-2"></i>Réparation</div>
+        <h1 class="rep-hero-title">Votre appareil cassé&nbsp;?<br>On s'en occupe.</h1>
+        <p class="rep-hero-subtitle">Diagnostique gratuit · Pièces de qualité · Garantie 6 mois<br>Smartphone, tablette, PC — réparation rapide à Pélissanne</p>
+        <div class="rep-hero-ctas">
+            <a href="tel:+33783748311" class="rep-hero-btn-primary">
+                <i class="fas fa-phone mr-2"></i>07 83 74 83 11
+            </a>
+            <a href="{{ path('contact') }}" class="rep-hero-btn-secondary">
+                Prendre rendez-vous
+            </a>
         </div>
     </div>
 </div>
 
-{# card section appareils #}
 
-<div class="container mt-5 mb-5 ">
-    <div class="d-flex justify-content-center mb-5">
-        <h2 class="mb-5">Selectionnez votre appareil.</h2>
+{# ═══════════════════════════════════════════
+   CHIFFRES CLÉS
+═══════════════════════════════════════════ #}
+<div class="rep-stats">
+    <div class="rep-stat-item">
+        <span class="rep-stat-num">2017</span>
+        <span class="rep-stat-label">En activité depuis</span>
     </div>
-    <div class="row d-flex justify-content-center mt-5">
-        <!-- Card 1 -->
-        <div class="col-md-4 mb-4 d-flex justify-content-center align-items-center">
-            <div class="card">
-                <a href="{{ path('choix_marque', {'type': 'phone'}) }}">
-                    <img src="{{ asset('images/accueil/rep_phone_accueil.png') }}" class="card-img-top  mt-3" id="image_rep_mobile" alt="Téléphone">
-                </a>
-                <div class="card-body text-center">
-                    <p class="card-text mt-3">Téléphone</p>
-                </div>
-            </div>
-        </div>
-        <!-- Card 2 -->
-        <div class="col-md-4 mb-4 d-flex justify-content-center align-items-center">
-            <div class="card">
-                <a href="{{ path('choix_marque', {'type': 'tablet'}) }}">
-                    <img src="{{ asset('images/accueil/rep_tablette_accueil.png') }}" class="card-img-top" alt="Tablette">
-                </a>
-                <div class="card-body text-center">
-                    <p class="card-text mt-3">Tablette</p>
-                </div>
-            </div>
-        </div>
-        <!-- Card 3 -->
-        <div class="col-md-4 mb-4 d-flex justify-content-center align-items-center">
-            <div class="card">
-                <a href="{{path('app_ordinateur')}}">
-                    <img src="{{ asset('images/accueil/rep_pc_accueil.png') }}" class="card-img-top" alt="Ordinateur">
-                </a>
-                <div class="card-body text-center">
-                    <p class="card-text mt-3">Ordinateur</p>
-                </div>
-            </div>
-        </div>
+    <div class="rep-stat-sep"></div>
+    <div class="rep-stat-item">
+        <span class="rep-stat-num">6 mois</span>
+        <span class="rep-stat-label">Garantie sur chaque réparation</span>
+    </div>
+    <div class="rep-stat-sep"></div>
+    <div class="rep-stat-item">
+        <span class="rep-stat-num">Gratuit</span>
+        <span class="rep-stat-label">Diagnostique & devis</span>
+    </div>
+    <div class="rep-stat-sep"></div>
+    <div class="rep-stat-item">
+        <span class="rep-stat-num">J+1</span>
+        <span class="rep-stat-label">Délai moyen de réparation</span>
     </div>
 </div>
 
-{# card section appareils #}
 
-{# description et question réponse #}
-
-<div class="container">
-        <div class="header-content">
-            <h1>Confiez la réparation de votre appareils à <span >D'panne Phones</span>.</h1>
-            <p>Choisissez <span class=" highlight">D'panne Phones</span> pour une réparation fiable et professionnelle de votre smartphone ou tablette. Notre équipe qualifiée est dédiée à <span class=" highlight">restaurer vos appareils</span> efficacement. Nous nous engageons à maintenir une haute qualité de service en utilisant exclusivement des <span class=" highlight">composants de rechange haut de gamme</span>. <br> Grâce à notre rapidité d’exécution et à notre excellent service client, nous vous assurons une réparation sans souci de votre appareil. Pour une solution fiable et efficace, tournez-vous vers <span class=" highlight">D'panne Phones</span> pour faire revivre votre équipement électronique préféré.</p><br>
+{# ═══════════════════════════════════════════
+   SÉLECTION D'APPAREIL
+═══════════════════════════════════════════ #}
+<section class="rep-section reveal" aria-labelledby="choix-appareil-titre">
+    <div class="rep-section-inner">
+        <div class="rep-section-header">
+            <div class="rep-eyebrow">Étape 1</div>
+            <h2 class="rep-section-title" id="choix-appareil-titre">Quel appareil souhaitez-vous réparer ?</h2>
+            <p class="rep-section-subtitle">Sélectionnez votre type d'appareil pour démarrer votre devis en ligne</p>
         </div>
 
-        <div class="faq-section mb-5"> 
-            <h2 class="section-title d-flex justify-content-center mb-5">Questions fréquentes</h2>
-            <p class="faq-question">Mon écran est cassé, dois-je faire remplacer la vitre ou le bloc écran entier?</p>
-            <p>Les écrans des téléphones récents, qu’ils soient de marque iPhone, Samsung ou Huawei, sont construits avec plusieurs couches interconnectées. En conséquence, au fil du temps, l’écran est devenu une pièce indivisible, ce qui signifie que s’il se brise, il doit être remplacé dans son intégralité.</p><br>
-
-            <p class="faq-question">Dois-je prendre rendez-vous pour effectuer ma réparation?</p>
-            <p>Nous réparons avec ou sans rendez-vous. Cependant, il est recommandé de communiquer avec l’un de nos techniciens pour confirmer la disponibilité de la pièce de remplacement dans la couleur appropriée avant de vous déplacer.</p><br>
-
-
-            <p class="faq-question">Combien de temps est garantie ma réparation?</p>
-            <p>Nos réparations sont garanties 6 mois.</p><br>
-
-            <p class="faq-question">J’ai recassé mon écran, suis-je éligible à la garantie?</p>
-            <p>Non, nous ne garantissons pas la casse.</p><br>
-
-            <p class="faq-question">Apple ne vendant pas d’écran en pièce détachée, comment faites-vous?</p>
-            <p>Nous ne prétendons pas offrir des écrans complets Apple d’origine. Le terme « d’origine » est utilisé pour décrire des pièces qui égalent la qualité de celles d’origine. Notre processus consiste à reconditionner les panneaux LCD et OLED provenant des écrans Apple existants pour fabriquer de nouveaux écrans.</p><br>
-
-            <p class="faq-question">Débloquez-vous les iPhone bloqués iCloud?</p>
-            <p>Non. Ceci est illégal.</p><br>
-
-            <p class="faq-question">Débloquez-vous les téléphones bloqués avec un compte Gmail?</p>
-            <p>Non. ceci est illégal.</p><br>
-
-            <p class="faq-question">Débloquez-vous les appareils bloqués avec un code de verrouillage?</p>
-            <p>Oui, cela coute 10€ avec présentation de la facture d’achat du téléphone. Cependant vous perdez toutes les données et votre téléphone demandera dans de très nombreux cas l’ancien mot de passe du compte iCloud ou le compte Gmail associé à l’appareil.</p><br>
+        <div class="appareil-grid appareil-grid--large">
+            <a href="{{ path('choix_marque', {'type': 'phone'}) }}" class="appareil-card appareil-card--large">
+                <div class="appareil-img-wrap">
+                    <img src="{{ asset('images/accueil/rep_phone_accueil.png') }}" alt="Réparation téléphone smartphone Pélissanne">
+                </div>
+                <div class="appareil-card-footer">
+                    <span class="appareil-label"><i class="fas fa-mobile-alt mr-2"></i>Téléphone</span>
+                    <span class="appareil-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+            <a href="{{ path('choix_marque', {'type': 'tablet'}) }}" class="appareil-card appareil-card--large">
+                <div class="appareil-img-wrap">
+                    <img src="{{ asset('images/accueil/rep_tablette_accueil.png') }}" alt="Réparation tablette iPad Pélissanne">
+                </div>
+                <div class="appareil-card-footer">
+                    <span class="appareil-label"><i class="fas fa-tablet-alt mr-2"></i>Tablette</span>
+                    <span class="appareil-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
+            <a href="{{ path('app_ordinateur') }}" class="appareil-card appareil-card--large">
+                <div class="appareil-img-wrap">
+                    <img src="{{ asset('images/accueil/rep_pc_accueil.png') }}" alt="Réparation ordinateur PC Pélissanne">
+                </div>
+                <div class="appareil-card-footer">
+                    <span class="appareil-label"><i class="fas fa-laptop mr-2"></i>Ordinateur</span>
+                    <span class="appareil-arrow"><i class="fas fa-arrow-right"></i></span>
+                </div>
+            </a>
         </div>
     </div>
+</section>
 
 
-{# description et question réponse #}
+{# ═══════════════════════════════════════════
+   POURQUOI NOUS FAIRE CONFIANCE
+═══════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<section class="rep-section rep-section--alt reveal" aria-labelledby="confiance-titre">
+    <div class="rep-section-inner">
+
+        <div class="rep-section-header">
+            <div class="rep-eyebrow"><i class="fas fa-shield-alt mr-2"></i>Votre confiance, notre priorité</div>
+            <h2 class="rep-section-title" id="confiance-titre">Pourquoi confier votre appareil à D'Panne Phones ?</h2>
+            <p class="rep-section-subtitle">Depuis 2017, nous réparons des centaines d'appareils chaque année à Pélissanne avec sérieux et transparence</p>
+        </div>
+
+        <div class="rep-trust-grid">
+
+            <div class="rep-trust-card">
+                <div class="rep-trust-icon" style="background:#e8f0f8;color:rgb(9,71,113)">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3 class="rep-trust-title">Diagnostique gratuit</h3>
+                <p class="rep-trust-text">Avant toute intervention, on examine votre appareil gratuitement et on vous communique un devis clair. Aucun frais caché, aucune surprise.</p>
+            </div>
+
+            <div class="rep-trust-card">
+                <div class="rep-trust-icon" style="background:#e8f5e9;color:#28a745">
+                    <i class="fas fa-award"></i>
+                </div>
+                <h3 class="rep-trust-title">Pièces de qualité</h3>
+                <p class="rep-trust-text">Nous utilisons exclusivement des pièces de rechange soigneusement sélectionnées pour leur fiabilité — qualité équivalente aux composants d'origine.</p>
+            </div>
+
+            <div class="rep-trust-card">
+                <div class="rep-trust-icon" style="background:#fff3e0;color:#f57c00">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="rep-trust-title">Garantie 6 mois</h3>
+                <p class="rep-trust-text">Chaque réparation est garantie 6 mois sur la pièce et la main-d'œuvre. Si un problème lié à notre intervention survient, on le règle sans frais supplémentaires.</p>
+            </div>
+
+            <div class="rep-trust-card">
+                <div class="rep-trust-icon" style="background:#fce4ec;color:#e91e63">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="rep-trust-title">Réparation rapide</h3>
+                <p class="rep-trust-text">La majorité des réparations courantes (écran, batterie, connecteur) sont effectuées en boutique dans la journée, souvent en moins d'une heure.</p>
+            </div>
+
+            <div class="rep-trust-card">
+                <div class="rep-trust-icon" style="background:#f3e5f5;color:#9c27b0">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 class="rep-trust-title">Données protégées</h3>
+                <p class="rep-trust-text">Vos données personnelles restent confidentielles. Nous n'accédons jamais à vos fichiers sans votre accord et votre appareil reste sous notre surveillance constante.</p>
+            </div>
+
+            <div class="rep-trust-card">
+                <div class="rep-trust-icon" style="background:#e8f5e9;color:#388e3c">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="rep-trust-title">Techniciens qualifiés</h3>
+                <p class="rep-trust-text">Notre équipe est formée aux dernières technologies et aux modèles récents. iPhone, Samsung, Huawei, iPad, PC — nous maîtrisons toutes les marques.</p>
+            </div>
+
+        </div>
+
+        {# Bandeau réassurance #}
+        <div class="rep-reassurance-banner">
+            <div class="rep-reassurance-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>En boutique à <strong>Pélissanne</strong></span>
+            </div>
+            <div class="rep-reassurance-sep"></div>
+            <div class="rep-reassurance-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Sans rendez-vous ou <strong>sur appel</strong></span>
+            </div>
+            <div class="rep-reassurance-sep"></div>
+            <div class="rep-reassurance-item">
+                <i class="fas fa-euro-sign"></i>
+                <span>Devis <strong>gratuit et sans engagement</strong></span>
+            </div>
+            <div class="rep-reassurance-sep"></div>
+            <div class="rep-reassurance-item">
+                <i class="fas fa-history"></i>
+                <span>Depuis <strong>2017</strong> à votre service</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════
+   PANNES LES PLUS COURANTES
+═══════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<section class="rep-section reveal" aria-labelledby="pannes-titre">
+    <div class="rep-section-inner">
+
+        <div class="rep-section-header">
+            <div class="rep-eyebrow"><i class="fas fa-wrench mr-2"></i>Nos interventions</div>
+            <h2 class="rep-section-title" id="pannes-titre">Les réparations les plus fréquentes</h2>
+            <p class="rep-section-subtitle">Écran cassé, batterie HS, micro défaillant… on répare tout</p>
+        </div>
+
+        <div class="rep-pannes-grid">
+            <div class="rep-panne-item">
+                <i class="fas fa-mobile-alt"></i>
+                <span>Remplacement d'écran</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-battery-half"></i>
+                <span>Changement de batterie</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-plug"></i>
+                <span>Connecteur de charge</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-camera"></i>
+                <span>Réparation caméra</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-microphone"></i>
+                <span>Micro / haut-parleur</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-tint"></i>
+                <span>Dégât des eaux</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-th"></i>
+                <span>Boutons & vibreur</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-wifi"></i>
+                <span>Wi-Fi / Bluetooth</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-laptop"></i>
+                <span>PC & ordinateurs</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-tablet-alt"></i>
+                <span>Tablettes & iPad</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-unlock-alt"></i>
+                <span>Déblocage opérateur</span>
+            </div>
+            <div class="rep-panne-item">
+                <i class="fas fa-cogs"></i>
+                <span>Problèmes logiciels</span>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════
+   FAQ
+═══════════════════════════════════════════ #}
+<div class="home-section-divider"></div>
+
+<section class="rep-section rep-section--alt reveal" aria-labelledby="faq-titre">
+    <div class="rep-section-inner rep-faq-inner">
+
+        <div class="rep-section-header">
+            <div class="rep-eyebrow"><i class="fas fa-question-circle mr-2"></i>FAQ</div>
+            <h2 class="rep-section-title" id="faq-titre">Questions fréquentes</h2>
+            <p class="rep-section-subtitle">Tout ce que vous voulez savoir avant de nous confier votre appareil</p>
+        </div>
+
+        <div class="rep-faq-list" id="faqAccordion">
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question" data-toggle="collapse" data-target="#faq1" aria-expanded="true">
+                    <span>Mon écran est cassé — vitre seule ou bloc écran entier ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse show" id="faq1">
+                    <p>Sur les smartphones récents (iPhone, Samsung, Huawei et autres), l'écran est une pièce composite — vitre, dalle tactile et affichage — solidaires entre elles. Le <strong>remplacement du bloc écran complet</strong> est donc nécessaire pour garantir un résultat optimal et durable. Une réparation partielle (vitre seule) entraîne généralement des problèmes de sensibilité ou d'affichage à court terme.</p>
+                </div>
+            </div>
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question collapsed" data-toggle="collapse" data-target="#faq2">
+                    <span>Dois-je prendre rendez-vous pour ma réparation ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse" id="faq2">
+                    <p>Vous pouvez nous confier votre appareil <strong>avec ou sans rendez-vous</strong>. Nous recommandons néanmoins d'appeler avant, afin de vérifier la disponibilité immédiate de la pièce requise — notamment si vous avez des contraintes de couleur ou de modèle spécifique. Cela évite un double déplacement.</p>
+                </div>
+            </div>
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question collapsed" data-toggle="collapse" data-target="#faq3">
+                    <span>Quelle est la durée de garantie sur les réparations ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse" id="faq3">
+                    <p>Toutes nos réparations sont couvertes par une <strong>garantie de 6 mois</strong> sur la pièce remplacée et la main-d'œuvre. Cette garantie témoigne de notre engagement envers la qualité et la fiabilité de chaque intervention. En cas de problème lié à notre travail, nous prenons en charge la réparation sans frais supplémentaires.</p>
+                </div>
+            </div>
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question collapsed" data-toggle="collapse" data-target="#faq4">
+                    <span>J'ai recassé mon écran après réparation — suis-je couvert ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse" id="faq4">
+                    <p>La garantie couvre les défauts liés à la pièce ou à la pose, mais <strong>ne s'applique pas aux dommages accidentels</strong> survenus après l'intervention, tels qu'une nouvelle chute ou un choc. Nous vous conseillons de protéger votre appareil avec une coque de qualité et un film hydrogel posé sur mesure — disponibles en boutique.</p>
+                </div>
+            </div>
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question collapsed" data-toggle="collapse" data-target="#faq5">
+                    <span>Apple ne vend pas ses pièces — comment procédez-vous ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse" id="faq5">
+                    <p>Nous travaillons avec des pièces de qualité équivalente aux composants d'origine, issues du reconditionnement de panneaux LCD et OLED provenant d'appareils Apple. Ces écrans offrent des performances <strong>comparables aux pièces constructeur</strong>, dans le strict respect de nos standards de qualité. Le résultat visuel et tactile est identique à l'original.</p>
+                </div>
+            </div>
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question collapsed" data-toggle="collapse" data-target="#faq6">
+                    <span>Pouvez-vous débloquer un iPhone verrouillé par un compte iCloud ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse" id="faq6">
+                    <p>Le déblocage d'un appareil verrouillé par activation iCloud est réservé au <strong>propriétaire légitime du compte Apple</strong>. Il nécessite une preuve d'achat et passe par les canaux officiels d'Apple. Nous accompagnons nos clients dans ces démarches sous réserve de justificatifs valides. <strong>Tout déblocage sans le consentement du propriétaire est illégal</strong> et ne sera en aucun cas effectué.</p>
+                </div>
+            </div>
+
+            <div class="rep-faq-item">
+                <button class="rep-faq-question collapsed" data-toggle="collapse" data-target="#faq7">
+                    <span>Pouvez-vous débloquer un téléphone verrouillé par un compte Google ?</span>
+                    <i class="fas fa-chevron-down rep-faq-chevron"></i>
+                </button>
+                <div class="rep-faq-answer collapse" id="faq7">
+                    <p>Le déblocage de la protection FRP (Factory Reset Protection) liée à un compte Google est possible uniquement pour le <strong>propriétaire du compte</strong>, sur présentation de justificatifs. Nous pouvons vous accompagner dans cette démarche dans le cadre légal. Sans preuve de propriété, cette opération <strong>ne peut être réalisée</strong>, conformément à la législation sur la protection des données.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+{# ═══════════════════════════════════════════
+   CTA FINALE
+═══════════════════════════════════════════ #}
+<section class="rep-cta-section reveal">
+    <div class="rep-cta-inner">
+        <div class="rep-cta-content">
+            <h2 class="rep-cta-title">Votre appareil a besoin d'une réparation ?</h2>
+            <p class="rep-cta-sub">Venez en boutique à Pélissanne — diagnostique gratuit, devis immédiat, intervention rapide.</p>
+        </div>
+        <div class="rep-cta-actions">
+            <a href="tel:+33783748311" class="rep-cta-btn-primary">
+                <i class="fas fa-phone mr-2"></i>07 83 74 83 11
+            </a>
+            <a href="{{ path('contact') }}" class="rep-cta-btn-secondary">
+                <i class="fas fa-envelope mr-2"></i>Nous écrire
+            </a>
+        </div>
+    </div>
+</section>
 
 {% endblock %}

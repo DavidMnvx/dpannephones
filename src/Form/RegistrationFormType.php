@@ -25,7 +25,6 @@ class RegistrationFormType extends AbstractType
             ->add('codePostal')
             ->add('ville')
             ->add('phone')
-            ->add('status')
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
@@ -33,7 +32,8 @@ class RegistrationFormType extends AbstractType
                 'required' => true,
                 'first_options'  => ['constraints' => [
                     new NotBlank(['message' => 'Please enter a password']),
-                    new Length(['min' => 6, 'minMessage' => 'Your password should be at least {{ limit }} characters']),
+                    new Length(['min' => 8, 'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.']),
+                    new Assert\Regex(['pattern' => '/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/', 'message' => 'Le mot de passe doit contenir au moins une majuscule, un chiffre et un caractère spécial (ex: @, #, !, $…).']),
                     ]],
                 'second_options' => ['label' => 'Repeat Password'],
             ]);

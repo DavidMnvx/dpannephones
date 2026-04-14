@@ -1,7 +1,10 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Article;
+use App\Entity\Commande;
 use App\Entity\Marque;
+use App\Repository\CommandeRepository;
 use App\Entity\Model;
 use App\Entity\Reparation;
 use App\Form\MarqueType;
@@ -18,7 +21,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class AdminController extends AbstractController
 {
     #[Route('/admin', name: 'admin_index')]
-    public function index(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function index(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, CommandeRepository $commandeRepo): Response
     {
         $marque = new Marque();
         $model = new Model();
@@ -97,6 +100,12 @@ class AdminController extends AbstractController
         $marques = $entityManager->getRepository(Marque::class)->findAll();
         $models = $entityManager->getRepository(Model::class)->findAll();
         $reparations = $entityManager->getRepository(Reparation::class)->findAll();
+        $articles = $entityManager->getRepository(Article::class)->findAll();
+
+        $annee = (int) date('Y');
+        $ventesParMois = $commandeRepo->getVentesParMois($annee);
+        $totalAnnee    = $commandeRepo->getTotalAnnee($annee);
+        $commandes     = $entityManager->getRepository(Commande::class)->findBy([], ['createdAt' => 'DESC'], 10);
 
         return $this->render('admin/index.html.twig', [
             'marqueForm' => $marqueForm->createView(),
@@ -105,6 +114,11 @@ class AdminController extends AbstractController
             'marques' => $marques,
             'models' => $models,
             'reparations' => $reparations,
+            'articles' => $articles,
+            'ventesParMois' => $ventesParMois,
+            'totalAnnee'    => $totalAnnee,
+            'commandes'     => $commandes,
+            'annee'         => $annee,
         ]);
     }
 

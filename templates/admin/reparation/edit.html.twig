@@ -1,35 +1,27 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'reparations' %}
 
-{% block body %}
-<div class="container mt-4">
-    <h1 class="text-center mb-4">Éditer la Réparation</h1>
-    
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Réparations › Éditer
+</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-tools"></i> Éditer la Réparation : {{ reparation.name }}</h3>
+
     {{ form_start(form) }}
-        <div class="form-group">
-            {{ form_label(form.name) }}
-            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.name) }}
+        <div class="row">
+            <div class="col-md-4">{{ form_row(form.name) }}</div>
+            <div class="col-md-4">{{ form_row(form.model) }}</div>
+            <div class="col-md-4">{{ form_row(form.prix) }}</div>
         </div>
-        <div class="form-group">
-            {{ form_label(form.model) }}
-            {{ form_widget(form.model, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.model) }}
-        </div>
-        <div class="form-group">
-            {{ form_label(form.description) }}
-            {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.description) }}
-        </div>
-        <div class="form-group">
-            {{ form_label(form.prix) }}
-            {{ form_widget(form.prix, {'attr': {'class': 'form-control'}}) }}
-            {{ form_errors(form.prix) }}
-        </div>
+        {{ form_row(form.description) }}
+        <button type="submit" class="btn-admin-submit">
+            <i class="fas fa-save mr-1"></i> Sauvegarder
+        </button>
+        <a href="{{ path('admin_index') }}" class="btn-admin-back">
+            <i class="fas fa-arrow-left mr-1"></i> Retour
+        </a>
     {{ form_end(form) }}
-        <div class="mt-5">
-            <button type="submit" class="btn btn-primary mb-5">Sauvegarder les modifications</button>
-        </div>
-
-        <a href="{{ path('admin_index') }}" class="btn btn-secondary mt-3 mb-5">Retour</a>
 </div>
 {% endblock %}

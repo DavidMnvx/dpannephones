@@ -30,8 +30,9 @@ class MarqueType extends AbstractType
                             'image/jpeg',
                             'image/png',
                             'image/webp',
+                            'image/svg+xml',
                         ],
-                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG ou PNG).',
+                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG, WEBP ou SVG).',
                     ])
                 ],
             ])

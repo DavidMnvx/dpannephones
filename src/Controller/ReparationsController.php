@@ -26,15 +26,12 @@ class ReparationsController extends AbstractController
 
         // Vérifie la valeur de $type et effectue une requête en conséquence
         if ($type === 'phone') {
-            $marques = $marqueRepository->findBy(['hasPhone' => true]);
+            $marques = $marqueRepository->findBy(['hasPhone' => true], ['name' => 'ASC']);
         } elseif ($type === 'tablet') {
-            $marques = $marqueRepository->findBy(['hasTablet' => true]);
+            $marques = $marqueRepository->findBy(['hasTablet' => true], ['name' => 'ASC']);
         } else {
-            // Si $type n'est ni 'phone' ni 'tablet', on peut renvoyer une liste vide ou une liste complète selon le besoin
-            $marques = $marqueRepository->findAll();
+            $marques = $marqueRepository->findBy([], ['name' => 'ASC']);
         }
-
-        dump($marques); // Ajoutez cette ligne pour déboguer
 
         return $this->render('reparations/choisir_marque.html.twig', [
             'marques' => $marques,

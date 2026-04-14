@@ -1,139 +1,185 @@
-{# templates/security/register.html.twig #}
-
 {% extends 'base.html.twig' %}
-{% block title %}Inscription{% endblock %}
+{% block title %}Créer un compte — D'Panne Phones{% endblock %}
+
+{% block meta_description %}Créez votre compte D'Panne Phones pour suivre vos commandes et accéder à la boutique en ligne.{% endblock %}
 
 {% block body %}
+<div class="auth-page-wrap">
+  <div class="auth-card auth-card--wide">
 
-<style>
-    .carousel {
-            width: 90%;
-            height: 300px;
-            margin: 0 auto;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 20px;
+    <div class="auth-card-header">
+      <div class="auth-icon-wrap" style="background:#e8f0f8;color:rgb(9,71,113)">
+        <i class="fas fa-user-plus"></i>
+      </div>
+      <h1 class="auth-title">Créer un compte</h1>
+      <p class="auth-subtitle">Rejoignez D'Panne Phones — accès boutique, suivi de commandes</p>
+    </div>
+
+    {% for message in app.flashes('warning') %}
+      <div class="auth-flash auth-flash--warning">
+        <i class="fas fa-exclamation-triangle mr-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+
+    {% for message in app.flashes('verify_email_error') %}
+      <div class="auth-flash auth-flash--error">
+        <i class="fas fa-times-circle mr-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+
+    {{ form_start(registrationForm, {attr: {class: 'auth-form', id: 'registerForm', novalidate: 'novalidate'}}) }}
+
+      <div class="auth-form-row">
+        <div class="auth-form-group">
+          <label class="auth-label">Nom <span class="auth-required">*</span></label>
+          {{ form_widget(registrationForm.nom, {attr: {class: 'auth-input', placeholder: 'Dupont', autocomplete: 'family-name'}}) }}
+          {{ form_errors(registrationForm.nom) }}
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-label">Prénom <span class="auth-required">*</span></label>
+          {{ form_widget(registrationForm.prenom, {attr: {class: 'auth-input', placeholder: 'Jean', autocomplete: 'given-name'}}) }}
+          {{ form_errors(registrationForm.prenom) }}
+        </div>
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-label">Adresse email <span class="auth-required">*</span></label>
+        {{ form_widget(registrationForm.email, {attr: {class: 'auth-input', placeholder: 'jean.dupont@email.fr', autocomplete: 'email'}}) }}
+        {{ form_errors(registrationForm.email) }}
+      </div>
+
+      <div class="auth-form-group">
+        <label class="auth-label">Adresse postale <span class="auth-required">*</span></label>
+        {{ form_widget(registrationForm.adresse, {attr: {class: 'auth-input', placeholder: '12 rue de la Paix', autocomplete: 'street-address'}}) }}
+        {{ form_errors(registrationForm.adresse) }}
+      </div>
+
+      <div class="auth-form-row">
+        <div class="auth-form-group">
+          <label class="auth-label">Code postal <span class="auth-required">*</span></label>
+          {{ form_widget(registrationForm.codePostal, {attr: {class: 'auth-input', placeholder: '13330', autocomplete: 'postal-code'}}) }}
+          {{ form_errors(registrationForm.codePostal) }}
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-label">Ville <span class="auth-required">*</span></label>
+          {{ form_widget(registrationForm.ville, {attr: {class: 'auth-input', placeholder: 'Pélissanne', autocomplete: 'address-level2'}}) }}
+          {{ form_errors(registrationForm.ville) }}
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-label">Téléphone <span class="auth-required">*</span></label>
+          {{ form_widget(registrationForm.phone, {attr: {class: 'auth-input', placeholder: '06 12 34 56 78', autocomplete: 'tel'}}) }}
+          {{ form_errors(registrationForm.phone) }}
+        </div>
+      </div>
+
+      <div class="auth-form-row">
+        <div class="auth-form-group">
+          <label class="auth-label">
+            Mot de passe <span class="auth-required">*</span>
+            <span class="pwd-info-icon" tabindex="0" aria-label="Règles du mot de passe">
+              <i class="fas fa-circle-info"></i>
+              <span class="pwd-tooltip">
+                Votre mot de passe doit contenir :<br>
+                · Au moins 8 caractères<br>
+                · Une lettre majuscule (A–Z)<br>
+                · Un chiffre (0–9)<br>
+                · Un caractère spécial (@, #, !, $, %…)
+              </span>
+            </span>
+          </label>
+          {{ form_widget(registrationForm.plainPassword.first, {attr: {class: 'auth-input', id: 'password', autocomplete: 'new-password', placeholder: 'Ex : Soleil#74'}}) }}
+          {{ form_errors(registrationForm.plainPassword.first) }}
+          <div class="auth-pwd-hint" id="pwdStrength"></div>
+          <div class="auth-pwd-rules" id="pwdRules" style="display:none;margin-top:8px;font-size:0.78rem;line-height:1.9;">
+            <span id="rule-length">◦ 8 caractères minimum</span><br>
+            <span id="rule-upper">◦ 1 majuscule</span><br>
+            <span id="rule-digit">◦ 1 chiffre</span><br>
+            <span id="rule-special">◦ 1 caractère spécial (@, #, !, $, %…)</span>
+          </div>
+        </div>
+        <div class="auth-form-group">
+          <label class="auth-label">Confirmer le mot de passe <span class="auth-required">*</span></label>
+          {{ form_widget(registrationForm.plainPassword.second, {attr: {class: 'auth-input', id: 'confirmPassword', autocomplete: 'new-password', placeholder: 'Répétez le mot de passe'}}) }}
+          {{ form_errors(registrationForm.plainPassword.second) }}
+        </div>
+      </div>
+
+      <div class="auth-info-box" style="margin-bottom:20px;">
+        <i class="fas fa-envelope mr-2"></i>
+        Un email de confirmation sera envoyé à votre adresse pour activer votre compte.
+      </div>
+
+      <button type="submit" class="auth-btn-primary">
+        <i class="fas fa-user-plus mr-2"></i>Créer mon compte
+      </button>
+
+    {{ form_end(registrationForm) }}
+
+    <div class="auth-footer-links">
+      Déjà inscrit ? <a href="{{ path('app_login') }}">Se connecter</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var pwd = document.getElementById('password');
+    var confirm = document.getElementById('confirmPassword');
+    var hint = document.getElementById('pwdStrength');
+
+    if (!pwd) return;
+
+    var rules = document.getElementById('pwdRules');
+    var ruleLength  = document.getElementById('rule-length');
+    var ruleUpper   = document.getElementById('rule-upper');
+    var ruleDigit   = document.getElementById('rule-digit');
+    var ruleSpecial = document.getElementById('rule-special');
+
+    function checkRule(el, ok) {
+        el.style.color  = ok ? '#28a745' : '#dc3545';
+        el.textContent  = (ok ? '✓' : '◦') + el.textContent.slice(1);
+    }
+
+    function checkStrength(val) {
+        var score = 0;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        return score;
+    }
+
+    pwd.addEventListener('focus', function () {
+        if (rules) rules.style.display = 'block';
+    });
+
+    pwd.addEventListener('input', function () {
+        var v = this.value;
+        var s = checkStrength(v);
+        var labels = ['', 'Faible', 'Moyen', 'Bon', 'Fort'];
+        var colors = ['', '#dc3545', '#fd7e14', '#28a745', '#0a6940'];
+        hint.textContent = v.length ? 'Force : ' + (labels[s] || 'Faible') : '';
+        hint.style.color = colors[s] || '#dc3545';
+
+        if (rules) {
+            rules.style.display = v.length ? 'block' : 'none';
+            checkRule(ruleLength,  v.length >= 8);
+            checkRule(ruleUpper,   /[A-Z]/.test(v));
+            checkRule(ruleDigit,   /[0-9]/.test(v));
+            checkRule(ruleSpecial, /[^A-Za-z0-9]/.test(v));
         }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
-    .carousel-item {
-        height: 100%;
-    }
+    });
 
-    .carousel-caption {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.4); /* Optional: adds a semi-transparent background */ 
-        padding: 10px;
-        border-radius: 10px;
-        width: 100%; /* Adjust the width of the caption */
-        height: 100%; /* Adjust the height of the caption */
-        font-size: 1.2em; /* Adjust the font size of the caption */
-    }
-    .carousel-item {
-        transition: transform 0.7s ease, opacity 0.8s ease; /* Adjust transition duration */
-    }
-
-    #quiSommesNous{
-        font-size: 30px;
-        font-weight: bold;
-        color: white;
-    }
-
-</style>
-
-<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="5000">
-    
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/baner/inscription.avif') }}" alt="First slide">
-            <div class="carousel-caption">
-                <h5 id="quiSommesNous" >Inscription</h5>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="container mt-5 mb-5">
-    <div class="card mx-auto" style="width: 80%;">
-        <div class="card-header">
-            <h3 class="card-title d-flex justify-content-center">Inscription</h3>
-        </div>
-        <div class="card-body">
-            {{ form_start(registrationForm) }}
-              <div class="form-row">
-                <div class="form-group col-md-6">
-                  {{ form_label(registrationForm.nom) }}
-                  {{ form_widget(registrationForm.nom, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.nom) }}
-                </div>
-                <div class="form-group col-md-6">
-                  {{ form_label(registrationForm.prenom) }}
-                  {{ form_widget(registrationForm.prenom, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.prenom) }}
-                </div>
-              </div>
-              <div class="form-group">
-                {{ form_label(registrationForm.email) }}
-                {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.email) }}
-              </div>
-              <div class="form-group">
-                {{ form_label(registrationForm.adresse) }}
-                {{ form_widget(registrationForm.adresse, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.adresse) }}
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-4">
-                  {{ form_label(registrationForm.codePostal) }}
-                  {{ form_widget(registrationForm.codePostal, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.codePostal) }}
-                </div>
-                <div class="form-group col-md-4">
-                  {{ form_label(registrationForm.ville) }}
-                  {{ form_widget(registrationForm.ville, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.ville) }}
-                </div>
-                <div class="form-group col-md-4">
-                  {{ form_label(registrationForm.phone) }}
-                  {{ form_widget(registrationForm.phone, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.phone) }}
-                </div>
-              </div>
-              <div class="form-group">
-                {{ form_label(registrationForm.status) }}
-                {{ form_widget(registrationForm.status, {'attr': {'class': 'form-control'}}) }}
-                {{ form_errors(registrationForm.status) }}
-              </div>
-              <div class="form-row">
-                <div class="form-group col-md-6">
-                  {{ form_label(registrationForm.plainPassword.first) }}
-                  {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.plainPassword.first) }}
-                </div>
-                <div class="form-group col-md-6">
-                  {{ form_label(registrationForm.plainPassword.second) }}
-                  {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
-                  {{ form_errors(registrationForm.plainPassword.second) }}
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary">Inscrivez-vous</button>
-            {{ form_end(registrationForm) }}
-        </div>
-    </div>
-</div>
+    confirm.addEventListener('input', function () {
+        if (this.value && this.value !== pwd.value) {
+            this.style.borderColor = '#dc3545';
+        } else if (this.value) {
+            this.style.borderColor = '#28a745';
+        } else {
+            this.style.borderColor = '';
+        }
+    });
+});
+</script>
 {% endblock %}
-
-
-

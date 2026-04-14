@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+{{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid p-0">
+    <div class="row no-gutters">
+
+        {# Sidebar #}
+        <nav id="sidebar" class="col-md-2 d-md-block">
+            <div class="sidebar-header">Navigation</div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'dashboard' ? 'active' : '' }}"
+                       href="{{ path('admin_index') }}">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'marques' ? 'active' : '' }}"
+                       href="{{ path('admin_index') }}#marques">
+                        <i class="fas fa-tags"></i> Marques
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'modeles' ? 'active' : '' }}"
+                       href="{{ path('admin_index') }}#modeles">
+                        <i class="fas fa-mobile-alt"></i> Modèles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'reparations' ? 'active' : '' }}"
+                       href="{{ path('admin_index') }}#reparations">
+                        <i class="fas fa-tools"></i> Réparations
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'articles' ? 'active' : '' }}"
+                       href="{{ path('admin_article_index') }}">
+                        <i class="fas fa-shopping-bag"></i> Articles boutique
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        {# Main content #}
+        <main id="admin-main" class="col-md-10">
+            {% block admin_content %}{% endblock %}
+        </main>
+
+    </div>
+</div>
+{% endblock %}

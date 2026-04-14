@@ -1,0 +1,201 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Boutique — D'panne Phones{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset('images/baner/Boutique.png') }}" alt="Boutique">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Notre Boutique</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="width:80%;margin:0 auto 60px;padding:0 16px;">
+
+    <div class="boutique-page-title">Boutique</div>
+    <p class="boutique-page-sub">
+        {% if currentCategorie %}
+            {{ categories[currentCategorie] }} — {{ articles|length }} article{{ articles|length > 1 ? 's' : '' }} disponible{{ articles|length > 1 ? 's' : '' }}
+        {% else %}
+            Tous nos articles — {{ articles|length }} article{{ articles|length > 1 ? 's' : '' }} disponible{{ articles|length > 1 ? 's' : '' }}
+        {% endif %}
+    </p>
+
+    <div class="boutique-layout">
+
+        {# Sidebar catégories #}
+        <aside class="cat-sidebar">
+            <div class="cat-sidebar-title">Catégories</div>
+            <a href="{{ path('boutique_index') }}" class="cat-link {{ currentCategorie is null ? 'active' : '' }}">
+                <i class="fas fa-th-large"></i> Tous les articles
+            </a>
+            {% for slug, label in categories %}
+                <a href="{{ path('boutique_index', {categorie: slug}) }}"
+                   class="cat-link {{ currentCategorie == slug ? 'active' : '' }}">
+                    {% if slug == 'pc_gamer' %}<i class="fas fa-gamepad"></i>
+                    {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
+                    {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
+                    {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
+                    {% elseif slug == 'film_hydrogel' %}<i class="fas fa-shield-alt"></i>
+                    {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
+                    {% endif %}
+                    {{ label }}
+                </a>
+            {% endfor %}
+        </aside>
+
+        {# Grille produits #}
+        <div class="products-area">
+            {% if articles is empty %}
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <p style="font-size:16px;font-weight:600;color:#6c757d;margin-bottom:6px;">Aucun article pour le moment.</p>
+                    <small>Revenez bientôt ou consultez une autre catégorie.</small><br><br>
+                    <a href="{{ path('boutique_index') }}" style="display:inline-flex;align-items:center;gap:7px;margin-top:6px;background:rgb(9,71,113);color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+                        <i class="fas fa-arrow-left"></i> Voir tout
+                    </a>
+                </div>
+            {% else %}
+                <div class="products-grid">
+                    {% for article in articles %}
+                        <div class="product-card">
+                            <div class="product-img-wrap">
+                                {% if article.image %}
+                                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                                {% else %}
+                                    <i class="fas fa-image no-img"></i>
+                                {% endif %}
+                            </div>
+                            <div class="product-body">
+                                <div class="product-badges">
+                                    <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
+                                        {{ article.isNew ? 'Neuf' : "D'occasion" }}
+                                    </span>
+                                    {% if article.grade %}
+                                        <span class="badge-grade">Grade {{ article.grade }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="product-name">{{ article.name }}</div>
+                                <p class="product-desc">{{ article.description }}</p>
+
+                                {# Specs par catégorie #}
+                                {% if article.categorie in ['pc_gamer', 'pc_bureautique', 'pc_portable'] %}
+                                    {% if article.specs %}
+                                        <div class="pc-specs-list">
+                                            {% for key, val in article.specs %}
+                                                <div class="pc-spec-row">
+                                                    <span class="pc-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
+                                                    <span class="pc-spec-val">{{ val }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% elseif article.categorie == 'telephone' %}
+                                    {% if article.specs %}
+                                        <div class="pc-specs-list">
+                                            {% if article.specs.storage_capacity is defined %}
+                                                <div class="pc-spec-row">
+                                                    <span class="pc-spec-key">Stockage</span>
+                                                    <span class="pc-spec-val">{{ article.specs.storage_capacity }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if article.specs.color is defined %}
+                                                <div class="pc-spec-row">
+                                                    <span class="pc-spec-key">Couleur</span>
+                                                    <span class="pc-spec-val">{{ article.specs.color }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if article.specs.network is defined %}
+                                                <div class="pc-spec-row">
+                                                    <span class="pc-spec-key">Réseau</span>
+                                                    <span class="pc-spec-val">{{ article.specs.network }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if article.specs.battery_health is defined %}
+                                                <div class="pc-spec-row">
+                                                    <span class="pc-spec-key">Batterie</span>
+                                                    <span class="pc-spec-val">{{ article.specs.battery_health }}%</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+
+                                <div class="product-footer">
+                                    <span class="product-price">{{ article.price }} €</span>
+
+                                    {# Hydrogel : sélecteur de modèle #}
+                                    {% if article.categorie == 'film_hydrogel' %}
+                                        {% set models = article.specs.compatible_models ?? [] %}
+                                        {% if models is not empty %}
+                                            <form method="get" action="{{ path('cart_add', {id: article.id}) }}" class="hydrogel-form" style="width:100%;margin-top:8px;">
+                                                <select name="model" class="form-control form-control-sm mb-2" required>
+                                                    <option value="">— Choisir un modèle —</option>
+                                                    {% for model in models %}
+                                                        <option value="{{ model }}">{{ model }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button type="submit" class="btn-cart w-100">
+                                                    <i class="fas fa-cart-plus"></i> Ajouter
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">
+                                                <i class="fas fa-cart-plus"></i> Ajouter
+                                            </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">
+                                            <i class="fas fa-cart-plus"></i> Ajouter
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Mini-panier #}
+        <aside class="mini-cart">
+            <div class="mini-cart-header">
+                <i class="fas fa-shopping-cart"></i> Panier
+                {% if cart is not empty %}
+                    <span style="margin-left:auto;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px 8px;font-size:12px;">
+                        {{ cart|length }}
+                    </span>
+                {% endif %}
+            </div>
+            <div class="mini-cart-body">
+                {% if cart is empty %}
+                    <div class="mini-cart-empty">
+                        <i class="fas fa-shopping-basket" style="font-size:26px;display:block;margin-bottom:10px;"></i>
+                        Panier vide
+                    </div>
+                {% else %}
+                    {% for cartItem in cart %}
+                        <div class="mini-cart-item">
+                            <span class="mini-cart-item-name">{{ cartItem.article.name }}</span>
+                            <span class="mini-cart-qty">{{ cartItem.quantity }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="mini-cart-footer">
+                <a href="{{ path('cart_index') }}" class="btn-voir-panier">
+                    <i class="fas fa-arrow-right mr-1"></i> Voir le panier
+                </a>
+            </div>
+        </aside>
+
+    </div>
+</div>
+
+{% endblock %}

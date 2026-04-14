@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+{% block title %}Commande confirmée — D'Panne Phones{% endblock %}
+
+{% block body %}
+<div class="auth-page-wrap">
+  <div class="auth-card auth-card--center payment-success-card">
+
+    {# Icône animée #}
+    <div class="payment-success-icon">
+      <div class="payment-success-ring"></div>
+      <div class="payment-success-core">
+        <i class="fas fa-check"></i>
+      </div>
+    </div>
+
+    <h1 class="auth-title" style="color:#1a7f37;">Paiement confirmé !</h1>
+    <p class="check-email-intro">
+      Merci pour votre commande. Elle a bien été enregistrée et sera traitée dans les plus brefs délais.
+    </p>
+
+    {# Récapitulatif #}
+    <div class="payment-recap">
+      <div class="payment-recap-header">
+        <i class="fas fa-receipt mr-2"></i>
+        Récapitulatif — Commande #{{ commande.id }}
+      </div>
+
+      <table class="payment-recap-table">
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th>Qté</th>
+            <th>Prix</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in commande.items %}
+          <tr>
+            <td>{{ item.articleName }}</td>
+            <td>× {{ item.quantite }}</td>
+            <td>{{ (item.prix * item.quantite)|number_format(2, ',', ' ') }} €</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>Total payé</strong></td>
+            <td><strong>{{ commande.total|number_format(2, ',', ' ') }} €</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    {# Info livraison/contact #}
+    <div class="auth-info-box" style="text-align:left;margin:20px 0;">
+      <i class="fas fa-store mr-2"></i>
+      Votre commande est prête à être préparée. Nous vous contacterons dès qu'elle est disponible en boutique ou pour convenir d'un retrait.
+    </div>
+
+    <div class="payment-success-actions">
+      <a href="{{ path('boutique_index') }}" class="auth-btn-primary" style="text-decoration:none;display:inline-flex;">
+        <i class="fas fa-shopping-bag mr-2"></i> Continuer mes achats
+      </a>
+      <a href="{{ path('home') }}" class="auth-link" style="display:block;margin-top:12px;">
+        <i class="fas fa-home mr-1"></i> Retour à l'accueil
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

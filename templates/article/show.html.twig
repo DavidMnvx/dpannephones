@@ -1,0 +1,27 @@
+
+    {% extends 'base.html.twig' %}
+
+{% block title %}{{ article.name }}{% endblock %}
+
+{% block body %}
+    <h1>{{ article.name }}</h1>
+    {% if article.imageFilename %}
+        <img src="{{ asset('uploads/images/' ~ article.imageFilename) }}" alt="{{ article.name }}">
+    {% endif %}
+    <p>{{ article.description }}</p>
+    <p>{{ article.price }} €</p>
+    <p>{% if article.isNew %}Neuf{% else %}D'occasion{% endif %}</p>
+    <a href="{{ path('boutique_edit', {id: article.id}) }}">Modifier</a>
+    <form method="post" action="{{ path('boutique_delete', {id: article.id}) }}" onsubmit="return confirm('Êtes-vous sûr ?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+        <button class="btn">Supprimer</button>
+    </form>
+    <a href="{{ path('boutique_index') }}">Retour à la liste</a>
+
+
+    <a href="{{ path('app_article_index') }}">back to list</a>
+
+    <a href="{{ path('app_article_edit', {'id': article.id}) }}">edit</a>
+
+    {{ include('article/_delete_form.html.twig') }}
+{% endblock %}

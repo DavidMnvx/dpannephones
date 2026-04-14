@@ -3,109 +3,164 @@
 {% block title %}Qui sommes-nous ?{% endblock %}
 
 {% block body %}
-<style>
-    .carousel {
-        width: 90%;
-        height: 300px;
-        margin: 0 auto;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-    .carousel-inner img {
-        height: 500px;
-        object-fit: cover;
-    }
 
-    .carousel-item {
-        height: 100%;
-    }
-
-    .carousel-caption {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-align: center;
-        background-color: rgba(0, 0, 0, 0.4); /* Optional: adds a semi-transparent background */
-        padding: 10px;
-        border-radius: 10px;
-        width: 100%; /* Adjust the width of the caption */
-        height: 100%; /* Adjust the height of the caption */
-        font-size: 1.2em; /* Adjust the font size of the caption */
-    }
-    
-    .carousel-item {
-        transition: transform 0.7s ease, opacity 0.8s ease; /* Adjust transition duration */
-    }
-
-    #quiSommesNous{
-        font-size: 35px;
-        font-weight: bold;
-        color: white;
-    }
-
-    #container {
-        width: 90%;
-        margin: auto;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-    .content {
-        background: transparent;
-        padding: 20px;
-        margin: 20px 0;
-        /* border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
-    }
-    h1 {
-        color: #333;
-    }
-    h2 {
-        color: #555;
-    }
-    p {
-        margin: 10px 0;
-    }
-    .highlight {
-        color: rgb(9, 71, 113);
-        font-weight: bold;
-    }
-</style>
-
-<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="4000">
+<div id="carouselExampleIndicators2" class="carousel slide" data-ride="carousel" data-interval="4000">
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/baner/quiSommesNous.webp') }}" alt="First slide">
+            <img class="d-block w-100" src="{{ asset('images/baner/quiSommesNous.webp') }}" alt="Qui sommes-nous ?">
             <div class="carousel-caption">
-                <h5 id="quiSommesNous" >Qui sommes-nous ?</h5>
+                <h2 id="quiSommesNous">Qui sommes-nous ?</h2>
             </div>
         </div>
     </div>
 </div>
+
 <div id="container">
-        <div class="content">
-            <h1>Qui sommes-nous ?</h1><br>
-                <p>À votre service depuis 2017, <span class="highlight">D'panne Phones</span> est spécialisé dans la réparation de tous types de smartphones, tablettes et ordinateurs.</p><br>
-                <p>Notre atelier technique vous propose maintenant une gamme de téléphones d'occasion et reconditionnés. N’hésitez pas à nous contacter au <span class="highlight">07 83 74 83 11</span> pour connaître nos modèles disponibles, voire nous demander une référence particulière.</p><br>
-                <p>Dans notre magasin (ouvert du lundi au vendredi de 9h-12h 14H-18h et samedi 9h-12h), <span class="highlight">D'panne Phones</span> vous propose un vaste choix de <span class="highlight">réparations</span> pour les appareils Apple (iPhone, iPad, iPod), Samsung (smartphones, Galaxy Tab), Nokia, OPPO, Realme, Crosscall, Sony, HTC, LG, Huawei, Honor, Motorola, Alcatel, Xiaomi et Wiko. Les temps de réparation varient de 30 minutes à 5 heures en fonction de la réparation, aux prix les plus attractifs du marché.</p><br>
+    <div class="content" id="contentQsN">
 
-
-                <p>Chez <span class="highlight">D'panne Phones</span>, nous vous offrons la possibilité de confectionner un <span class="highlight">PC Gamer</span> unique, conçu selon vos envies et besoins spécifiques. Nos experts sélectionnent pour vous les meilleurs composants du marché, garantissant des performances optimales et une durabilité exceptionnelle. Que vous soyez un joueur occasionnel ou un hardcore gamer, nous avons la configuration idéale pour vous.</p><br>
-
-                <p>Nous travaillons avec les plus grandes marques, incluant des <span class="highlight">processeurs Intel et AMD</span>, des cartes graphiques NVIDIA et AMD Radeon, de la mémoire RAM DDR4 et DDR5, et des disques SSD ultra-rapides. Vous pouvez également personnaliser le design de votre boîtier et choisir un système de refroidissement adapté, qu’il soit à air ou liquide.</p><br>
-                <p>Nos techniciens qualifiés assemblent chaque PC avec une précision méticuleuse et procèdent à des tests rigoureux pour garantir une performance sans faille. Nous nous adaptons à tous les budgets, en vous proposant des solutions allant de configurations économiques à des <span class="highlight">machines haut de gamme</span> pour les passionnés de jeux vidéo.</p><br>
-
-                <p>N’hésitez pas à nous contacter au <span class="highlight">07 83 74 83 11</span> pour discuter de votre projet de PC Gamer et obtenir un <span class="highlight">devis personnalisé</span>. Venez nous rendre visite dans notre boutique à Pelissane pour découvrir nos offres et bénéficier de conseils d'experts.</p><br>
-
-                <p>Nous proposons également une large gamme d’accessoires, de téléphones reconditionnés et d'ordinateurs disponibles par achat en ligne sur ce site, ou directement dans notre boutique située à <span class="highlight">Pélissane</span>.</p>
-                <p>Toutes nos réparations sont <span class="highlight">garanties 6 mois</span> pièces et main d’œuvre hors casse.</p>
+        {# Intro #}
+        <div class="reveal">
+            <h1 class="titreQsNs">D'panne Phones, votre spécialiste en réparation depuis 2017.</h1><br>
+            <p class="qSomNousText">
+                Depuis notre ouverture en 2017, <span class="highlight">D'panne Phones</span> s'est imposé comme un acteur incontournable de la réparation de smartphones, tablettes et ordinateurs dans la région de <span class="highlight">Pélissane</span>.
+                Notre engagement repose sur trois piliers fondamentaux : la <span class="highlight">qualité des pièces</span>, la <span class="highlight">rapidité d'exécution</span> et la <span class="highlight">transparence des tarifs</span>.
+            </p>
         </div>
+
+        <hr>
+
+        {# Réparation #}
+        <div class="reveal delay-1">
+            <h2 class="titreQsNs mt-4">🔧 Réparation toutes marques</h2><br>
+            <p class="qSomNousText">
+                Notre atelier prend en charge un large éventail de marques et de modèles : <span class="highlight">Apple</span> (iPhone, iPad, iPod),
+                <span class="highlight">Samsung</span> (smartphones, Galaxy Tab), Nokia, OPPO, Realme, Crosscall, Sony, HTC, LG, Huawei, Honor, Motorola, Alcatel, Xiaomi et Wiko.
+            </p>
+            <p class="qSomNousText">
+                Les délais d'intervention varient généralement de <span class="highlight">30 minutes à 5 heures</span> selon la nature de la réparation, pour des tarifs parmi les plus compétitifs du marché.
+                Toutes nos réparations sont couvertes par une <span class="highlight">garantie de 6 mois</span> sur les pièces et la main-d'œuvre, hors dommages accidentels.
+            </p>
+            <p class="qSomNousText">
+                Vous pouvez nous confier votre appareil <span class="highlight">avec ou sans rendez-vous</span>, du lundi au vendredi de 9h à 12h et de 14h à 18h, ainsi que le samedi de 9h à 12h.
+            </p>
+        </div>
+
+        <hr>
+
+        {# Occasion / Reconditionné #}
+        <div class="reveal delay-1">
+            <h2 class="titreQsNs mt-4">📱 Téléphones d'occasion &amp; reconditionnés</h2><br>
+            <p class="qSomNousText">
+                Notre boutique propose également une sélection de <span class="highlight">smartphones d'occasion et reconditionnés</span>, soigneusement testés et remis en état par nos techniciens.
+                Une alternative économique et responsable pour changer d'appareil sans compromis sur la qualité.
+            </p>
+            <p class="qSomNousText">
+                Vous recherchez un modèle en particulier ? Contactez-nous au <span class="highlight">07 83 74 83 11</span> et nous ferons le nécessaire pour vous le trouver.
+            </p>
+        </div>
+
+        <hr>
+
+        {# PC Gamer #}
+        <div class="reveal delay-1">
+            <h2 class="titreQsNs mt-4">🎮 PC Gamer sur mesure</h2><br>
+            <p class="qSomNousText">
+                Passionné de jeux vidéo ? <span class="highlight">D'panne Phones</span> vous propose un service de <span class="highlight">montage de PC Gamer personnalisé</span>, entièrement conçu selon vos besoins et votre budget.
+                Nos techniciens sélectionnent pour vous les meilleurs composants disponibles sur le marché :
+            </p>
+            <ul class="qSomNousText ml-4">
+                <li>Processeurs <span class="highlight">Intel &amp; AMD</span> dernière génération</li>
+                <li>Cartes graphiques <span class="highlight">NVIDIA GeForce &amp; AMD Radeon</span></li>
+                <li>Mémoire RAM <span class="highlight">DDR4 &amp; DDR5</span></li>
+                <li>Stockage <span class="highlight">SSD NVMe ultra-rapide</span></li>
+                <li>Refroidissement à air ou <span class="highlight">watercooling</span></li>
+                <li>Boîtiers personnalisés avec <span class="highlight">éclairage RGB</span></li>
+            </ul><br>
+            <p class="qSomNousText">
+                Chaque machine est assemblée avec soin et soumise à des <span class="highlight">tests de performance rigoureux</span> avant livraison.
+                Contactez-nous au <span class="highlight">07 83 74 83 11</span> pour obtenir un <span class="highlight">devis gratuit et personnalisé</span>.
+            </p>
+        </div>
+
+        <hr>
+
+        {# Accessoires #}
+        <div class="reveal delay-1">
+            <h2 class="titreQsNs mt-4">🛍️ Accessoires &amp; vente en ligne</h2><br>
+            <p class="qSomNousText">
+                Coques de protection, films hydrogel, chargeurs, écouteurs... Retrouvez dans notre boutique et sur ce site une <span class="highlight">large gamme d'accessoires</span> pour accompagner et protéger vos appareils au quotidien.
+            </p>
+        </div>
+
+        <hr>
+
+        {# Section Notre Boutique #}
+        <div class="reveal">
+            <div class="boutique-section">
+                <div class="boutique-welcome-eyebrow">Notre espace de vente</div>
+                <h2 class="boutique-welcome-title">Bienvenue dans notre boutique</h2>
+                <p class="boutique-welcome-sub">
+                    Venez nous rendre visite à <strong>Pélissane</strong> — notre équipe est disponible pour vous conseiller, réparer votre appareil ou vous aider à trouver le produit idéal.
+                </p>
+
+                <div class="boutique-infos">
+
+                    {# Horaires #}
+                    <div class="boutique-info-card">
+                        <h4><i class="fas fa-clock"></i> Horaires d'ouverture</h4>
+                        <table class="horaires-table">
+                            <tr>
+                                <td>Lundi – Vendredi <span class="badge-ouvert">Ouvert</span></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Matin</td>
+                                <td>9h00 – 12h00</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Après-midi</td>
+                                <td>14h00 – 18h00</td>
+                            </tr>
+                            <tr>
+                                <td>Samedi <span class="badge-ouvert">Ouvert</span></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Matin</td>
+                                <td>9h00 – 12h00</td>
+                            </tr>
+                            <tr>
+                                <td>Dimanche</td>
+                                <td style="color:rgba(255,100,100,0.8);">Fermé</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    {# Adresse & contact #}
+                    <div class="boutique-info-card">
+                        <h4><i class="fas fa-map-marker-alt"></i> Nous trouver</h4>
+                        <div class="adresse-line">
+                            <i class="fas fa-store"></i>
+                            <span>Centre Commercial Le Galion<br>Parking Aldi — Avenue Pasteur<br>13330 Pélissane</span>
+                        </div>
+                        <div class="adresse-line">
+                            <i class="fas fa-phone"></i>
+                            <span><a href="tel:+33783748311" style="color:rgba(255,255,255,0.85);text-decoration:none;">07 83 74 83 11</a></span>
+                        </div>
+                        <div class="adresse-line">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Sans rendez-vous, venez directement en magasin. Intervention rapide : 30 min à 5h.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="{{ path('boutique_index') }}" class="btn-boutique">
+                    <i class="fas fa-shopping-bag"></i> Voir la boutique en ligne
+                </a>
+            </div>
+        </div>
+
     </div>
+</div>
 
 {% endblock %}
