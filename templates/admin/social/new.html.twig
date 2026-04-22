@@ -1,0 +1,67 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'social' %}
+{% block title %}Ajouter un réseau social — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> ›
+    <a href="{{ path('admin_social_links') }}">Réseaux sociaux</a> ›
+    Nouveau
+</div>
+
+<div style="margin-bottom:20px;">
+    <a href="{{ path('admin_social_links') }}" style="font-size:13px;color:#6c757d;text-decoration:none;">
+        <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="admin-page-title">Ajouter un réseau social</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-plus" style="color:#3b82f6;"></i> Nouveau lien</h3>
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle mr-2"></i>{{ message }}
+        </div>
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+
+        <div class="form-section-title">Lien vers le réseau</div>
+        <div class="row">
+            <div class="col-md-5">
+                {{ form_row(form.platform) }}
+            </div>
+            <div class="col-md-7">
+                {{ form_row(form.url) }}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="form-section-title">Options d'affichage</div>
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.label) }}
+            </div>
+            <div class="col-md-3">
+                {{ form_row(form.sortOrder) }}
+            </div>
+            <div class="col-md-3" style="display:flex;align-items:center;padding-top:28px;">
+                {{ form_row(form.isActive) }}
+            </div>
+        </div>
+
+        <div style="margin-top:28px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-save mr-1"></i> Ajouter le lien
+            </button>
+            <a href="{{ path('admin_social_links') }}" class="btn-admin-back">
+                <i class="fas fa-arrow-left mr-1"></i> Annuler
+            </a>
+        </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

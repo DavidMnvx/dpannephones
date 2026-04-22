@@ -1,0 +1,220 @@
+{% extends 'base.html.twig' %}
+{% block title %}Avis clients — D'Panne Phones{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_avis', 'images/baner/Boutique.png')) }}" alt="Avis clients">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Avis de nos clients</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="width:92%;max-width:1100px;margin:0 auto 60px;padding:0 16px;">
+
+    {# ══ En-tête avec note globale ══ #}
+    <div class="rev-page-header">
+        <div class="rev-page-eyebrow">
+            <i class="fas fa-shield-check mr-1"></i> Avis vérifiés — clients ayant acheté
+        </div>
+        <h1 class="rev-page-title">Ce que disent nos clients</h1>
+
+        {% if total > 0 %}
+            <div class="rev-global-score">
+                <div class="rev-global-score-number">{{ averageRating ?? 0 }}</div>
+                <div class="rev-global-score-right">
+                    <div class="rev-global-stars">
+                        {% for i in range(1, 5) %}
+                            <i class="{{ i <= (averageRating|round) ? 'fas' : 'far' }} fa-star"></i>
+                        {% endfor %}
+                    </div>
+                    <div class="rev-global-count">basé sur <strong>{{ total }}</strong> avis</div>
+                </div>
+            </div>
+
+            {# Distribution des notes #}
+            <div class="rev-distribution">
+                {% for stars in [5, 4, 3, 2, 1] %}
+                    {% set count = ratingDistribution[stars] %}
+                    {% set percent = total > 0 ? (count / total * 100)|round : 0 %}
+                    <div class="rev-dist-row">
+                        <span class="rev-dist-label">{{ stars }}<i class="fas fa-star ml-1"></i></span>
+                        <div class="rev-dist-bar">
+                            <div class="rev-dist-bar-fill" style="width:{{ percent }}%;"></div>
+                        </div>
+                        <span class="rev-dist-count">{{ count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <a href="{{ path('review_new') }}" class="rev-page-cta">
+            <i class="fas fa-pen-to-square mr-2"></i>
+            Laisser mon avis
+        </a>
+    </div>
+
+    {# ══ Liste des avis ══ #}
+    {% if reviews is empty %}
+        <div class="rev-empty">
+            <i class="fas fa-comments"></i>
+            <h3>Aucun avis pour le moment</h3>
+            <p>Soyez le premier à laisser un avis après votre achat !</p>
+        </div>
+    {% else %}
+        <div class="rev-list">
+            {% for review in reviews %}
+                <article class="rev-card {{ review.isVerified ? 'rev-card--verified' : '' }}">
+                    <div class="rev-card-header">
+                        {# Avatar initiales #}
+                        {% set name = review.displayName %}
+                        {% set parts = name|split(' ') %}
+                        {% set initials = (parts[0]|first ~ (parts[1]|default('')|first))|upper %}
+                        {% set colors = ['#3b82f6', '#16a34a', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444'] %}
+                        {% set bgColor = colors[loop.index0 % colors|length] %}
+                        <div class="rev-card-avatar" style="background:{{ bgColor }};">{{ initials }}</div>
+
+                        <div class="rev-card-meta">
+                            <div class="rev-card-author">
+                                {{ name }}
+                                {% if review.isVerified %}
+                                    <span class="rev-badge-verified" title="Achat vérifié">
+                                        <i class="fas fa-check-circle"></i> Achat vérifié
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="rev-card-date">
+                                {{ review.publishedAt ? review.publishedAt|date('d F Y') : review.createdAt|date('d F Y') }}
+                            </div>
+                        </div>
+
+                        <div class="rev-card-stars">
+                            {% for i in range(1, 5) %}
+                                <i class="{{ i <= review.rating ? 'fas' : 'far' }} fa-star"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <h3 class="rev-card-title">{{ review.title }}</h3>
+                    <p class="rev-card-comment">{{ review.comment|nl2br }}</p>
+
+                    {% if review.article %}
+                        <div class="rev-card-product">
+                            <i class="fas fa-box mr-1"></i>
+                            Article : <a href="{{ path('boutique_show', {id: review.article.id}) }}">{{ review.article.name }}</a>
+                        </div>
+                    {% endif %}
+
+                    {% if review.adminResponse %}
+                        <div class="rev-card-response">
+                            <div class="rev-card-response-header">
+                                <i class="fas fa-reply"></i>
+                                <strong>Réponse de D'Panne Phones</strong>
+                                {% if review.adminResponseAt %}
+                                    <span class="rev-card-response-date">· {{ review.adminResponseAt|date('d/m/Y') }}</span>
+                                {% endif %}
+                            </div>
+                            <p>{{ review.adminResponse|nl2br }}</p>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {# ══════════════════════════════════════════════
+       Rappel avis Google
+    ══════════════════════════════════════════════ #}
+    {% if googleReviews is not empty %}
+    <section class="rev-google-recap">
+        <div class="rev-google-recap-header">
+            <div class="rev-google-recap-eyebrow">
+                <i class="fab fa-google mr-1"></i> Avis Google
+            </div>
+            <h2 class="rev-google-recap-title">Nous sommes aussi sur Google</h2>
+
+            {% if googleRating %}
+                <div class="rev-google-recap-score">
+                    <span class="rev-google-score-num">{{ googleRating }}</span>
+                    <span class="rev-google-score-stars">
+                        {% for i in range(1, 5) %}
+                            <i class="{{ i <= (googleRating|round) ? 'fas' : 'far' }} fa-star"></i>
+                        {% endfor %}
+                    </span>
+                    {% if googleTotal %}
+                        <span class="rev-google-score-count">
+                            <strong>{{ googleTotal }}</strong> avis Google
+                        </span>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="rev-google-recap-grid">
+            {% for review in googleReviews %}
+                {% set name = review.author_name %}
+                {% set parts = name|split(' ') %}
+                {% set initials = (parts[0]|first ~ (parts[1]|default('')|first))|upper %}
+                {% set colors = ['#4285f4', '#34a853', '#fbbc04', '#ea4335'] %}
+                {% set bgColor = colors[loop.index0 % colors|length] %}
+
+                <article class="rev-google-card">
+                    <div class="rev-google-card-header">
+                        {% if review.profile_photo_url %}
+                            <img src="{{ review.profile_photo_url }}" alt="{{ name }}" class="rev-google-avatar">
+                        {% else %}
+                            <div class="rev-google-avatar rev-google-avatar--initials" style="background:{{ bgColor }};">
+                                {{ initials }}
+                            </div>
+                        {% endif %}
+                        <div class="rev-google-meta">
+                            <div class="rev-google-author">{{ name }}</div>
+                            <div class="rev-google-time">{{ review.relative_time ?? '' }}</div>
+                        </div>
+                        <div class="rev-google-badge" title="Avis publié sur Google">
+                            <i class="fab fa-google"></i>
+                        </div>
+                    </div>
+                    <div class="rev-google-stars">
+                        {% for i in range(1, 5) %}
+                            <i class="{{ i <= review.rating ? 'fas' : 'far' }} fa-star"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="rev-google-text">{{ review.text|slice(0, 200) }}{% if review.text|length > 200 %}…{% endif %}</p>
+                </article>
+            {% endfor %}
+        </div>
+
+        <div class="rev-google-recap-cta">
+            <a href="https://www.google.com/maps/place/?q=place_id:ChIJQ8joB7_5yRIRHpgyRx9z26o"
+               target="_blank" rel="noopener noreferrer" class="rev-google-link">
+                <i class="fab fa-google mr-2"></i>
+                Voir tous les avis sur Google
+                <i class="fas fa-external-link-alt ml-2" style="font-size:11px;"></i>
+            </a>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ── CTA en bas ── #}
+    <div class="rev-bottom-cta">
+        <h3>Vous avez récemment commandé chez nous ?</h3>
+        <p>Partagez votre expérience — votre avis compte énormément pour nous et aide les autres clients.</p>
+        {% if is_granted('ROLE_USER') %}
+            <a href="{{ path('review_new') }}" class="rev-page-cta">
+                <i class="fas fa-pen-to-square mr-2"></i> Laisser mon avis
+            </a>
+        {% else %}
+            <a href="{{ path('app_login') }}" class="rev-page-cta">
+                <i class="fas fa-sign-in-alt mr-2"></i> Me connecter pour laisser un avis
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

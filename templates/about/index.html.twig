@@ -7,7 +7,7 @@
 <div id="carouselExampleIndicators2" class="carousel slide" data-ride="carousel" data-interval="4000">
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/baner/quiSommesNous.webp') }}" alt="Qui sommes-nous ?">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_about', 'images/baner/quiSommesNous.webp')) }}" alt="Qui sommes-nous ?">
             <div class="carousel-caption">
                 <h2 id="quiSommesNous">Qui sommes-nous ?</h2>
             </div>
@@ -159,6 +159,9 @@
                 </a>
             </div>
         </div>
+
+        {# ═══ Suivez-nous sur les réseaux sociaux ═══ #}
+        {{ include('_partials/social_follow.html.twig') }}
 
     </div>
 </div>

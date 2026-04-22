@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="teleBgSam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+    <linearGradient id="phoneSam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#0a1f3a"/>
+    </linearGradient>
+    <linearGradient id="wallpaperSam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#teleBgSam)"/>
+
+  <!-- Téléphone Samsung -->
+  <g transform="translate(200, 200)">
+    <!-- Corps -->
+    <rect x="-60" y="-120" width="120" height="240" rx="20" fill="url(#phoneSam)"/>
+    <rect x="-55" y="-115" width="110" height="230" rx="16" fill="#0a0a0a"/>
+    <!-- Écran avec wallpaper -->
+    <rect x="-50" y="-110" width="100" height="220" rx="12" fill="url(#wallpaperSam)"/>
+    <!-- Poinçon caméra -->
+    <circle cx="0" cy="-100" r="4" fill="#000"/>
+    <!-- Icônes app -->
+    <g opacity="0.85">
+      <rect x="-36" y="-55" width="16" height="16" rx="4" fill="#fff" opacity="0.95"/>
+      <rect x="-16" y="-55" width="16" height="16" rx="4" fill="#22c55e"/>
+      <rect x="4" y="-55" width="16" height="16" rx="4" fill="#ec4899"/>
+      <rect x="24" y="-55" width="16" height="16" rx="4" fill="#fbbf24"/>
+      <rect x="-36" y="-35" width="16" height="16" rx="4" fill="#a855f7"/>
+      <rect x="-16" y="-35" width="16" height="16" rx="4" fill="#f59e0b"/>
+      <rect x="4" y="-35" width="16" height="16" rx="4" fill="#06b6d4"/>
+      <rect x="24" y="-35" width="16" height="16" rx="4" fill="#ef4444"/>
+      <rect x="-36" y="-15" width="16" height="16" rx="4" fill="#14b8a6"/>
+      <rect x="-16" y="-15" width="16" height="16" rx="4" fill="#d946ef"/>
+      <rect x="4" y="-15" width="16" height="16" rx="4" fill="#f97316"/>
+      <rect x="24" y="-15" width="16" height="16" rx="4" fill="#0ea5e9"/>
+    </g>
+    <!-- Boutons latéraux -->
+    <rect x="60" y="-50" width="2" height="20" fill="#48484a"/>
+    <rect x="60" y="-20" width="2" height="35" fill="#48484a"/>
+  </g>
+
+  <text x="200" y="380" font-family="Arial, sans-serif" font-size="11" font-weight="700"
+        fill="#1e40af" text-anchor="middle" letter-spacing="4" opacity="0.7">
+    SAMSUNG GALAXY
+  </text>
+</svg>

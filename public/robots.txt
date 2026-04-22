@@ -1,0 +1,41 @@
+# robots.txt — D'Panne Phones
+# https://www.robotstxt.org/
+# Mis à jour : 2026
+
+User-agent: *
+
+# Autoriser tout le contenu public par défaut
+Allow: /
+
+# Interdire les zones privées / techniques
+Disallow: /admin/
+Disallow: /admin
+Disallow: /mon-compte
+Disallow: /mon-compte/
+Disallow: /logout
+Disallow: /login
+Disallow: /register
+Disallow: /verify/
+Disallow: /payment/
+Disallow: /cart/
+Disallow: /_profiler/
+Disallow: /_wdt/
+Disallow: /_error/
+
+# Autoriser les assets publics (CSS, JS, images) explicitement
+Allow: /assets/
+Allow: /images/
+Allow: /uploads/images/
+
+# Sitemap (à ajuster une fois le domaine en prod)
+Sitemap: https://dpannephones.com/sitemap.xml
+
+# Interdire les aspirateurs agressifs (optionnel)
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

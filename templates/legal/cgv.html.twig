@@ -1,0 +1,223 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conditions Générales de Vente — D'panne Phones{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_cgv', 'images/baner/connexion.png')) }}" alt="CGV">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Conditions Générales de Vente</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="legal-page-wrap">
+
+    <div class="legal-toc">
+        <div class="legal-toc-title"><i class="fas fa-list mr-2"></i>Sommaire</div>
+        <a href="#objet">1. Objet</a>
+        <a href="#produits">2. Produits & prix</a>
+        <a href="#commande">3. Commande & paiement</a>
+        <a href="#retrait">4. Retrait en boutique</a>
+        <a href="#retractation">5. Droit de rétractation</a>
+        <a href="#garanties">6. Garanties légales</a>
+        <a href="#grades">7. Système de grades</a>
+        <a href="#responsabilite">8. Responsabilité</a>
+        <a href="#litiges">9. Litiges & médiation</a>
+    </div>
+
+    <div class="legal-content">
+
+        <div class="legal-update-date">
+            <i class="fas fa-calendar-alt mr-1"></i> Dernière mise à jour : {{ "now"|date("d/m/Y") }}
+        </div>
+
+        <section id="objet">
+            <h2 class="legal-h2"><i class="fas fa-file-alt mr-2"></i>1. Objet</h2>
+            <p>
+                Les présentes Conditions Générales de Vente (CGV) régissent les ventes de produits effectuées par
+                <strong>D'panne Phones</strong> (ci-après « le Vendeur ») à tout consommateur (ci-après « le Client »)
+                via le site <strong>dpannephones.fr</strong>.
+            </p>
+            <p>
+                Toute commande passée sur le site implique l'acceptation pleine et entière des présentes CGV.
+            </p>
+        </section>
+
+        <section id="produits">
+            <h2 class="legal-h2"><i class="fas fa-box mr-2"></i>2. Produits & prix</h2>
+            <p>
+                D'panne Phones propose à la vente des produits <strong>neufs</strong> et des produits
+                <strong>d'occasion / reconditionnés</strong> (smartphones, ordinateurs, accessoires, films de protection).
+            </p>
+            <p>
+                Les prix affichés sont indiqués en <strong>euros, toutes taxes comprises (TTC)</strong>.
+                D'panne Phones se réserve le droit de modifier ses prix à tout moment, sans préavis.
+                Le prix applicable est celui en vigueur au moment de la validation de la commande.
+            </p>
+            <div class="legal-highlight">
+                <i class="fas fa-info-circle mr-2"></i>
+                Les articles d'occasion sont contrôlés, testés et classés par grade avant mise en vente.
+                L'état de chaque article est clairement indiqué sur sa fiche produit.
+            </div>
+        </section>
+
+        <section id="commande">
+            <h2 class="legal-h2"><i class="fas fa-shopping-cart mr-2"></i>3. Commande & paiement</h2>
+            <p>Le Client passe commande via le site et procède au règlement en ligne par carte bancaire, sécurisé par <strong>Stripe</strong>.</p>
+            <p>Moyens de paiement acceptés :</p>
+            <ul class="legal-list">
+                <li>Carte Visa, Mastercard, Carte Bancaire (CB), American Express</li>
+                <li>Apple Pay, Google Pay (selon compatibilité navigateur)</li>
+            </ul>
+            <p>
+                La commande est définitivement enregistrée après confirmation du paiement par Stripe.
+                Un email de confirmation est envoyé au Client.
+            </p>
+        </section>
+
+        <section id="retrait">
+            <h2 class="legal-h2"><i class="fas fa-store mr-2"></i>4. Retrait en boutique</h2>
+            <p>
+                D'panne Phones propose uniquement le <strong>retrait en boutique</strong>.
+                Aucune expédition n'est effectuée à ce jour.
+            </p>
+            <div class="legal-info-box">
+                <div class="legal-info-row"><span>Adresse</span><strong>Avenue Pasteur, Centre Commercial Le Galion — Parking Aldi, 13330 Pélissanne</strong></div>
+                <div class="legal-info-row"><span>Délai de disponibilité</span><strong>Sous 1 à 2 jours ouvrés après confirmation du paiement</strong></div>
+                <div class="legal-info-row"><span>Horaires</span><strong>Lun–Ven : 9h–12h / 14h–18h — Samedi : 9h–12h</strong></div>
+                <div class="legal-info-row"><span>Contact</span><strong>07 83 74 83 11</strong></div>
+            </div>
+            <p>Le Client sera contacté par téléphone ou email dès que sa commande est prête à être retirée.</p>
+        </section>
+
+        <section id="retractation">
+            <h2 class="legal-h2"><i class="fas fa-undo-alt mr-2"></i>5. Droit de rétractation</h2>
+            <div class="legal-highlight legal-highlight--blue">
+                <i class="fas fa-balance-scale mr-2"></i>
+                Conformément à l'article <strong>L221-18 du Code de la consommation</strong>, le Client dispose d'un
+                délai de <strong>14 jours calendaires</strong> à compter du retrait du produit pour exercer son droit de rétractation,
+                sans avoir à justifier de motifs ni à payer de pénalités.
+            </div>
+            <p>Pour exercer ce droit, le Client doit notifier sa décision par :</p>
+            <ul class="legal-list">
+                <li>Email : <strong>contact@dpannephones.fr</strong></li>
+                <li>Téléphone : <strong>07 83 74 83 11</strong></li>
+                <li>Courrier : <strong>Avenue Pasteur, 13330 Pélissanne</strong></li>
+            </ul>
+            <p>
+                Le produit doit être retourné en boutique dans son état d'origine, complet et non endommagé.
+                Le remboursement sera effectué dans un délai de <strong>14 jours</strong> suivant la réception du produit retourné.
+            </p>
+            <p class="legal-exception">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                <strong>Exceptions :</strong> Le droit de rétractation ne s'applique pas aux films de protection hydrogel
+                déjà posés sur l'appareil (produit descellé — Art. L221-28 C. conso.).
+            </p>
+        </section>
+
+        <section id="garanties">
+            <h2 class="legal-h2"><i class="fas fa-shield-alt mr-2"></i>6. Garanties légales</h2>
+
+            <h3 class="legal-h3">6.1 Garantie légale de conformité</h3>
+            <p>
+                Conformément aux articles <strong>L217-3 à L217-20 du Code de la consommation</strong> :
+            </p>
+            <ul class="legal-list">
+                <li>Produits <strong>neufs</strong> : garantie de <strong>2 ans</strong> à compter de la délivrance</li>
+                <li>Produits <strong>d'occasion</strong> : garantie de <strong>1 an</strong> à compter de la délivrance</li>
+            </ul>
+            <p>
+                En cas de défaut de conformité, le Client peut demander la réparation ou le remplacement du produit.
+                Si ces solutions sont impossibles, le Client peut obtenir une réduction du prix ou la résolution du contrat.
+            </p>
+
+            <h3 class="legal-h3">6.2 Garantie contre les vices cachés</h3>
+            <p>
+                Conformément aux <strong>articles 1641 à 1649 du Code civil</strong>, D'panne Phones est tenu à la garantie
+                des vices cachés rendant le produit impropre à l'usage auquel il est destiné, ou qui en diminuent tellement
+                cet usage que le Client ne l'aurait pas acquis ou n'en aurait donné qu'un moindre prix.
+            </p>
+
+            <h3 class="legal-h3">6.3 Garantie commerciale (SAV)</h3>
+            <p>
+                En complément des garanties légales, D'panne Phones propose un service après-vente en boutique.
+                Contactez-nous au <strong>07 83 74 83 11</strong> pour toute demande.
+            </p>
+        </section>
+
+        <section id="grades">
+            <h2 class="legal-h2"><i class="fas fa-star mr-2"></i>7. Système de grades (produits d'occasion)</h2>
+            <p>
+                Les produits d'occasion sont classés selon un système de grades défini comme suit,
+                conformément aux pratiques de la filière du reconditionnement :
+            </p>
+            <div class="grade-explain-table">
+                <div class="grade-explain-row">
+                    <div class="grade-explain-badge grade-a">A</div>
+                    <div>
+                        <strong>Excellent état</strong>
+                        <p>Traces d'utilisation imperceptibles ou inexistantes. Produit fonctionnel à 100 %, comme neuf visuellement.</p>
+                    </div>
+                </div>
+                <div class="grade-explain-row">
+                    <div class="grade-explain-badge grade-b">B</div>
+                    <div>
+                        <strong>Très bon état</strong>
+                        <p>Légères traces d'utilisation (micro-rayures, légère usure). Produit entièrement fonctionnel.</p>
+                    </div>
+                </div>
+                <div class="grade-explain-row">
+                    <div class="grade-explain-badge grade-c">C</div>
+                    <div>
+                        <strong>Bon état</strong>
+                        <p>Traces d'utilisation visibles (rayures, marques). Produit fonctionnel, état cosmétique réduit.</p>
+                    </div>
+                </div>
+            </div>
+            <p class="mt-3">
+                L'état de la batterie est systématiquement indiqué pour les smartphones (pourcentage de santé batterie).
+            </p>
+        </section>
+
+        <section id="responsabilite">
+            <h2 class="legal-h2"><i class="fas fa-exclamation-circle mr-2"></i>8. Responsabilité</h2>
+            <p>
+                D'panne Phones ne saurait être tenu responsable des dommages immatériels consécutifs à l'utilisation
+                des produits vendus. La responsabilité du Vendeur est limitée au montant de la commande concernée.
+            </p>
+        </section>
+
+        <section id="litiges">
+            <h2 class="legal-h2"><i class="fas fa-gavel mr-2"></i>9. Litiges & médiation</h2>
+            <p>
+                En cas de litige, le Client peut contacter D'panne Phones en priorité par email ou téléphone pour
+                trouver une solution amiable.
+            </p>
+            <p>
+                Conformément à l'article L612-1 du Code de la consommation, le Client peut recourir gratuitement à un
+                <strong>médiateur de la consommation</strong> en cas de litige non résolu. Le Client peut se rendre sur
+                la plateforme européenne de règlement en ligne des litiges :
+                <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.
+            </p>
+            <p>
+                À défaut de résolution amiable, les tribunaux français seront compétents,
+                conformément au droit français applicable.
+            </p>
+        </section>
+
+        <div class="legal-back-links">
+            <a href="{{ path('legal_mentions') }}"><i class="fas fa-info-circle mr-1"></i>Mentions légales</a>
+            <a href="{{ path('legal_confidentialite') }}"><i class="fas fa-user-shield mr-1"></i>Confidentialité</a>
+            <a href="{{ path('home') }}"><i class="fas fa-home mr-1"></i>Accueil</a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

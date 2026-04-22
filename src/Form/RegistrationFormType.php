@@ -27,15 +27,18 @@ class RegistrationFormType extends AbstractType
             ->add('phone')
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
-                'invalid_message' => 'The password fields must match.',
+                'invalid_message' => 'Les deux mots de passe ne correspondent pas.',
                 'options' => ['attr' => ['class' => 'password-field']],
                 'required' => true,
-                'first_options'  => ['constraints' => [
-                    new NotBlank(['message' => 'Please enter a password']),
-                    new Length(['min' => 8, 'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.']),
-                    new Assert\Regex(['pattern' => '/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/', 'message' => 'Le mot de passe doit contenir au moins une majuscule, un chiffre et un caractère spécial (ex: @, #, !, $…).']),
-                    ]],
-                'second_options' => ['label' => 'Repeat Password'],
+                'first_options'  => [
+                    'label' => 'Mot de passe',
+                    'constraints' => [
+                        new NotBlank(['message' => 'Veuillez saisir un mot de passe.']),
+                        new Length(['min' => 8, 'minMessage' => 'Le mot de passe doit contenir au moins {{ limit }} caractères.']),
+                        new Assert\Regex(['pattern' => '/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/', 'message' => 'Le mot de passe doit contenir au moins une majuscule, un chiffre et un caractère spécial (ex: @, #, !, $…).']),
+                    ],
+                ],
+                'second_options' => ['label' => 'Confirmer le mot de passe'],
             ]);
     }
 

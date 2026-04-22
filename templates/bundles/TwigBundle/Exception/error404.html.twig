@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page introuvable — D'Panne Phones{% endblock %}
+{% block meta_robots %}noindex, follow{% endblock %}
+
+{% block body %}
+<div class="err-page">
+    <div class="err-page-bg">
+        <span class="err-blob err-blob--1"></span>
+        <span class="err-blob err-blob--2"></span>
+    </div>
+
+    <div class="err-page-inner">
+        <div class="err-code">404</div>
+        <h1 class="err-title">Oups, cette page n'existe pas…</h1>
+        <p class="err-text">
+            La page que vous cherchez a peut-être été déplacée, supprimée,
+            ou l'adresse est incorrecte. Pas de panique — on va vous ramener sur la bonne voie !
+        </p>
+
+        <div class="err-actions">
+            <a href="{{ path('home') }}" class="err-btn err-btn--primary">
+                <i class="fas fa-home mr-2"></i>Retour à l'accueil
+            </a>
+            <a href="{{ path('boutique_index') }}" class="err-btn err-btn--ghost">
+                <i class="fas fa-shopping-bag mr-2"></i>Voir la boutique
+            </a>
+            <a href="{{ path('contact') }}" class="err-btn err-btn--ghost">
+                <i class="fas fa-envelope mr-2"></i>Nous contacter
+            </a>
+        </div>
+
+        <div class="err-suggestions">
+            <div class="err-suggestions-title">Ou explorez ces sections populaires :</div>
+            <div class="err-suggestions-grid">
+                <a href="{{ path('reparations_home') }}" class="err-suggestion">
+                    <i class="fas fa-wrench"></i>
+                    <span>Réparations</span>
+                </a>
+                <a href="{{ path('boutique_index') }}" class="err-suggestion">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Téléphones</span>
+                </a>
+                <a href="{{ path('boutique_index', {categorie: 'film_hydrogel'}) }}" class="err-suggestion">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Film Hydrogel</span>
+                </a>
+                <a href="{{ path('reviews_index') }}" class="err-suggestion">
+                    <i class="fas fa-star"></i>
+                    <span>Avis clients</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

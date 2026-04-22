@@ -1,0 +1,114 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0a4771 0%, #1b5e8e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .verify-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #0a4771 0%, #1b5e8e 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .verify-button:hover {
+            opacity: 0.9;
+            text-decoration: none;
+            color: white;
+        }
+        .link-text {
+            color: #666;
+            font-size: 12px;
+            margin-top: 15px;
+            word-break: break-all;
+        }
+        .footer {
+            background: #e8e8e8;
+            color: #666;
+            font-size: 12px;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 8px 8px;
+            border-top: 1px solid #ddd;
+        }
+        .info-box {
+            background: white;
+            border-left: 4px solid #0a4771;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            {% include 'email/_logo.html.twig' %}
+            <h1 style="margin-top:14px;">🔒 Confirmer votre email</h1>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Bonjour {{ user.prenom | default(user.email) }},
+            </div>
+
+            <p>Merci de vous être inscrit chez <strong>D'Panne Phones</strong> ! Pour sécuriser votre compte, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :</p>
+
+            <div class="button-container">
+                <a href="{{ signedUrl }}" class="verify-button">Confirmer mon email</a>
+            </div>
+
+            <div class="info-box">
+                <strong>⏰ Important :</strong> Ce lien expire dans <strong>{{ expiresAtMessageKey | trans(expiresAtMessageData) }}</strong>.
+            </div>
+
+            <p>Si vous n'avez pas créé ce compte, vous pouvez ignorer cet email en toute sécurité.</p>
+
+            <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px;">
+                Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :<br>
+                <span class="link-text">{{ signedUrl }}</span>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 D'Panne Phones - Tous droits réservés<br>
+            <strong>Adresse :</strong> Pélissanne, France</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -8,7 +8,7 @@
 <div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/baner/Boutique.png') }}" alt="Boutique">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_boutique', 'images/baner/Boutique.png')) }}" alt="Boutique">
             <div class="carousel-caption">
                 <h5 id="uneRep">Notre Boutique</h5>
             </div>
@@ -19,6 +19,27 @@
 <div style="width:80%;margin:0 auto 60px;padding:0 16px;">
 
     <div class="boutique-page-title">Boutique</div>
+
+    {# ── Filtre mobile catégories (visible ≤992px) ── #}
+    <div class="mobile-cat-bar">
+        <a href="{{ path('boutique_index') }}" class="mobile-cat-pill {{ currentCategorie is null ? 'active' : '' }}">
+            <i class="fas fa-th-large"></i> Tous
+        </a>
+        {% for slug, label in categories %}
+            <a href="{{ path('boutique_index', {categorie: slug}) }}"
+               class="mobile-cat-pill {{ currentCategorie == slug ? 'active' : '' }}">
+                {% if slug == 'pc_gamer' %}<i class="fas fa-gamepad"></i>
+                {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
+                {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
+                {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
+                {% elseif slug == 'film_hydrogel' %}<i class="fas fa-shield-alt"></i>
+                {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
+                {% endif %}
+                {{ label }}
+            </a>
+        {% endfor %}
+    </div>
+
     <p class="boutique-page-sub">
         {% if currentCategorie %}
             {{ categories[currentCategorie] }} — {{ articles|length }} article{{ articles|length > 1 ? 's' : '' }} disponible{{ articles|length > 1 ? 's' : '' }}
@@ -52,150 +73,499 @@
 
         {# Grille produits #}
         <div class="products-area">
-            {% if articles is empty %}
-                <div class="empty-state">
-                    <i class="fas fa-box-open"></i>
-                    <p style="font-size:16px;font-weight:600;color:#6c757d;margin-bottom:6px;">Aucun article pour le moment.</p>
-                    <small>Revenez bientôt ou consultez une autre catégorie.</small><br><br>
-                    <a href="{{ path('boutique_index') }}" style="display:inline-flex;align-items:center;gap:7px;margin-top:6px;background:rgb(9,71,113);color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
-                        <i class="fas fa-arrow-left"></i> Voir tout
-                    </a>
-                </div>
-            {% else %}
-                <div class="products-grid">
-                    {% for article in articles %}
-                        <div class="product-card">
-                            <div class="product-img-wrap">
-                                {% if article.image %}
-                                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
-                                {% else %}
-                                    <i class="fas fa-image no-img"></i>
-                                {% endif %}
+
+            {# ══════════════════════════════════════════════
+               PAGE LANDING HYDROGEL (remplace la grille)
+            ══════════════════════════════════════════════ #}
+            {% if currentCategorie == 'film_hydrogel' %}
+
+                {% set hydroArticle = articles|first %}
+
+                {# ── HERO : image + présentation ── #}
+                <div class="hlp-hero">
+                    <div class="hlp-hero-img">
+                        <img src="{{ asset('images/accueil/Hydrogel3.png') }}" alt="Film hydrogel sur mesure">
+                    </div>
+                    <div class="hlp-hero-content">
+                        <h1 class="hlp-hero-title">Qu'est-ce qu'un film hydrogel ?</h1>
+                        <div class="hlp-hero-sep"></div>
+                        <p>L'hydrogel est un gel particulièrement solide et élastique. Composé d'eau et de polymères, il est utilisé notamment dans la fabrication des lentilles de contact. Fin, transparent et auto régénérant, le film hydrogel offre une résistance exceptionnelle aux chocs et rayures.</p>
+
+                        <h2 class="hlp-hero-subtitle">L'alternative aux verres trempés</h2>
+                        <div class="hlp-hero-sep"></div>
+                        <p>Avant l'avènement du film hydrogel, les protections les plus courantes pour téléphone étaient en verre trempé. En chauffant à haute température ce verre (plus de 700 degrés) et en le refroidissant brusquement il devient plus résistant. Seul inconvénient au fil du temps, il garde les traces d'impact rendant l'écran du téléphone inesthétique. De plus, le verre trempé du fait de sa rigidité ne peut être utilisé sur les écrans avec les bords incurvés.</p>
+
+                        {# CTA prix + bouton #}
+                        {% if hydroArticle %}
+                        <div class="hlp-hero-cta">
+                            <div class="hlp-hero-price">
+                                <span class="hlp-price-amount">{{ hydroArticle.price|number_format(2, ',', ' ') }} €</span>
+                                <span class="hlp-price-hint">TTC · Découpe sur mesure</span>
                             </div>
-                            <div class="product-body">
-                                <div class="product-badges">
-                                    <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
-                                        {{ article.isNew ? 'Neuf' : "D'occasion" }}
-                                    </span>
-                                    {% if article.grade %}
-                                        <span class="badge-grade">Grade {{ article.grade }}</span>
-                                    {% endif %}
-                                </div>
-                                <div class="product-name">{{ article.name }}</div>
-                                <p class="product-desc">{{ article.description }}</p>
+                            <button type="button" class="btn-cart btn-cart--hydrogel btn-cart--lg"
+                                    data-toggle="modal" data-target="#hydrogelModal{{ hydroArticle.id }}">
+                                <i class="fas fa-mobile-alt"></i> Choisir mon modèle
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
 
-                                {# Specs par catégorie #}
-                                {% if article.categorie in ['pc_gamer', 'pc_bureautique', 'pc_portable'] %}
-                                    {% if article.specs %}
-                                        <div class="pc-specs-list">
-                                            {% for key, val in article.specs %}
-                                                <div class="pc-spec-row">
-                                                    <span class="pc-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
-                                                    <span class="pc-spec-val">{{ val }}</span>
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                                {% elseif article.categorie == 'telephone' %}
-                                    {% if article.specs %}
-                                        <div class="pc-specs-list">
-                                            {% if article.specs.storage_capacity is defined %}
-                                                <div class="pc-spec-row">
-                                                    <span class="pc-spec-key">Stockage</span>
-                                                    <span class="pc-spec-val">{{ article.specs.storage_capacity }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if article.specs.color is defined %}
-                                                <div class="pc-spec-row">
-                                                    <span class="pc-spec-key">Couleur</span>
-                                                    <span class="pc-spec-val">{{ article.specs.color }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if article.specs.network is defined %}
-                                                <div class="pc-spec-row">
-                                                    <span class="pc-spec-key">Réseau</span>
-                                                    <span class="pc-spec-val">{{ article.specs.network }}</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if article.specs.battery_health is defined %}
-                                                <div class="pc-spec-row">
-                                                    <span class="pc-spec-key">Batterie</span>
-                                                    <span class="pc-spec-val">{{ article.specs.battery_health }}%</span>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    {% endif %}
-                                {% endif %}
+                {# ── AVANTAGES (fond bleu foncé) ── #}
+                <div class="hlp-advantages">
+                    <h2 class="hlp-advantages-title">Les avantages du film hydrogel</h2>
+                    <div class="hlp-advantages-sep"></div>
+                    <div class="hlp-advantages-grid">
+                        <ul class="hlp-advantages-list">
+                            <li><i class="fas fa-check"></i> Compatible avec un grand nombre d'écrans (montre connectée, console de jeux style Switch, tablette, téléphone, appareil photo, etc.)</li>
+                            <li><i class="fas fa-check"></i> Fin (≈ 0,40 mm)</li>
+                            <li><i class="fas fa-check"></i> Résistant</li>
+                            <li><i class="fas fa-check"></i> Transparent</li>
+                        </ul>
+                        <ul class="hlp-advantages-list">
+                            <li><i class="fas fa-check"></i> Doux et agréable au toucher</li>
+                            <li><i class="fas fa-check"></i> Compatible avec les lecteurs d'empreinte</li>
+                            <li><i class="fas fa-check"></i> Durée de vie longue (supérieure à celle du verre trempé)</li>
+                            <li><i class="fas fa-check"></i> Auto-régénérant. Le film grâce à sa plasticité s'auto-répare suite aux chocs ou aux rayures du quotidien</li>
+                        </ul>
+                    </div>
+                </div>
 
-                                <div class="product-footer">
-                                    <span class="product-price">{{ article.price }} €</span>
+                {# ── ÉTAPES DE POSE ── #}
+                <div class="hlp-steps">
+                    <h2 class="hlp-steps-title">Comment poser votre film hydrogel ?</h2>
+                    <p class="hlp-steps-sub">Le kit inclut lingettes sèche et humide, autocollants anti-poussière et spatule de lissage.</p>
 
-                                    {# Hydrogel : sélecteur de modèle #}
-                                    {% if article.categorie == 'film_hydrogel' %}
-                                        {% set models = article.specs.compatible_models ?? [] %}
-                                        {% if models is not empty %}
-                                            <form method="get" action="{{ path('cart_add', {id: article.id}) }}" class="hydrogel-form" style="width:100%;margin-top:8px;">
-                                                <select name="model" class="form-control form-control-sm mb-2" required>
-                                                    <option value="">— Choisir un modèle —</option>
-                                                    {% for model in models %}
-                                                        <option value="{{ model }}">{{ model }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <button type="submit" class="btn-cart w-100">
-                                                    <i class="fas fa-cart-plus"></i> Ajouter
-                                                </button>
-                                            </form>
+                    <div class="hlp-steps-grid">
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-broom"></i></div>
+                            <h3><span class="hlp-step-num">1</span> Nettoyer l'écran à l'aide du kit nettoyant</h3>
+                            <p>Prendre la lingette humide (1) et enlever soigneusement de votre écran les traces et poussières. Ensuite, absorber avec la lingette sèche (2) les derniers résidus.</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-hand-paper"></i></div>
+                            <h3><span class="hlp-step-num">2</span> Retirer le film hydrogel de son support</h3>
+                            <p>La feuille est composée de trois couches distinctes.</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-layer-group"></i></div>
+                            <h3><span class="hlp-step-num">3</span> Les trois couches de votre feuille hydrogel</h3>
+                            <p>(1) la pellicule de positionnement (deux parties, basse et haute). (2) le film hydrogel qui va protéger votre écran. (3) la pellicule de soutien. Ne pas séparer les couches et les laisser assemblées.</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-mobile-alt"></i></div>
+                            <h3><span class="hlp-step-num">4</span> Placer votre film hydrogel</h3>
+                            <p>Mettre à plat votre smartphone pour positionner la feuille. Celle-ci adhérera à votre écran sans se coller directement. Exercer une petite pression sur la ligne prédécoupée (4).</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-angle-double-up"></i></div>
+                            <h3><span class="hlp-step-num">5</span> Saisir la feuille</h3>
+                            <p>Soulever par l'extrémité la partie basse à 90 degrés jusqu'à la ligne prédécoupée (4). Prendre comme repère cette ligne (4) et avec la spatule fournie, lisser délicatement pour que la pellicule de positionnement basse s'échappe.</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-angle-double-down"></i></div>
+                            <h3><span class="hlp-step-num">6</span> Faire de même pour l'autre extrémité</h3>
+                            <p>Soulever par l'extrémité la partie basse à 90 degrés jusqu'à la ligne prédécoupée (4). Prendre comme repère cette ligne (4) et avec la spatule fournie, lisser délicatement pour que la pellicule de positionnement basse s'échappe.</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-compress-arrows-alt"></i></div>
+                            <h3><span class="hlp-step-num">7</span> Éliminer l'air et les bulles</h3>
+                            <p>À l'aide de votre spatule ou de votre doigt, lisser intégralement l'ensemble pour chasser l'air et les bulles vers l'extérieur.</p>
+                        </div>
+                        <div class="hlp-step-card">
+                            <div class="hlp-step-icon"><i class="fas fa-check-circle"></i></div>
+                            <h3><span class="hlp-step-num">8</span> Ôter la pellicule de soutien</h3>
+                            <p>C'est la dernière étape : sélectionner un des coins de votre smartphone et ôter la pellicule supérieure (3).</p>
+                        </div>
+                    </div>
+
+                    <div class="hlp-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <div>
+                            <strong>Conseil pro</strong> — Travaillez dans une pièce sans courant d'air pour éviter les poussières. Si une bulle persiste après la pose, elle disparaîtra d'elle-même en 24–48h grâce à l'auto-régénération du film.
+                        </div>
+                    </div>
+                </div>
+
+                {# ── CTA FINAL ── #}
+                {% if hydroArticle %}
+                <div class="hlp-cta">
+                    <div class="hlp-cta-inner">
+                        <div class="hlp-cta-text">
+                            <h2>Protégez votre écran dès maintenant</h2>
+                            <p>Découpe sur mesure pour votre smartphone — pose facile ou en boutique sans rendez-vous.</p>
+                        </div>
+                        <div class="hlp-cta-actions">
+                            <div class="hlp-cta-price">{{ hydroArticle.price|number_format(2, ',', ' ') }} € <small>TTC</small></div>
+                            <button type="button" class="btn-cart btn-cart--hydrogel btn-cart--lg"
+                                    data-toggle="modal" data-target="#hydrogelModal{{ hydroArticle.id }}">
+                                <i class="fas fa-shield-alt"></i> Commander mon film hydrogel
+                            </button>
+                            <a href="{{ path('contact') }}" class="hlp-cta-link">
+                                <i class="fas fa-store mr-1"></i> Ou venez en boutique à Pélissanne
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+            {# ══════════════════════════════════════════════
+               GRILLE PRODUITS CLASSIQUE (autres catégories)
+            ══════════════════════════════════════════════ #}
+            {% else %}
+
+                {# Filtre marques #}
+                {% if currentCategorie == 'telephone' and availableBrands is not empty %}
+                    <div class="brand-filter-bar">
+                        <span class="brand-filter-label"><i class="fas fa-filter mr-1"></i>Marque :</span>
+                        <a href="{{ path('boutique_index', {categorie: 'telephone'}) }}"
+                           class="brand-pill {{ currentBrand is null ? 'brand-pill--active' : '' }}">
+                            Toutes
+                        </a>
+                        {% for b in availableBrands %}
+                            <a href="{{ path('boutique_index', {categorie: 'telephone', brand: b}) }}"
+                               class="brand-pill {{ currentBrand == b ? 'brand-pill--active' : '' }}">
+                                {{ b }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if articles is empty %}
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p style="font-size:16px;font-weight:600;color:#6c757d;margin-bottom:6px;">Aucun article pour le moment.</p>
+                        <small>Revenez bientôt ou consultez une autre catégorie.</small><br><br>
+                        <a href="{{ path('boutique_index') }}" style="display:inline-flex;align-items:center;gap:7px;margin-top:6px;background:rgb(9,71,113);color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+                            <i class="fas fa-arrow-left"></i> Voir tout
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="products-grid">
+                        {% for article in articles %}
+                            <div class="product-card">
+                                <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-img-link">
+                                    <div class="product-img-wrap">
+                                        {% if article.image %}
+                                            <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                                        {% else %}
+                                            <i class="fas fa-image no-img"></i>
+                                        {% endif %}
+                                    </div>
+                                </a>
+                                <div class="product-body">
+                                    <div class="product-badges">
+                                        <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
+                                            {{ article.isNew ? 'Neuf' : "D'occasion" }}
+                                        </span>
+                                        {% if article.grade %}
+                                            <span class="badge-grade grade-tooltip-wrap" tabindex="0">
+                                                Grade {{ article.grade }}
+                                                <span class="grade-tooltip">
+                                                    <strong>Grade A</strong> — Excellent état<br>
+                                                    <strong>Grade B</strong> — Légères traces d'usage<br>
+                                                    <strong>Grade C</strong> — Traces visibles
+                                                </span>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="product-name">
+                                        <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-name-link">{{ article.name }}</a>
+                                    </div>
+                                    <p class="product-desc">{{ article.description }}</p>
+
+                                    {# Specs par catégorie #}
+                                    {% if article.categorie in ['pc_gamer', 'pc_bureautique', 'pc_portable'] %}
+                                        {% if article.specs %}
+                                            <div class="pc-specs-list">
+                                                {% for key, val in article.specs %}
+                                                    <div class="pc-spec-row">
+                                                        <span class="pc-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
+                                                        <span class="pc-spec-val">{{ val }}</span>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    {% elseif article.categorie == 'telephone' %}
+                                        {% if article.specs %}
+                                            <div class="pc-specs-list">
+                                                {% if article.specs.storage_capacity is defined %}
+                                                    <div class="pc-spec-row">
+                                                        <span class="pc-spec-key">Stockage</span>
+                                                        <span class="pc-spec-val">{{ article.specs.storage_capacity }}</span>
+                                                    </div>
+                                                {% endif %}
+                                                {% if article.specs.color is defined %}
+                                                    <div class="pc-spec-row">
+                                                        <span class="pc-spec-key">Couleur</span>
+                                                        <span class="pc-spec-val">{{ article.specs.color }}</span>
+                                                    </div>
+                                                {% endif %}
+                                                {% if article.specs.network is defined %}
+                                                    <div class="pc-spec-row">
+                                                        <span class="pc-spec-key">Réseau</span>
+                                                        <span class="pc-spec-val">{{ article.specs.network }}</span>
+                                                    </div>
+                                                {% endif %}
+                                                {% if article.specs.battery_health is defined %}
+                                                    <div class="pc-spec-row">
+                                                        <span class="pc-spec-key">Batterie</span>
+                                                        <span class="pc-spec-val">{{ article.specs.battery_health }}%</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    <div class="product-footer">
+                                        <span class="product-price">{{ article.price }} €</span>
+
+                                        {% if article.categorie == 'film_hydrogel' %}
+                                            <a href="{{ path('boutique_index', {categorie: 'film_hydrogel'}) }}" class="btn-cart btn-cart--hydrogel">
+                                                <i class="fas fa-shield-alt"></i> Découvrir
+                                            </a>
                                         {% else %}
                                             <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">
                                                 <i class="fas fa-cart-plus"></i> Ajouter
                                             </a>
                                         {% endif %}
-                                    {% else %}
-                                        <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">
-                                            <i class="fas fa-cart-plus"></i> Ajouter
-                                        </a>
-                                    {% endif %}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
 
-        {# Mini-panier #}
-        <aside class="mini-cart">
-            <div class="mini-cart-header">
-                <i class="fas fa-shopping-cart"></i> Panier
-                {% if cart is not empty %}
-                    <span style="margin-left:auto;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px 8px;font-size:12px;">
-                        {{ cart|length }}
-                    </span>
-                {% endif %}
-            </div>
-            <div class="mini-cart-body">
-                {% if cart is empty %}
-                    <div class="mini-cart-empty">
-                        <i class="fas fa-shopping-basket" style="font-size:26px;display:block;margin-bottom:10px;"></i>
-                        Panier vide
-                    </div>
-                {% else %}
-                    {% for cartItem in cart %}
-                        <div class="mini-cart-item">
-                            <span class="mini-cart-item-name">{{ cartItem.article.name }}</span>
-                            <span class="mini-cart-qty">{{ cartItem.quantity }}</span>
+        {# Colonne droite : mini-panier + cards livraison #}
+        <div class="boutique-right-col">
+
+            {# Mini-panier #}
+            <aside class="mini-cart">
+                <div class="mini-cart-header">
+                    <i class="fas fa-shopping-cart"></i> Panier
+                    {% if cart is not empty %}
+                        <span style="margin-left:auto;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px 8px;font-size:12px;">
+                            {{ cart|length }}
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="mini-cart-body">
+                    {% if cart is empty %}
+                        <div class="mini-cart-empty">
+                            <i class="fas fa-shopping-basket" style="font-size:26px;display:block;margin-bottom:10px;"></i>
+                            Panier vide
                         </div>
-                    {% endfor %}
-                {% endif %}
+                    {% else %}
+                        {% for cartItem in cart %}
+                            <div class="mini-cart-item">
+                                <div class="mini-cart-thumb">
+                                    {% if cartItem.article.image %}
+                                        <img src="{{ asset('uploads/images/' ~ cartItem.article.image) }}" alt="{{ cartItem.article.name }}">
+                                    {% else %}
+                                        <i class="fas fa-image"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="mini-cart-item-name">{{ cartItem.article.name }}</span>
+                                <div class="mini-qty-ctrl">
+                                    <a href="{{ path('cart_decrement', {id: cartItem.article.id}) }}" class="mini-qty-btn" title="Retirer un">
+                                        {% if cartItem.quantity == 1 %}<i class="fas fa-trash-alt" style="font-size:9px;"></i>{% else %}<i class="fas fa-minus"></i>{% endif %}
+                                    </a>
+                                    <span class="mini-qty-val">{{ cartItem.quantity }}</span>
+                                    <a href="{{ path('cart_increment', {id: cartItem.article.id}) }}" class="mini-qty-btn" title="Ajouter un">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                <div class="mini-cart-footer">
+                    {% if cart is not empty %}
+                        <div class="mini-cart-total">
+                            <span>Total</span>
+                            <span class="mini-cart-total-amount">{{ cartTotal|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                    {% endif %}
+                    <a href="{{ path('cart_index') }}" class="btn-voir-panier">
+                        <i class="fas fa-arrow-right mr-1"></i> Voir le panier
+                    </a>
+                </div>
+            </aside>
+
+            {# Cards livraison sous le panier #}
+            <div class="delivery-cards">
+                <div class="delivery-cards-title">
+                    <i class="fas fa-truck mr-1"></i> Livraison
+                </div>
+                <div class="delivery-card">
+                    <div class="delivery-card-icon" style="color:#ffb700;background:#fffbe6;"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="delivery-card-info">
+                        <strong>Colissimo</strong>
+                        <span>2–3 jours ouvrés</span>
+                    </div>
+                </div>
+                <div class="delivery-card">
+                    <div class="delivery-card-icon" style="color:#7a2c8e;background:#f5eefa;"><i class="fas fa-bolt"></i></div>
+                    <div class="delivery-card-info">
+                        <strong>Chronopost</strong>
+                        <span>Express 24h</span>
+                    </div>
+                </div>
+                <div class="delivery-card">
+                    <div class="delivery-card-icon" style="color:#e8732a;background:#fff4ed;"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="delivery-card-info">
+                        <strong>Mondial Relay</strong>
+                        <span>3–5 jours · Point relais</span>
+                    </div>
+                </div>
+                <div class="delivery-card delivery-card--free">
+                    <div class="delivery-card-icon" style="color:#16a34a;background:#f0fdf4;"><i class="fas fa-store"></i></div>
+                    <div class="delivery-card-info">
+                        <strong>Retrait boutique</strong>
+                        <span>Pélissanne · Gratuit · sous 24h</span>
+                    </div>
+                    <span class="delivery-card-free-badge">Gratuit</span>
+                </div>
             </div>
-            <div class="mini-cart-footer">
-                <a href="{{ path('cart_index') }}" class="btn-voir-panier">
-                    <i class="fas fa-arrow-right mr-1"></i> Voir le panier
-                </a>
-            </div>
-        </aside>
+
+        </div>{# fin boutique-right-col #}
 
     </div>
+
+    {# Bloc rassurant #}
+    <div class="reassurance-strip">
+        <div class="reassurance-item">
+            <i class="fas fa-store"></i>
+            <strong>Retrait en boutique</strong>
+            <span>Disponible sous 1–2 jours ouvrés à Pélissanne</span>
+        </div>
+        <div class="reassurance-item">
+            <i class="fas fa-shield-alt"></i>
+            <strong>Garantie légale</strong>
+            <span>2 ans neuf · 1 an occasion (Art. L217-3)</span>
+        </div>
+        <div class="reassurance-item">
+            <i class="fas fa-undo-alt"></i>
+            <strong>Retour 14 jours</strong>
+            <span>Droit de rétractation sans justification</span>
+        </div>
+        <div class="reassurance-item">
+            <i class="fas fa-lock"></i>
+            <strong>Paiement sécurisé</strong>
+            <span>Stripe · CB, Visa, Mastercard, Apple Pay</span>
+        </div>
+        <div class="reassurance-item">
+            <i class="fas fa-tools"></i>
+            <strong>SAV Expert</strong>
+            <span>Réparation en boutique par nos techniciens</span>
+        </div>
+        <div class="reassurance-item">
+            <i class="fas fa-check-circle"></i>
+            <strong>Produits testés</strong>
+            <span>Chaque article est contrôlé avant mise en vente</span>
+        </div>
+    </div>
+
+    {# Bande modes de paiement #}
+    <div class="payment-methods-strip">
+        <i class="fas fa-lock pms-lock"></i>
+        <span class="pms-label">Paiement sécurisé via Stripe</span>
+        <div class="pms-icons">
+            <i class="fab fa-cc-visa"       title="Visa"></i>
+            <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+            <span class="pms-badge pms-cb"  title="Carte Bancaire">CB</span>
+            <i class="fab fa-cc-amex"       title="American Express"></i>
+            <i class="fab fa-apple-pay"     title="Apple Pay"></i>
+            <span class="pms-badge pms-gpay" title="Google Pay">G Pay</span>
+            <i class="fab fa-stripe-s pms-stripe" title="Stripe"></i>
+        </div>
+    </div>
+
 </div>
+
+{# ══ Modals sélection modèle hydrogel ══ #}
+{% for article in articles %}
+{% if article.categorie == 'film_hydrogel' %}
+{% set brandModels = article.specs.brand_models ?? {} %}
+<div class="modal fade" id="hydrogelModal{{ article.id }}" tabindex="-1" role="dialog" aria-labelledby="hydrogelModalLabel{{ article.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content hydrogel-modal-content">
+            <div class="modal-header hydrogel-modal-header">
+                <div>
+                    <h5 class="modal-title" id="hydrogelModalLabel{{ article.id }}">
+                        <i class="fas fa-shield-alt mr-2"></i>{{ article.name }}
+                    </h5>
+                    <div class="hydrogel-modal-price">{{ article.price|number_format(2, ',', ' ') }} € <small>TTC</small></div>
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="hydrogel-modal-hint"><i class="fas fa-info-circle mr-1"></i>Sélectionnez la marque puis le modèle de votre smartphone.</p>
+
+                <form method="get" action="{{ path('cart_add', {id: article.id}) }}" id="hydrogel-form-{{ article.id }}">
+
+                    <label class="hydrogel-label mt-2">
+                        <span class="hydrogel-step-badge">1</span> Marque
+                    </label>
+                    <select id="hbrand-{{ article.id }}" class="hydrogel-select" onchange="hFilterModels{{ article.id }}()">
+                        <option value="">— Choisir une marque —</option>
+                        {% for brand in brandModels|keys %}
+                            <option value="{{ brand }}">{{ brand }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="hydrogel-label mt-3">
+                        <span class="hydrogel-step-badge">2</span> Modèle
+                    </label>
+                    <select id="hmodel-{{ article.id }}" name="model" class="hydrogel-select" required disabled>
+                        <option value="">— Choisir d'abord une marque —</option>
+                    </select>
+
+                    <script id="hdata-{{ article.id }}" type="application/json">{{ brandModels|json_encode|raw }}</script>
+                </form>
+            </div>
+            <div class="modal-footer hydrogel-modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Annuler</button>
+                <button type="button" id="hsubmit-{{ article.id }}" class="btn-cart btn-cart--hydrogel" disabled
+                        onclick="document.getElementById('hydrogel-form-{{ article.id }}').submit()">
+                    <i class="fas fa-shield-alt"></i> Ajouter au panier
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function hFilterModels{{ article.id }}() {
+    const brand  = document.getElementById('hbrand-{{ article.id }}').value;
+    const sel    = document.getElementById('hmodel-{{ article.id }}');
+    const btn    = document.getElementById('hsubmit-{{ article.id }}');
+    const data   = JSON.parse(document.getElementById('hdata-{{ article.id }}').textContent);
+    sel.innerHTML = '';
+    if (!brand) {
+        sel.add(new Option("— Choisir d'abord une marque —", ''));
+        sel.disabled = true; btn.disabled = true; return;
+    }
+    sel.add(new Option('— Choisir un modèle —', ''));
+    (data[brand] || []).forEach(m => sel.add(new Option(m, m)));
+    sel.disabled = false;
+    sel.onchange = () => { btn.disabled = !sel.value; };
+}
+</script>
+{% endif %}
+{% endfor %}
+
+{# ── Bouton panier flottant mobile ── #}
+{% if cart is not empty %}
+<a href="{{ path('cart_index') }}" class="mobile-cart-fab">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="mobile-cart-fab-count">{{ cart|length }}</span>
+    <span class="mobile-cart-fab-total">{{ cartTotal|number_format(2, ',', ' ') }} €</span>
+</a>
+{% endif %}
 
 {% endblock %}

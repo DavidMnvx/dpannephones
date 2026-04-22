@@ -1,0 +1,524 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'stats' %}
+{% block title %}Statistiques — D'Panne Phones Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Statistiques
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-chart-line mr-2"></i>Statistiques globales</h2>
+        <p>Vue d'ensemble complète de l'activité du site</p>
+    </div>
+    <div>
+        <form method="get" action="{{ path('admin_stats') }}" class="stats-filters">
+            <select name="annee" onchange="this.form.submit()" class="stats-year-select">
+                {% for y in anneesDisponibles %}
+                    <option value="{{ y }}" {{ y == annee ? 'selected' : '' }}>Année {{ y }}</option>
+                {% endfor %}
+            </select>
+            <select name="mois" onchange="this.form.submit()" class="stats-year-select">
+                <option value="">Toute l'année</option>
+                {% for num, nom in moisNoms %}
+                    <option value="{{ num }}" {{ num == mois ? 'selected' : '' }}>{{ nom }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+{# ══ KPI cards ── #}
+<div class="stats-kpi-grid">
+    <div class="stats-kpi stats-kpi--ca">
+        <div class="stats-kpi-icon"><i class="fas fa-euro-sign"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Chiffre d'affaires — {{ periodeLabel }}</div>
+            <div class="stats-kpi-value">{{ totalAnnee|number_format(2, ',', ' ') }} €</div>
+            {% if mois is null and comparison.variation_pct is not null %}
+                {% set trendClass = comparison.variation_pct >= 0 ? 'stats-trend--up' : 'stats-trend--down' %}
+                {% set trendIcon  = comparison.variation_pct >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' %}
+                <div class="stats-kpi-trend {{ trendClass }}">
+                    <i class="fas {{ trendIcon }}"></i>
+                    {{ comparison.variation_pct }}% vs {{ annee - 1 }}
+                </div>
+            {% elseif mois is not null %}
+                <div class="stats-kpi-trend">Filtre mensuel actif</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="stats-kpi stats-kpi--orders">
+        <div class="stats-kpi-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Commandes</div>
+            <div class="stats-kpi-value">{{ nbCommandes }}</div>
+            <div class="stats-kpi-trend">
+                {{ totalArticlesVendus }} article{{ totalArticlesVendus > 1 ? 's' : '' }} vendu{{ totalArticlesVendus > 1 ? 's' : '' }}
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-kpi stats-kpi--cart">
+        <div class="stats-kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Panier moyen</div>
+            <div class="stats-kpi-value">{{ panierMoyen|number_format(2, ',', ' ') }} €</div>
+            <div class="stats-kpi-trend">Hors annulées</div>
+        </div>
+    </div>
+
+    <div class="stats-kpi stats-kpi--clients">
+        <div class="stats-kpi-icon"><i class="fas fa-users"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Clients inscrits</div>
+            <div class="stats-kpi-value">{{ totalClients }}</div>
+            <div class="stats-kpi-trend">
+                +{{ inscriptionsStats.month }} ce mois · +{{ inscriptionsStats.week }} cette semaine
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-kpi stats-kpi--reviews">
+        <div class="stats-kpi-icon"><i class="fas fa-star"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Note moyenne avis</div>
+            <div class="stats-kpi-value">{{ avgReviewRating ?? '—' }}{% if avgReviewRating %}<small>/5</small>{% endif %}</div>
+            <div class="stats-kpi-trend">
+                {{ nbReviewsApproved }} publié{{ nbReviewsApproved > 1 ? 's' : '' }}
+                {% if nbReviewsPending > 0 %}
+                    · <strong style="color:#d97706;">{{ nbReviewsPending }} en attente</strong>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ══ Graphiques ── #}
+<div class="stats-charts-grid">
+
+    {# Ventes mensuelles #}
+    <div class="stats-chart-card stats-chart-card--wide">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-chart-bar mr-2" style="color:rgb(9,71,113);"></i>Ventes {{ annee }}</h3>
+            <span class="stats-chart-total">{{ totalAnnee|number_format(2, '.', ' ') }} €</span>
+        </div>
+        <div class="stats-chart-body">
+            <canvas id="chartVentesMensuelles" height="90"></canvas>
+        </div>
+    </div>
+
+    {# Statuts commandes #}
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-chart-pie mr-2" style="color:#7c3aed;"></i>Commandes par statut</h3>
+        </div>
+        <div class="stats-chart-body stats-chart-body--split">
+            {% if countByStatut|length > 0 %}
+                <div class="stats-chart-canvas-wrap">
+                    <canvas id="chartStatuts"></canvas>
+                </div>
+                <div class="stats-chart-legend">
+                    {% set statutLabels = {
+                        'en_attente': 'En attente', 'payee': 'Payée',
+                        'en_preparation': 'En préparation', 'expediee': 'Expédiée',
+                        'livree': 'Livrée', 'retiree': 'Retirée', 'annulee': 'Annulée'
+                    } %}
+                    {% set statutColors = {
+                        'en_attente': '#fbbf24', 'payee': '#22c55e',
+                        'en_preparation': '#3b82f6', 'expediee': '#06b6d4',
+                        'livree': '#8b5cf6', 'retiree': '#8b5cf6', 'annulee': '#ef4444'
+                    } %}
+                    {% set totalStatuts = countByStatut|reduce((acc, v) => acc + v, 0) %}
+                    {% for statut, nb in countByStatut %}
+                        {% set pct = totalStatuts > 0 ? (nb / totalStatuts * 100)|round : 0 %}
+                        <div class="stats-legend-row">
+                            <span class="stats-legend-dot" style="background:{{ statutColors[statut] ?? '#94a3b8' }};"></span>
+                            <span class="stats-legend-label">{{ statutLabels[statut] ?? statut }}</span>
+                            <span class="stats-legend-value">{{ nb }}</span>
+                            <span class="stats-legend-pct">{{ pct }}%</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="stats-empty" style="grid-column:1/-1;">
+                    <i class="fas fa-receipt"></i>
+                    <span>Aucune commande sur cette période</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Nouveaux clients par mois #}
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-user-plus mr-2" style="color:#16a34a;"></i>Nouveaux clients {{ annee }}</h3>
+        </div>
+        <div class="stats-chart-body">
+            <canvas id="chartClientsMensuel" height="200"></canvas>
+        </div>
+    </div>
+
+    {# Ventes par catégorie #}
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-layer-group mr-2" style="color:#f59e0b;"></i>Ventes par catégorie</h3>
+        </div>
+        <div class="stats-chart-body stats-chart-body--split">
+            {% if ventesCategorie is not empty %}
+                <div class="stats-chart-canvas-wrap">
+                    <canvas id="chartCategories"></canvas>
+                </div>
+                <div class="stats-chart-legend">
+                    {% set catColors = ['rgb(9,71,113)', '#16a34a', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444'] %}
+                    {% set totalCA = ventesCategorie|reduce((acc, c) => acc + c.ca, 0) %}
+                    {% for i, cat in ventesCategorie %}
+                        {% set pct = totalCA > 0 ? (cat.ca / totalCA * 100)|round : 0 %}
+                        <div class="stats-legend-row">
+                            <span class="stats-legend-dot" style="background:{{ catColors[i] ?? '#94a3b8' }};"></span>
+                            <span class="stats-legend-label">{{ cat.categorie|replace({'_': ' '})|capitalize }}</span>
+                            <span class="stats-legend-value">{{ cat.ca|number_format(0, ',', ' ') }} €</span>
+                            <span class="stats-legend-pct">{{ pct }}%</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="stats-empty" style="grid-column:1/-1;">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Aucune vente sur cette période</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Distribution avis — avec légende texte #}
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-star-half-alt mr-2" style="color:#f59e0b;"></i>Distribution des avis</h3>
+        </div>
+        <div class="stats-chart-body stats-chart-body--split">
+            {% if nbReviewsApproved > 0 %}
+                <div class="stats-chart-canvas-wrap">
+                    <canvas id="chartReviews"></canvas>
+                </div>
+                <div class="stats-chart-legend">
+                    {% set starColors = {5:'#16a34a', 4:'#84cc16', 3:'#f59e0b', 2:'#f97316', 1:'#ef4444'} %}
+                    {% set starLabels = {5:'Excellent', 4:'Très bien', 3:'Bien', 2:'Moyen', 1:'Décevant'} %}
+                    {% for stars in [5,4,3,2,1] %}
+                        {% set nb = ratingDistribution[stars] ?? 0 %}
+                        {% set pct = nbReviewsApproved > 0 ? (nb / nbReviewsApproved * 100)|round : 0 %}
+                        <div class="stats-legend-row">
+                            <span class="stats-legend-dot" style="background:{{ starColors[stars] }};"></span>
+                            <span class="stats-legend-label">{{ stars }} ★ <small style="color:#9ca3af;font-weight:500;">{{ starLabels[stars] }}</small></span>
+                            <span class="stats-legend-value">{{ nb }}</span>
+                            <span class="stats-legend-pct">{{ pct }}%</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="stats-empty" style="grid-column:1/-1;">
+                    <i class="fas fa-comments"></i>
+                    <span>Aucun avis publié encore</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Top 10 articles — hauteur adaptée pour 10 barres #}
+    <div class="stats-chart-card stats-chart-card--wide">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-trophy mr-2" style="color:#fbbf24;"></i>Top 10 des articles vendus</h3>
+        </div>
+        <div class="stats-chart-body stats-chart-body--tall">
+            {% if bestSellers is not empty %}
+                <canvas id="chartBestSellers"></canvas>
+            {% else %}
+                <div class="stats-empty">
+                    <i class="fas fa-box-open"></i>
+                    <span>Aucun article vendu sur cette période</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+{# ══════════════════════════════════════════════
+   Section Trafic — 2 modes (activé / prêt à activer)
+═══════════════════════════════════════════════ #}
+{% if google_analytics_id %}
+    {# ── Mode ACTIVÉ : Google Analytics 4 est branché ── #}
+    <div class="stats-traffic-card stats-traffic-card--active">
+        <div class="stats-traffic-header">
+            <h3><i class="fab fa-google mr-2" style="color:#4285f4;"></i>Trafic du site</h3>
+            <span class="stats-traffic-badge stats-traffic-badge--active">
+                <i class="fas fa-circle mr-1" style="font-size:8px;color:#22c55e;"></i>
+                Google Analytics actif
+            </span>
+        </div>
+        <div class="stats-traffic-body">
+            <div class="stats-traffic-icon" style="background:#e8f0fe;color:#4285f4;">
+                <i class="fab fa-google"></i>
+            </div>
+            <div class="stats-traffic-content">
+                <strong>Tracking GA4 en place — ID : <code>{{ google_analytics_id }}</code></strong>
+                <p>
+                    Le trafic du site est suivi en temps réel par Google Analytics.
+                    Consultez le tableau de bord complet pour voir les visiteurs, pages populaires,
+                    sources de trafic, taux de conversion et bien plus.
+                </p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <a href="https://analytics.google.com/analytics/web/"
+                       target="_blank" rel="noopener noreferrer"
+                       class="stats-traffic-btn">
+                        <i class="fab fa-google mr-2"></i>
+                        Ouvrir Google Analytics
+                        <i class="fas fa-external-link-alt ml-2" style="font-size:10px;"></i>
+                    </a>
+                    <a href="https://analytics.google.com/analytics/web/#/p0/reports/reportinghub"
+                       target="_blank" rel="noopener noreferrer"
+                       class="stats-traffic-btn stats-traffic-btn--ghost">
+                        <i class="fas fa-chart-area mr-2"></i>
+                        Rapports temps réel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    {# ── Mode PRÊT À ACTIVER : tag présent, juste besoin de l'ID ── #}
+    <div class="stats-traffic-card">
+        <div class="stats-traffic-header">
+            <h3><i class="fas fa-chart-area mr-2" style="color:#0ea5e9;"></i>Trafic du site</h3>
+            <span class="stats-traffic-badge">Prêt à activer</span>
+        </div>
+        <div class="stats-traffic-body">
+            <div class="stats-traffic-icon"><i class="fas fa-globe"></i></div>
+            <div class="stats-traffic-content">
+                <strong>🚀 Google Analytics 4 est prêt à être activé</strong>
+                <p>
+                    Le tag GA4 est déjà intégré dans le site (en mode inactif). Pour activer le suivi du trafic
+                    quand le site sera en production, il suffit de :
+                </p>
+                <ol style="font-size:13px;color:#475569;line-height:1.8;margin:0 0 14px;padding-left:20px;">
+                    <li>Créer une propriété sur <a href="https://analytics.google.com" target="_blank" style="color:#0ea5e9;font-weight:600;">analytics.google.com</a></li>
+                    <li>Récupérer l'ID de mesure (format <code style="background:#eff6fb;padding:2px 6px;border-radius:4px;">G-XXXXXXXXXX</code>)</li>
+                    <li>Ajouter <code style="background:#eff6fb;padding:2px 6px;border-radius:4px;">GOOGLE_ANALYTICS_ID=G-...</code> dans le fichier <code>.env.prod.local</code> du VPS</li>
+                    <li>Redémarrer l'app → le tracking démarre automatiquement ✅</li>
+                </ol>
+                <div class="stats-traffic-hints">
+                    <span><i class="fas fa-chart-line"></i> Pages vues / jour</span>
+                    <span><i class="fas fa-users"></i> Visiteurs uniques</span>
+                    <span><i class="fas fa-clock"></i> Temps moyen par session</span>
+                    <span><i class="fas fa-exchange-alt"></i> Taux de conversion</span>
+                    <span><i class="fas fa-map-marker-alt"></i> Géolocalisation</span>
+                    <span><i class="fas fa-mobile-alt"></i> Appareils / navigateurs</span>
+                </div>
+                <p style="font-size:11.5px;color:#94a3b8;margin:14px 0 0;font-style:italic;">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Nécessite au préalable la mise en place d'un bandeau cookies (conformité RGPD).
+                </p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block admin_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ─── Données serveur ───
+const ventesData       = {{ ventesParMois|json_encode|raw }};
+const clientsData      = {{ clientsParMois|json_encode|raw }};
+const statutCounts     = {{ countByStatut|json_encode|raw }};
+const ventesCategorie  = {{ ventesCategorie|json_encode|raw }};
+const ratingDist       = {{ ratingDistribution|json_encode|raw }};
+const bestSellersData  = {{ bestSellers|json_encode|raw }};
+
+const moisLabels = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+const chartTheme = { family: "'Inter', 'Segoe UI', sans-serif" };
+
+Chart.defaults.font.family = chartTheme.family;
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#374151';
+
+// ─── 1. Ventes mensuelles ───
+const ctxVentes = document.getElementById('chartVentesMensuelles');
+if (ctxVentes) {
+    new Chart(ctxVentes, {
+        type: 'bar',
+        data: {
+            labels: moisLabels,
+            datasets: [
+                {
+                    label: 'CA mensuel (€)',
+                    data: ventesData.map(v => v.total),
+                    backgroundColor: 'rgba(9, 71, 113, 0.75)',
+                    borderRadius: 6,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Nb commandes',
+                    data: ventesData.map(v => v.nb),
+                    type: 'line',
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22,163,74,0.1)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#16a34a',
+                    tension: 0.3,
+                    fill: true,
+                    yAxisID: 'y2'
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y:  { beginAtZero: true, ticks: { callback: v => v + ' €' } },
+                y2: { beginAtZero: true, position: 'right', ticks: { stepSize: 1 }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+}
+
+// ─── 2. Statuts commandes (doughnut) ───
+const ctxStatuts = document.getElementById('chartStatuts');
+if (ctxStatuts && Object.keys(statutCounts).length > 0) {
+    const statutLabels = {
+        'en_attente': 'En attente', 'payee': 'Payée',
+        'en_preparation': 'En préparation', 'expediee': 'Expédiée',
+        'livree': 'Livrée', 'retiree': 'Retirée', 'annulee': 'Annulée'
+    };
+    const statutColors = {
+        'en_attente': '#fbbf24', 'payee': '#22c55e',
+        'en_preparation': '#3b82f6', 'expediee': '#06b6d4',
+        'livree': '#8b5cf6', 'retiree': '#8b5cf6', 'annulee': '#ef4444'
+    };
+
+    const labels = Object.keys(statutCounts).map(k => statutLabels[k] || k);
+    const data   = Object.values(statutCounts);
+    const bg     = Object.keys(statutCounts).map(k => statutColors[k] || '#94a3b8');
+
+    new Chart(ctxStatuts, {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data, backgroundColor: bg, borderWidth: 2, borderColor: '#fff' }] },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: { display: false }  /* Légende custom texte à droite */
+            }
+        }
+    });
+}
+
+// ─── 3. Nouveaux clients par mois ───
+const ctxClients = document.getElementById('chartClientsMensuel');
+if (ctxClients) {
+    new Chart(ctxClients, {
+        type: 'line',
+        data: {
+            labels: moisLabels,
+            datasets: [{
+                label: 'Nouveaux clients',
+                data: clientsData.map(c => c.nb),
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22,163,74,0.15)',
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#16a34a',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// ─── 4. Ventes par catégorie (doughnut) ───
+const ctxCat = document.getElementById('chartCategories');
+if (ctxCat && ventesCategorie.length > 0) {
+    const catLabels = ventesCategorie.map(c => c.categorie.replace('_', ' '));
+    const catCA     = ventesCategorie.map(c => c.ca);
+    const catColors = ['rgb(9,71,113)', '#16a34a', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444'];
+
+    new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+            labels: catLabels,
+            datasets: [{ data: catCA, backgroundColor: catColors.slice(0, catLabels.length), borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: true, aspectRatio: 1.3,
+            cutout: '62%',
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.label + ': ' + ctx.parsed.toFixed(2).replace('.', ',') + ' €'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ─── 5. Distribution des avis ───
+const ctxReviews = document.getElementById('chartReviews');
+if (ctxReviews) {
+    const labels = ['5 ★', '4 ★', '3 ★', '2 ★', '1 ★'];
+    const data   = [ratingDist[5] || 0, ratingDist[4] || 0, ratingDist[3] || 0, ratingDist[2] || 0, ratingDist[1] || 0];
+    const colors = ['#16a34a', '#84cc16', '#f59e0b', '#f97316', '#ef4444'];
+
+    new Chart(ctxReviews, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{ data, backgroundColor: colors, borderRadius: 6, barThickness: 22 }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// ─── 6. Top 10 articles ───
+const ctxBest = document.getElementById('chartBestSellers');
+if (ctxBest && bestSellersData.length > 0) {
+    const labels = bestSellersData.map(b => (b.article_name || '').length > 30 ? b.article_name.slice(0, 30) + '…' : b.article_name);
+    const qte    = bestSellersData.map(b => parseInt(b.quantite_vendue));
+
+    new Chart(ctxBest, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Quantité vendue',
+                data: qte,
+                backgroundColor: 'rgba(251,191,36,0.85)',
+                borderColor: '#f59e0b',
+                borderWidth: 1.5,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true, maintainAspectRatio: false,
+            scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+</script>
+{% endblock %}

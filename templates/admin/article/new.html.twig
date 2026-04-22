@@ -53,45 +53,143 @@
         {# Specs Section #}
         <div id="specs-section" style="display:none;">
 
-            {# PC Gamer Group #}
+            {# PC Gamer Group — enrichi #}
             <div class="specs-group" id="group-pc_gamer" style="display:none;">
                 <div class="specs-group-title"><i class="fas fa-gamepad mr-2"></i>Configuration PC Gamer</div>
-                <div class="specs-grid">
+
+                <div class="specs-subtitle">💻 Matériel</div>
+                <div class="specs-grid specs-grid--2">
                     {{ form_row(form.gamer_cpu) }}
                     {{ form_row(form.gamer_gpu) }}
                     {{ form_row(form.gamer_ram) }}
                     {{ form_row(form.gamer_storage) }}
                     {{ form_row(form.gamer_motherboard) }}
                     {{ form_row(form.gamer_psu) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🏠 Boîtier & refroidissement</div>
+                <div class="specs-grid specs-grid--2">
                     {{ form_row(form.gamer_case) }}
                     {{ form_row(form.gamer_cooling) }}
+                    {{ form_row(form.gamer_rgb) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🔌 Connectique & réseau</div>
+                <div class="specs-grid specs-grid--2">
+                    {{ form_row(form.gamer_connectivity) }}
+                    {{ form_row(form.gamer_network) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">📦 Livré avec</div>
+                <div class="specs-grid specs-grid--3">
                     {{ form_row(form.gamer_os) }}
+                    {{ form_row(form.gamer_peripherals) }}
+                    {{ form_row(form.gamer_screen_included) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🛡️ Garantie</div>
+                <div class="specs-grid">
+                    {{ form_row(form.gamer_warranty) }}
                 </div>
             </div>
 
-            {# PC Bureautique Group #}
+            {# PC Bureautique Group — enrichi #}
             <div class="specs-group" id="group-pc_bureautique" style="display:none;">
                 <div class="specs-group-title"><i class="fas fa-desktop mr-2"></i>Configuration PC Bureautique</div>
-                <div class="specs-grid">
+
+                <div class="specs-subtitle">💻 Matériel</div>
+                <div class="specs-grid specs-grid--2">
                     {{ form_row(form.bureau_cpu) }}
+                    {{ form_row(form.bureau_gpu) }}
                     {{ form_row(form.bureau_ram) }}
                     {{ form_row(form.bureau_storage) }}
+                    {{ form_row(form.bureau_motherboard) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🔌 Connectique & réseau</div>
+                <div class="specs-grid specs-grid--2">
+                    {{ form_row(form.bureau_connectivity) }}
+                    {{ form_row(form.bureau_network) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">📦 Livré avec</div>
+                <div class="specs-grid specs-grid--3">
                     {{ form_row(form.bureau_os) }}
                     {{ form_row(form.bureau_screen) }}
+                    {{ form_row(form.bureau_peripherals) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🛡️ Garantie</div>
+                <div class="specs-grid">
+                    {{ form_row(form.bureau_warranty) }}
                 </div>
             </div>
 
-            {# PC Portable Group #}
+            {# PC Portable Group — enrichi #}
             <div class="specs-group" id="group-pc_portable" style="display:none;">
                 <div class="specs-group-title"><i class="fas fa-laptop mr-2"></i>Configuration PC Portable</div>
-                <div class="specs-grid">
+
+                <div class="specs-subtitle">💻 Matériel</div>
+                <div class="specs-grid specs-grid--2">
                     {{ form_row(form.portable_cpu) }}
                     {{ form_row(form.portable_gpu) }}
                     {{ form_row(form.portable_ram) }}
                     {{ form_row(form.portable_storage) }}
-                    {{ form_row(form.portable_os) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🖥️ Écran</div>
+                <div class="specs-grid specs-grid--3">
                     {{ form_row(form.portable_screen) }}
+                    {{ form_row(form.portable_screen_type) }}
+                    {{ form_row(form.portable_resolution) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">⌨️ Clavier & webcam</div>
+                <div class="specs-grid specs-grid--2">
+                    {{ form_row(form.portable_keyboard) }}
+                    {{ form_row(form.portable_webcam) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🔌 Connectique & réseau</div>
+                <div class="specs-grid specs-grid--2">
+                    {{ form_row(form.portable_connectivity) }}
+                    {{ form_row(form.portable_network) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🔋 Autonomie & poids</div>
+                <div class="specs-grid specs-grid--3">
                     {{ form_row(form.portable_battery) }}
+                    {{ form_row(form.portable_weight) }}
+                    {{ form_row(form.portable_os) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🛡️ Garantie</div>
+                <div class="specs-grid">
+                    {{ form_row(form.portable_warranty) }}
+                </div>
+            </div>
+
+            {# Accessoires Group — NOUVEAU #}
+            <div class="specs-group" id="group-accessoires" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-headphones mr-2"></i>Spécifications accessoire</div>
+
+                <div class="specs-subtitle">📱 Compatibilité & caractéristiques</div>
+                <div class="specs-grid specs-grid--2">
+                    {{ form_row(form.acc_compatibility) }}
+                    {{ form_row(form.acc_connector) }}
+                    {{ form_row(form.acc_material) }}
+                    {{ form_row(form.acc_color) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">⚡ Caractéristiques techniques</div>
+                <div class="specs-grid specs-grid--2">
+                    {{ form_row(form.acc_power) }}
+                    {{ form_row(form.acc_contents) }}
+                </div>
+
+                <div class="specs-subtitle mt-3">🛡️ Garantie</div>
+                <div class="specs-grid">
+                    {{ form_row(form.acc_warranty) }}
                 </div>
             </div>
 
@@ -104,13 +202,68 @@
 
             {# Téléphone Group #}
             <div class="specs-group" id="group-telephone" style="display:none;">
-                <div class="specs-group-title"><i class="fas fa-mobile-alt mr-2"></i>Détails du téléphone</div>
-                <div class="specs-grid">
-                    {{ form_row(form.tel_storage) }}
-                    {{ form_row(form.tel_color) }}
-                    {{ form_row(form.tel_network) }}
-                    {{ form_row(form.tel_battery) }}
+
+                <div class="specs-group-title"><i class="fas fa-tag mr-2"></i>Identification</div>
+                <div class="specs-grid specs-grid--4">
+                    {{ form_row(form.tel_brand) }}
+                    {{ form_row(form.tel_model) }}
+                    {{ form_row(form.tel_os) }}
+                    {{ form_row(form.tel_year) }}
                 </div>
+
+                <div class="specs-group-title mt-3"><i class="fas fa-tv mr-2"></i>Écran</div>
+                <div class="specs-grid specs-grid--3">
+                    {{ form_row(form.tel_screen_size) }}
+                    {{ form_row(form.tel_screen_type) }}
+                    {{ form_row(form.tel_resolution) }}
+                </div>
+
+                <div class="specs-group-title mt-3"><i class="fas fa-microchip mr-2"></i>Performances</div>
+                <div class="specs-grid specs-grid--3">
+                    {{ form_row(form.tel_processor) }}
+                    {{ form_row(form.tel_ram) }}
+                    {{ form_row(form.tel_storage) }}
+                </div>
+
+                <div class="specs-group-title mt-3"><i class="fas fa-camera mr-2"></i>Photo</div>
+                <div class="specs-grid specs-grid--3">
+                    {{ form_row(form.tel_camera) }}
+                    {{ form_row(form.tel_camera_front) }}
+                    {{ form_row(form.tel_other_cameras) }}
+                </div>
+
+                <div class="specs-group-title mt-3"><i class="fas fa-wifi mr-2"></i>Connectivité</div>
+                <div class="specs-grid specs-grid--3">
+                    {{ form_row(form.tel_network) }}
+                    {{ form_row(form.tel_sim) }}
+                    {{ form_row(form.tel_connector) }}
+                </div>
+                <div class="specs-grid">
+                    {{ form_row(form.tel_connectivity) }}
+                </div>
+
+                <div class="specs-group-title mt-3"><i class="fas fa-battery-three-quarters mr-2"></i>Batterie & physique</div>
+                <div class="specs-grid specs-grid--4">
+                    {{ form_row(form.tel_battery_capacity) }}
+                    {{ form_row(form.tel_battery) }}
+                    {{ form_row(form.tel_weight) }}
+                    {{ form_row(form.tel_color) }}
+                </div>
+                <div class="specs-grid">
+                    {{ form_row(form.tel_dimensions) }}
+                    {{ form_row(form.tel_sensors) }}
+                </div>
+
+                <div class="specs-group-title mt-3 specs-group-title--legal">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Obligation légale
+                </div>
+                <div class="specs-grid">
+                    {{ form_row(form.tel_sar) }}
+                </div>
+                <div class="specs-grid">
+                    {{ form_row(form.tel_note) }}
+                </div>
+
             </div>
 
         </div>
@@ -137,6 +290,7 @@
         'pc_gamer':       ['group-pc_gamer'],
         'pc_bureautique': ['group-pc_bureautique'],
         'pc_portable':    ['group-pc_portable'],
+        'accessoires':    ['group-accessoires'],
         'film_hydrogel':  ['group-film_hydrogel'],
         'telephone':      ['group-telephone']
     };

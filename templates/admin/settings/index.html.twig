@@ -1,0 +1,180 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'settings' %}
+{% block title %}Paramètres — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Paramètres
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-cog mr-2" style="color:#64748b;"></i>Paramètres du site</h2>
+        <p>Configurez les fonctionnalités globales — activation, valeurs par défaut, règles métier.</p>
+    </div>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+<form method="post" action="{{ path('admin_settings') }}" class="admin-form">
+    <input type="hidden" name="_token" value="{{ csrf_token('update_settings') }}">
+
+    {% for categoryKey, settings in grouped %}
+        {% set meta = categories[categoryKey] ?? {'label': categoryKey|title, 'icon': 'fas fa-sliders-h', 'description': null} %}
+
+        <div class="admin-card settings-category" data-category="{{ categoryKey }}">
+            <h3>
+                <i class="{{ meta.icon }}" style="color:#16a34a;"></i>
+                {{ meta.label }}
+            </h3>
+
+            {% if meta.description %}
+                <p style="color:#64748b;font-size:13px;margin-bottom:22px;line-height:1.6;">
+                    {{ meta.description }}
+                </p>
+            {% endif %}
+
+            {# Toggle principal : défini explicitement par 'masterToggleKey' dans SETTINGS_CATEGORIES #}
+            {% set masterKey = meta.masterToggleKey ?? null %}
+            {% set enabledSetting = null %}
+            {% if masterKey %}
+                {% for s in settings %}
+                    {% if s.key == masterKey %}
+                        {% set enabledSetting = s %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% if enabledSetting %}
+                <div class="setting-toggle-wrap">
+                    <label class="setting-toggle">
+                        <input type="checkbox"
+                               name="settings[{{ enabledSetting.key }}]"
+                               value="1"
+                               {% if enabledSetting.typedValue %}checked{% endif %}
+                               class="setting-toggle-input"
+                               data-toggles-category="{{ categoryKey }}">
+                        <span class="setting-toggle-slider"></span>
+                        <span class="setting-toggle-label">
+                            <strong>{{ enabledSetting.label }}</strong>
+                            {% if enabledSetting.description %}
+                                <small>{{ enabledSetting.description }}</small>
+                            {% endif %}
+                        </span>
+                    </label>
+                </div>
+            {% endif %}
+
+            {# Autres settings de la catégorie #}
+            <div class="settings-fields {{ enabledSetting and not enabledSetting.typedValue ? 'settings-fields--disabled' : '' }}"
+                 data-category-fields="{{ categoryKey }}">
+                <div class="row">
+                    {% for s in settings %}
+                        {% if s != enabledSetting %}
+                            <div class="col-md-6 setting-field">
+                                <label for="setting-{{ s.key }}" class="setting-field-label">
+                                    {{ s.label }}
+                                </label>
+
+                                {% if s.type == 'bool' %}
+                                    <label class="setting-toggle setting-toggle--small">
+                                        <input type="checkbox"
+                                               id="setting-{{ s.key }}"
+                                               name="settings[{{ s.key }}]"
+                                               value="1"
+                                               {% if s.typedValue %}checked{% endif %}>
+                                        <span class="setting-toggle-slider"></span>
+                                        <span style="margin-left:8px;font-size:13px;">{{ s.typedValue ? 'Activé' : 'Désactivé' }}</span>
+                                    </label>
+
+                                {% elseif s.type == 'int' %}
+                                    <input type="number"
+                                           id="setting-{{ s.key }}"
+                                           name="settings[{{ s.key }}]"
+                                           value="{{ s.typedValue }}"
+                                           step="1" min="0"
+                                           class="form-control setting-input">
+
+                                {% elseif s.type == 'float' %}
+                                    <input type="number"
+                                           id="setting-{{ s.key }}"
+                                           name="settings[{{ s.key }}]"
+                                           value="{{ s.typedValue }}"
+                                           step="0.01" min="0"
+                                           class="form-control setting-input">
+
+                                {% elseif s.key == 'review_reward_discount_type' %}
+                                    {# Cas spécial : select type de remise #}
+                                    <select id="setting-{{ s.key }}" name="settings[{{ s.key }}]" class="form-control setting-input">
+                                        <option value="percentage" {{ s.typedValue == 'percentage' ? 'selected' : '' }}>Pourcentage (%)</option>
+                                        <option value="fixed"      {{ s.typedValue == 'fixed' ? 'selected' : '' }}>Montant fixe (€)</option>
+                                    </select>
+
+                                {% else %}
+                                    <input type="text"
+                                           id="setting-{{ s.key }}"
+                                           name="settings[{{ s.key }}]"
+                                           value="{{ s.typedValue }}"
+                                           class="form-control setting-input">
+                                {% endif %}
+
+                                {% if s.description %}
+                                    <small class="setting-field-help">{{ s.description }}</small>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {# Mémo légal pour la catégorie review_reward #}
+                {% if categoryKey == 'review_reward' %}
+                    <div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:12px 16px;border-radius:8px;margin-top:18px;font-size:12.5px;color:#78350f;line-height:1.6;">
+                        <strong><i class="fas fa-balance-scale mr-1"></i>Conformité légale (Directive Omnibus UE / NF ISO 20488) :</strong><br>
+                        • La récompense est offerte <strong>dès la soumission de l'avis</strong>, peu importe la note<br>
+                        • L'email d'invitation doit mentionner clairement cette offre → <strong>déjà intégré</strong><br>
+                        • La modération doit se limiter à filtrer spam/injures (pas les mauvaises notes)<br>
+                        • Les CGV doivent mentionner cette pratique → à mettre à jour une fois activé
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <div style="margin-top:24px;">
+        <button type="submit" class="btn-admin-submit">
+            <i class="fas fa-save mr-1"></i> Enregistrer les paramètres
+        </button>
+    </div>
+</form>
+
+<script>
+(function() {
+    // Toggle enable/disable des champs d'une catégorie selon le bouton principal
+    document.querySelectorAll('.setting-toggle-input[data-toggles-category]').forEach(function(toggle) {
+        var category = toggle.getAttribute('data-toggles-category');
+        var fields = document.querySelector('[data-category-fields="' + category + '"]');
+        if (!fields) return;
+
+        toggle.addEventListener('change', function() {
+            if (toggle.checked) {
+                fields.classList.remove('settings-fields--disabled');
+            } else {
+                fields.classList.add('settings-fields--disabled');
+            }
+        });
+    });
+})();
+</script>
+
+{% endblock %}

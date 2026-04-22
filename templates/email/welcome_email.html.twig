@@ -1,0 +1,139 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #0a4771 0%, #1b5e8e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #0a4771;
+        }
+        .features {
+            margin: 30px 0;
+        }
+        .feature-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #0a4771;
+            border-radius: 4px;
+        }
+        .feature-item strong {
+            color: #0a4771;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .shop-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #0a4771 0%, #1b5e8e 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .shop-button:hover {
+            opacity: 0.9;
+            text-decoration: none;
+            color: white;
+        }
+        .footer {
+            background: #e8e8e8;
+            color: #666;
+            font-size: 12px;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 8px 8px;
+            border-top: 1px solid #ddd;
+        }
+        .contact-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Bienvenue chez D'Panne Phones !</h1>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                Bonjour {{ user.prenom | default(user.email) }},
+            </div>
+
+            <p>Votre compte a été créé avec succès ! Vous pouvez maintenant explorer notre boutique et découvrir une sélection de produits reconditionnés de qualité.</p>
+
+            <div class="features">
+                <div class="feature-item">
+                    <strong>📱 Smartphones & Accessoires</strong><br>
+                    Une large gamme de téléphones reconditionnés en excellent état
+                </div>
+                <div class="feature-item">
+                    <strong>💻 Ordinateurs & Composants</strong><br>
+                    PC portables, bureautiques et gaming, testés et garantis
+                </div>
+                <div class="feature-item">
+                    <strong>🛡️ Garantie & Confiance</strong><br>
+                    Garantie légale 2 ans neuf / 1 an occasion + retours sous 14 jours
+                </div>
+                <div class="feature-item">
+                    <strong>🚚 Retrait en Boutique</strong><br>
+                    Disponible sous 1-2 jours ouvrés à Pélissanne
+                </div>
+            </div>
+
+            <div class="button-container">
+                <a href="{{ url('boutique_index') }}" class="shop-button">Découvrir la Boutique</a>
+            </div>
+
+            <div class="contact-info">
+                <strong>📍 Nous trouver :</strong><br>
+                D'Panne Phones - Pélissanne, France<br>
+                <strong>Support :</strong> contact@dpannephones.com
+            </div>
+
+            <p>Si vous avez des questions ou besoin d'assistance, n'hésitez pas à nous contacter. Nous sommes là pour vous aider !</p>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 D'Panne Phones - Tous droits réservés<br>
+            Électronique reconditionnée · Pélissanne, France</p>
+        </div>
+    </div>
+</body>
+</html>

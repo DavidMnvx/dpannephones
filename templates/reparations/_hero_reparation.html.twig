@@ -1,0 +1,83 @@
+{# ═══════════════════════════════════════════════════════════
+   Hero banner réutilisable pour le flow de réparation
+   Paramètres attendus (via `with`) :
+   - step        : 1 | 2 | 3 | 4 (étape active du stepper)
+   - title       : titre principal
+   - subtitle    : sous-titre descriptif
+   - breadcrumb  : array optionnel [{label, url}, ...] (sans le lien courant)
+   - type        : 'phone' | 'tablet' | null (affecte les liens du stepper)
+═══════════════════════════════════════════════════════════ #}
+
+<section class="rep-hero">
+    <div class="rep-hero-bg">
+        <span class="rep-hero-blob rep-hero-blob--1"></span>
+        <span class="rep-hero-blob rep-hero-blob--2"></span>
+    </div>
+
+    <div class="rep-hero-inner">
+        {# Fil d'Ariane #}
+        {% if breadcrumb is defined and breadcrumb is not empty %}
+            <nav class="rep-hero-breadcrumb">
+                <a href="{{ path('home') }}"><i class="fas fa-home"></i></a>
+                {% for crumb in breadcrumb %}
+                    <span class="rep-hero-sep">›</span>
+                    {% if crumb.url is defined %}
+                        <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                    {% else %}
+                        <span>{{ crumb.label }}</span>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+        {% endif %}
+
+        <div class="rep-hero-eyebrow">
+            <i class="fas fa-tools mr-2"></i>Réparation
+        </div>
+
+        <h1 class="rep-hero-title">{{ title ?? 'Votre réparation' }}</h1>
+
+        {% if subtitle is defined and subtitle %}
+            <p class="rep-hero-sub">{{ subtitle }}</p>
+        {% endif %}
+
+        {# Stepper de progression #}
+        <div class="rep-stepper">
+            {% set steps = [
+                { n: 1, label: 'Appareil',   icon: 'fa-mobile-alt',    url: path('reparations_home') },
+                { n: 2, label: 'Marque',     icon: 'fa-tags',          url: type is defined and type ? path('choix_marque', {type: type}) : null },
+                { n: 3, label: 'Modèle',     icon: 'fa-microchip',     url: null },
+                { n: 4, label: 'Réparation', icon: 'fa-wrench',        url: null }
+            ] %}
+            {% for s in steps %}
+                {% set state = s.n < step ? 'done' : (s.n == step ? 'active' : 'upcoming') %}
+                {% set canClick = s.n < step and s.url %}
+
+                {% if canClick %}
+                    <a href="{{ s.url }}" class="rep-step rep-step--{{ state }}">
+                {% else %}
+                    <div class="rep-step rep-step--{{ state }}">
+                {% endif %}
+                    <div class="rep-step-circle">
+                        {% if state == 'done' %}
+                            <i class="fas fa-check"></i>
+                        {% else %}
+                            <i class="fas {{ s.icon }}"></i>
+                        {% endif %}
+                    </div>
+                    <div class="rep-step-label">
+                        <small>Étape {{ s.n }}</small>
+                        <span>{{ s.label }}</span>
+                    </div>
+                {% if canClick %}
+                    </a>
+                {% else %}
+                    </div>
+                {% endif %}
+
+                {% if not loop.last %}
+                    <div class="rep-step-line rep-step-line--{{ s.n < step ? 'done' : 'upcoming' }}"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>

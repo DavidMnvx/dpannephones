@@ -1,0 +1,154 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'site_images' %}
+{% block title %}Images du site — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Images du site
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-images mr-2"></i>Images du site</h2>
+        <p>Modifiez les photos affichées sur le site public sans passer par un développeur</p>
+    </div>
+    <div class="admin-stats">
+        <div class="stat-box">
+            <span class="stat-number">{{ images|length }}</span>
+            <span class="stat-label">Image{{ images|length > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ images|filter(i => i.image)|length }}</span>
+            <span class="stat-label">Personnalisée{{ images|filter(i => i.image)|length > 1 ? 's' : '' }}</span>
+        </div>
+    </div>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+{# Sommaire des catégories — navigation rapide #}
+{% if grouped is not empty %}
+<div class="site-image-toc">
+    {% for categoryKey, items in grouped %}
+        {% set meta = categories[categoryKey] ?? {'label': categoryKey|replace({'_': ' '})|title, 'icon': 'fas fa-folder'} %}
+        <a href="#cat-{{ categoryKey }}" class="site-image-toc-link">
+            <i class="{{ meta.icon }}"></i>
+            <span>{{ meta.label }}</span>
+            <span class="site-image-toc-badge">{{ items|length }}</span>
+        </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if images is empty %}
+    <div class="admin-card" style="text-align:center;padding:50px 30px;">
+        <i class="fas fa-image" style="font-size:48px;color:#cbd5e1;margin-bottom:16px;"></i>
+        <h3 style="font-size:18px;color:#6b7280;">Aucune image configurée</h3>
+        <p style="color:#9ca3af;font-size:13px;">Contactez votre développeur pour ajouter des images modifiables.</p>
+    </div>
+{% else %}
+    {% for categoryKey, items in grouped %}
+        {% set meta = categories[categoryKey] ?? {'label': categoryKey|replace({'_': ' '})|title, 'icon': 'fas fa-folder', 'description': null} %}
+
+        <div class="site-image-category" id="cat-{{ categoryKey }}">
+            <div class="site-image-category-head">
+                <div class="site-image-category-head-main">
+                    <i class="{{ meta.icon }} site-image-category-icon"></i>
+                    <div>
+                        <h3 class="site-image-category-title">{{ meta.label }}</h3>
+                        {% if meta.description %}
+                            <p class="site-image-category-desc">{{ meta.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="site-image-category-count">
+                    {{ items|length }} image{{ items|length > 1 ? 's' : '' }}
+                    &nbsp;·&nbsp;
+                    <strong>{{ items|filter(i => i.image)|length }}</strong> personnalisée{{ items|filter(i => i.image)|length > 1 ? 's' : '' }}
+                </span>
+            </div>
+
+            <div class="site-image-grid">
+                {% for img in items %}
+                    <div class="site-image-card">
+                        <div class="site-image-preview">
+                            {% if img.webPath %}
+                                <img src="{{ asset(img.webPath) }}" alt="{{ img.label }}">
+                            {% else %}
+                                <div class="site-image-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <span>Aucune image</span>
+                                </div>
+                            {% endif %}
+
+                            {% if img.image %}
+                                <span class="site-image-badge site-image-badge--custom">
+                                    <i class="fas fa-pencil-alt mr-1"></i>Personnalisée
+                                </span>
+                            {% else %}
+                                <span class="site-image-badge site-image-badge--default">
+                                    <i class="fas fa-image mr-1"></i>Par défaut
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="site-image-body">
+                            <h3>{{ img.label }}</h3>
+                            {% if img.description %}
+                                <p class="site-image-desc">{{ img.description }}</p>
+                            {% endif %}
+
+                            <div class="site-image-meta">
+                                <code>{{ img.slug }}</code>
+                                {% if img.updatedAt %}
+                                    <span>Modifiée le {{ img.updatedAt|date('d/m/Y à H:i') }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="site-image-actions">
+                                <a href="{{ path('admin_site_image_edit', {id: img.id}) }}" class="btn btn-admin-submit" style="padding:10px 20px;font-size:13px;">
+                                    <i class="fas fa-upload mr-1"></i> Changer l'image
+                                </a>
+                                {% if img.image %}
+                                    <form method="post" action="{{ path('admin_site_image_reset', {id: img.id}) }}" style="display:inline;"
+                                          onsubmit="return confirm('Réinitialiser cette image à la version par défaut ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('reset_site_image_' ~ img.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-undo mr-1"></i> Réinitialiser
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div style="background:#eff6fb;border-left:3px solid rgb(9,71,113);padding:14px 18px;border-radius:10px;margin-top:24px;">
+    <div style="font-size:13px;font-weight:700;color:rgb(9,71,113);margin-bottom:4px;">
+        <i class="fas fa-lightbulb mr-1"></i>Conseils pour de belles photos
+    </div>
+    <ul style="font-size:12.5px;color:#475569;margin:0;padding-left:20px;line-height:1.7;">
+        <li><strong>Dimensions minimales :</strong> 800×600 pixels (plus c'est grand, mieux c'est)</li>
+        <li><strong>Format :</strong> JPG (photos réelles) ou WEBP (plus léger) — max 6 Mo</li>
+        <li><strong>Luminosité :</strong> éviter les photos sombres ou contre-jour</li>
+        <li><strong>Cadrage :</strong> format horizontal (paysage) pour les photos de devanture</li>
+        <li>Après upload, la nouvelle photo s'affiche <strong>immédiatement</strong> sur le site public</li>
+    </ul>
+</div>
+
+{% endblock %}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Commande #{{ commande.id }} — D'Panne Phones</title>
+<style>
+  body { margin:0; padding:0; background:#f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .wrapper { max-width:600px; margin:30px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+  .header { background:rgb(9,71,113); padding:32px 40px; text-align:center; }
+  .header img { height:40px; }
+  .header h1 { color:#fff; font-size:22px; margin:16px 0 4px; }
+  .header p { color:rgba(255,255,255,0.75); font-size:14px; margin:0; }
+  .status-banner { padding:20px 40px; text-align:center; }
+  .status-icon { font-size:48px; margin-bottom:8px; }
+  .status-label { display:inline-block; padding:8px 20px; border-radius:30px; font-weight:700; font-size:15px; }
+  .body { padding:0 40px 30px; }
+  .greeting { font-size:16px; color:#1a2b4b; margin-bottom:20px; }
+  .message { font-size:14px; color:#4b5563; line-height:1.7; margin-bottom:24px; }
+  .order-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px; margin-bottom:24px; }
+  .order-box h3 { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:#9ca3af; margin:0 0 14px; }
+  .order-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #e2e8f0; font-size:14px; color:#374151; }
+  .order-row:last-child { border-bottom:none; }
+  .order-row span { font-weight:600; color:#1a2b4b; }
+  .tracking-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:20px; margin-bottom:24px; }
+  .tracking-box h3 { font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:#16a34a; margin:0 0 10px; }
+  .tracking-number { font-size:22px; font-weight:800; color:#1a2b4b; letter-spacing:0.04em; font-family:monospace; }
+  .tracking-carrier { font-size:13px; color:#6b7280; margin-top:4px; }
+  .tracking-link { display:inline-block; margin-top:16px; background:rgb(9,71,113); color:#fff !important; text-decoration:none !important; padding:12px 26px; border-radius:7px; font-weight:700; font-size:14px; }
+  .items-table { width:100%; border-collapse:collapse; margin-bottom:24px; }
+  .items-table th { font-size:12px; font-weight:700; text-transform:uppercase; color:#9ca3af; padding:8px 0; border-bottom:1px solid #e2e8f0; text-align:left; }
+  .items-table td { padding:10px 0; font-size:14px; color:#374151; border-bottom:1px solid #f1f5f9; }
+  .items-table .total-row td { font-weight:700; color:rgb(9,71,113); font-size:15px; border-top:2px solid #e2e8f0; border-bottom:none; padding-top:12px; }
+  .cta { text-align:center; margin:28px 0; }
+  .cta a { display:inline-block; background:rgb(9,71,113); color:#fff; text-decoration:none; padding:14px 32px; border-radius:8px; font-weight:700; font-size:15px; }
+  .footer { background:#f8fafc; border-top:1px solid #e2e8f0; padding:20px 40px; text-align:center; font-size:12px; color:#9ca3af; line-height:1.8; }
+  .footer a { color:rgb(9,71,113); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  {# En-tête #}
+  <div class="header">
+    {% include 'email/_logo.html.twig' %}
+    <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:12px 0 0;">Réparation & Vente — Pélissanne</p>
+  </div>
+
+  {# Bandeau statut #}
+  <div class="status-banner">
+    {% if statut == 'payee' %}
+      <div class="status-icon">✅</div>
+      <div class="status-label" style="background:#dcfce7;color:#166534;">Commande confirmée</div>
+    {% elseif statut == 'en_preparation' %}
+      <div class="status-icon">🔧</div>
+      <div class="status-label" style="background:#dbeafe;color:rgb(9,71,113);">En préparation</div>
+    {% elseif statut == 'expediee' %}
+      <div class="status-icon">🚚</div>
+      <div class="status-label" style="background:#e0f2fe;color:#0369a1;">Expédiée</div>
+    {% elseif statut == 'livree' %}
+      <div class="status-icon">📦</div>
+      <div class="status-label" style="background:#dcfce7;color:#166534;">Livrée</div>
+    {% elseif statut == 'retiree' %}
+      <div class="status-icon">🏪</div>
+      <div class="status-label" style="background:#dcfce7;color:#166534;">Retirée en boutique</div>
+    {% elseif statut == 'annulee' %}
+      <div class="status-icon">❌</div>
+      <div class="status-label" style="background:#fee2e2;color:#991b1b;">Annulée</div>
+    {% endif %}
+  </div>
+
+  <div class="body">
+
+    <p class="greeting">Bonjour <strong>{{ user.prenom }}</strong>,</p>
+
+    {# Message personnalisé selon statut #}
+    <p class="message">
+      {% if statut == 'payee' %}
+        Nous avons bien reçu votre paiement. Votre commande <strong>#{{ commande.id }}</strong> est confirmée et va être prise en charge par notre équipe très prochainement.
+      {% elseif statut == 'en_preparation' %}
+        Bonne nouvelle ! Votre commande <strong>#{{ commande.id }}</strong> est actuellement en cours de préparation par notre équipe. Nous vous préviendrons dès qu'elle sera expédiée.
+      {% elseif statut == 'expediee' %}
+        Votre commande <strong>#{{ commande.id }}</strong> vient d'être expédiée ! Vous pouvez suivre votre colis grâce au numéro ci-dessous.
+      {% elseif statut == 'livree' %}
+        Votre commande <strong>#{{ commande.id }}</strong> a été livrée. Nous espérons que vous êtes satisfait(e) de votre achat. N'hésitez pas à nous contacter si vous avez la moindre question.
+      {% elseif statut == 'retiree' %}
+        Votre retrait en boutique pour la commande <strong>#{{ commande.id }}</strong> a été confirmé. Merci pour votre visite !
+      {% elseif statut == 'annulee' %}
+        Votre commande <strong>#{{ commande.id }}</strong> a été annulée. Si vous avez été débité(e), un remboursement sera effectué sous 5 à 10 jours ouvrés. Contactez-nous pour toute question.
+      {% endif %}
+    </p>
+
+    {# Numéro de suivi (expédiée seulement) #}
+    {% if statut == 'expediee' and commande.numeroSuivi %}
+
+    {# Calcul de l'URL de suivi selon le transporteur #}
+    {% set trackingUrl = null %}
+    {% set transporteurNorm = commande.transporteur|lower|replace({' ': '', '_': '', '-': ''}) %}
+    {% if 'colissimo' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.laposte.fr/outils/suivre-vos-envois?code=' ~ commande.numeroSuivi %}
+    {% elseif 'chronopost' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT=' ~ commande.numeroSuivi %}
+    {% elseif 'mondialrelay' in transporteurNorm or 'mondial' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.mondialrelay.fr/suivi-de-colis/?numeroExpedition=' ~ commande.numeroSuivi %}
+    {% elseif 'dpd' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.dpd.fr/trace/' ~ commande.numeroSuivi %}
+    {% elseif 'gls' in transporteurNorm %}
+      {% set trackingUrl = 'https://gls-group.eu/track/' ~ commande.numeroSuivi %}
+    {% elseif 'ups' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.ups.com/track?loc=fr_FR&tracknum=' ~ commande.numeroSuivi %}
+    {% elseif 'dhl' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.dhl.com/fr-fr/home/tracking.html?tracking-id=' ~ commande.numeroSuivi %}
+    {% elseif 'fedex' in transporteurNorm %}
+      {% set trackingUrl = 'https://www.fedex.com/fedextrack/?trknbr=' ~ commande.numeroSuivi %}
+    {% endif %}
+
+    <div class="tracking-box">
+      <h3>🔍 Numéro de suivi</h3>
+      <div class="tracking-number">{{ commande.numeroSuivi }}</div>
+      {% if commande.transporteur %}
+        <div class="tracking-carrier">Transporteur : <strong>{{ commande.transporteur }}</strong></div>
+      {% endif %}
+      {% if trackingUrl %}
+        <a href="{{ trackingUrl }}" class="tracking-link" target="_blank">
+          🚚 Suivre mon colis →
+        </a>
+      {% elseif commande.numeroSuivi %}
+        <p style="font-size:13px;color:#6b7280;margin-top:10px;">
+          Utilisez ce numéro sur le site de votre transporteur pour suivre votre colis.
+        </p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {# Récapitulatif commande #}
+    <div class="order-box">
+      <h3>Récapitulatif commande #{{ commande.id }}</h3>
+      <div class="order-row">Date <span>{{ commande.createdAt|date('d/m/Y à H:i') }}</span></div>
+      {% if commande.transporteur and statut == 'expediee' %}
+      <div class="order-row">Transporteur : <span>{{ commande.transporteur }}</span></div>
+      {% endif %}
+    </div>
+
+    {# Articles #}
+    {% set totalHT  = commande.total / 1.20 %}
+    {% set totalTVA = commande.total - totalHT %}
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th style="text-align:center;">Qté</th>
+          <th style="text-align:right;">Prix unit. TTC</th>
+          <th style="text-align:right;">Sous-total TTC</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in commande.items %}
+        <tr>
+          <td>{{ item.articleName }}</td>
+          <td style="text-align:center;">{{ item.quantite }}</td>
+          <td style="text-align:right;">{{ item.prix|number_format(2, ',', ' ') }} €</td>
+          <td style="text-align:right;font-weight:600;">{{ item.sousTotal|number_format(2, ',', ' ') }} €</td>
+        </tr>
+        {% endfor %}
+
+        {# Ligne séparatrice #}
+        <tr>
+          <td colspan="4" style="padding:0;border-bottom:2px solid #e2e8f0;"></td>
+        </tr>
+
+        {# Sous-total HT #}
+        <tr>
+          <td colspan="3" style="text-align:right;font-size:13px;color:#6b7280;padding-top:10px;">Sous-total HT</td>
+          <td style="text-align:right;font-size:13px;color:#6b7280;padding-top:10px;">{{ totalHT|number_format(2, ',', ' ') }} €</td>
+        </tr>
+
+        {# TVA #}
+        <tr>
+          <td colspan="3" style="text-align:right;font-size:13px;color:#6b7280;">TVA (20 %)</td>
+          <td style="text-align:right;font-size:13px;color:#6b7280;">{{ totalTVA|number_format(2, ',', ' ') }} €</td>
+        </tr>
+
+        {# Total TTC #}
+        <tr class="total-row">
+          <td colspan="3" style="text-align:right;">Total TTC</td>
+          <td style="text-align:right;">{{ commande.total|number_format(2, ',', ' ') }} €</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:11px;color:#9ca3af;margin-top:-16px;margin-bottom:24px;">
+      TVA 20 % incluse — Prix affichés TTC — FR 23 881 633 036
+    </p>
+
+    {# Horaires boutique (retrait en boutique) #}
+    {% if statut == 'retiree' or statut == 'payee' or statut == 'en_preparation' %}
+    {% set isRetrait = commande.transporteur and ('retrait' in commande.transporteur|lower or 'boutique' in commande.transporteur|lower) %}
+    {% if isRetrait or statut == 'retiree' %}
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:20px;margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#b45309;margin-bottom:12px;">
+        🏪 Horaires d'ouverture — D'Panne Phones
+      </div>
+      <table style="width:100%;font-size:13px;color:#374151;border-collapse:collapse;">
+        <tr>
+          <td style="padding:5px 0;font-weight:600;width:140px;">Lundi – Vendredi</td>
+          <td style="padding:5px 0;">9h – 12h &nbsp;/&nbsp; 14h – 18h</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;font-weight:600;">Samedi</td>
+          <td style="padding:5px 0;">9h – 12h</td>
+        </tr>
+        <tr>
+          <td style="padding:5px 0;font-weight:600;color:#dc2626;">Dimanche</td>
+          <td style="padding:5px 0;color:#dc2626;">Fermé</td>
+        </tr>
+      </table>
+      <p style="font-size:12px;color:#6b7280;margin:12px 0 0;">
+        <strong>Adresse :</strong> Avenue Pasteur, Centre Commercial Le Galion, 13330 Pélissanne<br>
+        <strong>Tél :</strong> 07 83 74 83 11
+      </p>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {# CTA #}
+    <div class="cta">
+      <a href="{{ absolute_url(path('account_index')) }}">Voir mes commandes →</a>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <strong>D'Panne Phones</strong><br>
+    Avenue Pasteur, Centre Commercial Le Galion, 13330 Pélissanne<br>
+    <a href="tel:+33783748311">07 83 74 83 11</a> · <a href="mailto:contact@dpannephones.com">contact@dpannephones.com</a><br><br>
+    Vous recevez cet email car vous avez passé une commande sur notre site.
+  </div>
+
+</div>
+</body>
+</html>

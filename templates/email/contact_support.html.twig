@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nouveau message — D'Panne Phones</title>
+<style>
+  body { margin:0; padding:0; background:#f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+  .wrapper { max-width:600px; margin:30px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+  .header { background:rgb(9,71,113); padding:32px 40px; text-align:center; }
+  .header h1 { color:#fff; font-size:22px; margin:16px 0 4px; font-weight:800; }
+  .header p { color:rgba(255,255,255,0.75); font-size:14px; margin:0; }
+  .eyebrow { display:inline-block; background:rgba(255,255,255,0.12); color:#fff; padding:6px 14px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px; }
+  .body { padding:28px 40px 20px; }
+  .info-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:18px 22px; margin-bottom:22px; }
+  .info-box h3 { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:#9ca3af; margin:0 0 14px; }
+  .info-row { display:table; width:100%; padding:7px 0; border-bottom:1px solid #eef2f6; }
+  .info-row:last-child { border-bottom:none; }
+  .info-label { display:table-cell; font-size:12px; color:#6b7280; font-weight:600; width:110px; padding-right:12px; text-transform:uppercase; letter-spacing:0.04em; }
+  .info-value { display:table-cell; font-size:14px; color:#1a2b4b; font-weight:600; }
+  .info-value a { color:rgb(9,71,113); text-decoration:none; }
+  .message-box { background:#fffbeb; border:1px solid #fde68a; border-left:3px solid #f59e0b; border-radius:10px; padding:18px 22px; margin-bottom:22px; }
+  .message-box h3 { font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:#b45309; margin:0 0 10px; }
+  .message-content { font-size:14px; color:#374151; line-height:1.7; white-space:pre-wrap; margin:0; }
+  .quick-actions { text-align:center; margin:22px 0 8px; padding:16px; background:#eff6fb; border-radius:10px; }
+  .quick-actions p { margin:0 0 10px; font-size:12px; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; font-weight:700; }
+  .action-btn { display:inline-block; margin:0 4px; padding:10px 18px; background:rgb(9,71,113); color:#fff !important; text-decoration:none !important; border-radius:7px; font-size:13px; font-weight:700; }
+  .action-btn--ghost { background:#fff; color:rgb(9,71,113) !important; border:1px solid rgb(9,71,113); }
+  .footer { background:#f8fafc; border-top:1px solid #e2e8f0; padding:18px 40px; text-align:center; font-size:11px; color:#9ca3af; line-height:1.8; }
+  .footer strong { color:#6b7280; }
+  .meta { font-size:11px; color:#9ca3af; text-align:center; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <div class="header">
+    <div class="eyebrow"><i>📩</i> Nouveau message</div>
+    <h1>Formulaire de contact</h1>
+    <p>Un client vous a écrit via dpannephones.com</p>
+  </div>
+
+  <div class="body">
+
+    {# Infos expéditeur #}
+    <div class="info-box">
+      <h3>Coordonnées du client</h3>
+      <div class="info-row">
+        <span class="info-label">Nom</span>
+        <span class="info-value">{{ contact.firstName }} {{ contact.lastName }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-value"><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Téléphone</span>
+        <span class="info-value"><a href="tel:{{ contact.phone }}">{{ contact.phone }}</a></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Reçu le</span>
+        <span class="info-value">{{ sentAt|date('d/m/Y à H:i') }}</span>
+      </div>
+    </div>
+
+    {# Message #}
+    <div class="message-box">
+      <h3>💬 Message</h3>
+      <p class="message-content">{{ contact.message }}</p>
+    </div>
+
+    {# Actions rapides #}
+    <div class="quick-actions">
+      <p>Réponse rapide</p>
+      <a href="mailto:{{ contact.email }}?subject=Re%3A%20Votre%20message%20%C3%A0%20D%27panne%20Phones" class="action-btn">
+        ✉️ Répondre par email
+      </a>
+      <a href="tel:{{ contact.phone }}" class="action-btn action-btn--ghost">
+        📞 Appeler
+      </a>
+    </div>
+
+    <p class="meta">
+      💡 Pour répondre à ce message, utilisez simplement "Répondre" dans votre messagerie —
+      la réponse ira directement au client.
+    </p>
+
+  </div>
+
+  <div class="footer">
+    <strong>D'Panne Phones</strong> — Réparation &amp; Vente<br>
+    17 Boulevard du Comte de Provence, 13330 Pélissanne — 07 83 74 83 11<br>
+    Message reçu depuis le formulaire de contact du site
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,853 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.name }} — D'panne Phones{% endblock %}
+
+{# ── JSON-LD Product (pour rich snippets Google Search) ── #}
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ article.name|e('js') }}",
+  "description": "{{ article.description|e('js') }}",
+  {% if article.image %}"image": "{{ absolute_url(asset('uploads/images/' ~ article.image)) }}",{% endif %}
+  {% if article.categorie %}"category": "{{ article.categorie|replace({'_': ' '})|capitalize|e('js') }}",{% endif %}
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ (article.specs.brand ?? "D'Panne Phones")|e('js') }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ absolute_url(path('boutique_show', {id: article.id})) }}",
+    "priceCurrency": "EUR",
+    "price": "{{ article.price|number_format(2, '.', '') }}",
+    "availability": "https://schema.org/InStock",
+    "itemCondition": "{{ article.isNew ? 'https://schema.org/NewCondition' : 'https://schema.org/RefurbishedCondition' }}",
+    "seller": {
+      "@type": "Organization",
+      "name": "D'Panne Phones"
+    }
+  }
+  {% if articleAvgRating and articleReviews|length > 0 %}
+  ,
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ articleAvgRating }}",
+    "reviewCount": "{{ articleReviews|length }}",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "review": [
+    {% for review in articleReviews|slice(0, 5) %}
+    {
+      "@type": "Review",
+      "author": { "@type": "Person", "name": "{{ review.displayName|e('js') }}" },
+      "datePublished": "{{ (review.publishedAt ?? review.createdAt)|date('Y-m-d') }}",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "{{ review.rating }}",
+        "bestRating": "5"
+      },
+      "reviewBody": "{{ review.comment|e('js') }}"
+    }{{ not loop.last ? ',' : '' }}
+    {% endfor %}
+  ]
+  {% endif %}
+}
+</script>
+{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-4" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_boutique', 'images/baner/Boutique.png')) }}" alt="Boutique">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Notre Boutique</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="width:90%;max-width:1200px;margin:0 auto 60px;padding:0 16px;">
+
+    {# Fil d'Ariane #}
+    <nav class="article-breadcrumb">
+        <a href="{{ path('boutique_index') }}">Boutique</a>
+        {% if article.categorie and categories[article.categorie] is defined %}
+            <span class="bc-sep">›</span>
+            <a href="{{ path('boutique_index', {categorie: article.categorie}) }}">{{ categories[article.categorie] }}</a>
+        {% endif %}
+        <span class="bc-sep">›</span>
+        <span class="bc-current">{{ article.name }}</span>
+    </nav>
+
+    <div class="article-detail-wrap">
+
+        {# ══════════════════════════════════════
+           COLONNE GAUCHE — Image + vignettes
+           ══════════════════════════════════════ #}
+        <div class="article-detail-img-col">
+
+            {# Image principale #}
+            {% if article.image %}
+                <div class="article-detail-img-frame">
+                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                </div>
+            {% else %}
+                <div class="article-detail-no-img">
+                    <i class="fas fa-image"></i>
+                    <span>Pas d'image disponible</span>
+                </div>
+            {% endif %}
+
+            {# Vignettes specs clés — téléphones uniquement #}
+            {% if article.categorie == 'telephone' and article.specs %}
+                {% set s = article.specs %}
+                <div class="spec-vignettes">
+                    {% if s.os is defined %}
+                        <div class="spec-vignette">
+                            <i class="fab fa-{% if 'iOS' in s.os %}apple{% else %}android{% endif %}"></i>
+                            <strong>OS</strong>
+                            <span>{{ s.os }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.storage_capacity is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-hdd"></i>
+                            <strong>Stockage</strong>
+                            <span>{{ s.storage_capacity }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.ram is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-memory"></i>
+                            <strong>RAM</strong>
+                            <span>{{ s.ram }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.screen_size is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                            <strong>Écran</strong>
+                            <span>{{ s.screen_size }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.camera is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-camera"></i>
+                            <strong>Photo</strong>
+                            <span>{{ s.camera }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.battery_capacity is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-battery-three-quarters"></i>
+                            <strong>Batterie</strong>
+                            <span>{{ s.battery_capacity }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.sim is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-sim-card"></i>
+                            <strong>SIM</strong>
+                            <span>{{ s.sim }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.color is defined %}
+                        <div class="spec-vignette">
+                            <i class="fas fa-palette"></i>
+                            <strong>Couleur</strong>
+                            <span>{{ s.color }}</span>
+                        </div>
+                    {% endif %}
+                    {% if s.battery_health is defined %}
+                        <div class="spec-vignette spec-vignette--{{ s.battery_health >= 85 ? 'good' : (s.battery_health >= 70 ? 'mid' : 'low') }}">
+                            <i class="fas fa-heartbeat"></i>
+                            <strong>État batterie</strong>
+                            <span>{{ s.battery_health }}%</span>
+                        </div>
+                    {% endif %}
+                    {% if article.grade %}
+                        <div class="spec-vignette spec-vignette--grade">
+                            <i class="fas fa-award"></i>
+                            <strong>Grade</strong>
+                            <span>Grade {{ article.grade }}</span>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        </div>
+
+        {# ══════════════════════════════════════
+           COLONNE DROITE — Infos + Achat
+           ══════════════════════════════════════ #}
+        <div class="article-detail-info-col">
+
+            {# Badges état / grade #}
+            <div class="article-detail-badges">
+                <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
+                    {{ article.isNew ? 'Neuf' : "D'occasion" }}
+                </span>
+                {% if article.grade %}
+                    <span class="badge-grade grade-tooltip-wrap" tabindex="0">
+                        Grade {{ article.grade }}
+                        <span class="grade-tooltip">
+                            <strong>Grade A</strong> — Excellent état, traces imperceptibles<br>
+                            <strong>Grade B</strong> — Bon état, légères traces d'usage<br>
+                            <strong>Grade C</strong> — État correct, traces visibles
+                        </span>
+                    </span>
+                {% endif %}
+            </div>
+
+            {# Nom + description #}
+            <h1 class="article-detail-name">{{ article.name }}</h1>
+            {% if article.description %}
+                <p class="article-detail-desc">{{ article.description }}</p>
+            {% endif %}
+
+            {# ── PRIX + PANIER (bloc achat principal) ── #}
+            <div class="article-buy-block">
+                <div class="article-buy-price">
+                    <span class="article-price-amount">{{ article.price|number_format(2, ',', ' ') }} €</span>
+                    {% if not article.isNew %}
+                        <span class="article-price-hint">TVA incluse · Reconditionné</span>
+                    {% else %}
+                        <span class="article-price-hint">TVA incluse · Neuf</span>
+                    {% endif %}
+                </div>
+
+                <div class="article-buy-actions">
+                    {% if article.categorie == 'film_hydrogel' %}
+                        {# Récupérer les modèles par marque (brand_models) ou liste plate (compatible_models) #}
+                        {% set brandModels = article.specs.brand_models ?? {} %}
+                        {% set flatModels  = article.specs.compatible_models ?? [] %}
+
+                        {% if brandModels is not empty %}
+                            {# Sélecteur marque + modèle avec filtrage JS #}
+                            <form method="get" action="{{ path('cart_add', {id: article.id}) }}" class="hydrogel-form" id="hydrogel-form">
+
+                                <label class="hydrogel-label"><i class="fas fa-mobile-alt mr-1"></i> Sélectionnez votre téléphone</label>
+
+                                {# Étape 1 — Marque #}
+                                <select id="hydrogel-brand" class="hydrogel-select" onchange="filterHydrogelModels()">
+                                    <option value="">— Choisir une marque —</option>
+                                    {% for brand, models in brandModels %}
+                                        <option value="{{ brand }}">{{ brand }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                {# Étape 2 — Modèle (filtré par JS) #}
+                                <select id="hydrogel-model" name="model" class="hydrogel-select" required disabled>
+                                    <option value="">— Choisir d'abord une marque —</option>
+                                </select>
+
+                                {# Dataset JSON pour le JS #}
+                                <script id="hydrogel-data" type="application/json">{{ brandModels|json_encode|raw }}</script>
+
+                                <button type="submit" class="btn-cart-detail" id="hydrogel-submit" disabled>
+                                    <i class="fas fa-shield-alt"></i>
+                                    Ajouter le film hydrogel au panier
+                                </button>
+                            </form>
+
+                            <script>
+                            function filterHydrogelModels() {
+                                const brand   = document.getElementById('hydrogel-brand').value;
+                                const select  = document.getElementById('hydrogel-model');
+                                const btn     = document.getElementById('hydrogel-submit');
+                                const data    = JSON.parse(document.getElementById('hydrogel-data').textContent);
+
+                                select.innerHTML = '';
+                                if (!brand) {
+                                    select.add(new Option('— Choisir d\'abord une marque —', ''));
+                                    select.disabled = true;
+                                    btn.disabled    = true;
+                                    return;
+                                }
+                                select.add(new Option('— Choisir un modèle —', ''));
+                                (data[brand] || []).forEach(function(m) {
+                                    select.add(new Option(m, m));
+                                });
+                                select.disabled = false;
+                                select.onchange = function() {
+                                    btn.disabled = !select.value;
+                                };
+                            }
+                            </script>
+
+                        {% elseif flatModels is not empty %}
+                            {# Fallback : liste plate sans marque #}
+                            <form method="get" action="{{ path('cart_add', {id: article.id}) }}" class="hydrogel-form">
+                                <label class="hydrogel-label"><i class="fas fa-mobile-alt mr-1"></i> Sélectionnez votre modèle</label>
+                                <select name="model" class="hydrogel-select" required>
+                                    <option value="">— Choisir un modèle compatible —</option>
+                                    {% for model in flatModels %}
+                                        <option value="{{ model }}">{{ model }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn-cart-detail">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Ajouter le film hydrogel au panier
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart-detail">
+                                <i class="fas fa-shield-alt"></i> Ajouter au panier
+                            </a>
+                        {% endif %}
+
+                    {% else %}
+                        <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart-detail">
+                            <i class="fas fa-cart-plus"></i>
+                            Ajouter au panier — D'Panne Phones
+                        </a>
+                    {% endif %}
+
+                    <div class="article-buy-reassurance">
+                        <span><i class="fas fa-store mr-1"></i> Retrait en boutique 1–2 jours</span>
+                        <span><i class="fas fa-undo-alt mr-1"></i> Retour 14 jours</span>
+                        <span><i class="fas fa-lock mr-1"></i> Paiement sécurisé</span>
+                    </div>
+                </div>
+            </div>
+
+            {# ── SPÉCIFICATIONS (Accordion) ── #}
+            {% if article.specs %}
+                <div class="article-detail-specs">
+                    <div class="article-specs-title">
+                        <i class="fas fa-list-ul mr-2"></i>Caractéristiques techniques
+                    </div>
+
+                    {% if article.categorie == 'telephone' %}
+                        {% set s = article.specs %}
+                        <div class="specs-accordion" id="specsAccordion" role="tablist">
+
+                            {# Identification #}
+                            {% if s.brand is defined or s.model is defined or s.os is defined or s.year is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading1" role="tab">
+                                        <button class="specs-accordion-button" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                                            <i class="fas fa-info-circle mr-2"></i>Identification
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse1" class="collapse show specs-accordion-collapse" role="tabpanel" aria-labelledby="heading1" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            {% if s.brand is defined %}<div class="article-spec-row"><span class="article-spec-key">Marque</span><span class="article-spec-val">{{ s.brand }}</span></div>{% endif %}
+                                            {% if s.model is defined %}<div class="article-spec-row"><span class="article-spec-key">Modèle</span><span class="article-spec-val">{{ s.model }}</span></div>{% endif %}
+                                            {% if s.os is defined %}<div class="article-spec-row"><span class="article-spec-key">Système</span><span class="article-spec-val">{{ s.os }}</span></div>{% endif %}
+                                            {% if s.year is defined %}<div class="article-spec-row"><span class="article-spec-key">Année</span><span class="article-spec-val">{{ s.year }}</span></div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Écran #}
+                            {% if s.screen_size is defined or s.screen_type is defined or s.resolution is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading2" role="tab">
+                                        <button class="specs-accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                                            <i class="fas fa-tv mr-2"></i>Écran
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse2" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading2" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            {% if s.screen_size is defined %}<div class="article-spec-row"><span class="article-spec-key">Taille</span><span class="article-spec-val">{{ s.screen_size }}</span></div>{% endif %}
+                                            {% if s.screen_type is defined %}<div class="article-spec-row"><span class="article-spec-key">Type</span><span class="article-spec-val">{{ s.screen_type }}</span></div>{% endif %}
+                                            {% if s.resolution is defined %}<div class="article-spec-row"><span class="article-spec-key">Résolution</span><span class="article-spec-val">{{ s.resolution }}</span></div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Performances #}
+                            {% if s.processor is defined or s.ram is defined or s.storage_capacity is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading3" role="tab">
+                                        <button class="specs-accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                                            <i class="fas fa-tachometer-alt mr-2"></i>Performances
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse3" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading3" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            {% if s.processor is defined %}<div class="article-spec-row"><span class="article-spec-key">Processeur</span><span class="article-spec-val">{{ s.processor }}</span></div>{% endif %}
+                                            {% if s.ram is defined %}<div class="article-spec-row"><span class="article-spec-key">RAM</span><span class="article-spec-val">{{ s.ram }}</span></div>{% endif %}
+                                            {% if s.storage_capacity is defined %}<div class="article-spec-row"><span class="article-spec-key">Stockage</span><span class="article-spec-val">{{ s.storage_capacity }}</span></div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Photo #}
+                            {% if s.camera is defined or s.camera_front is defined or s.other_cameras is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading4" role="tab">
+                                        <button class="specs-accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                                            <i class="fas fa-camera mr-2"></i>Photo
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse4" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading4" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            {% if s.camera is defined %}<div class="article-spec-row"><span class="article-spec-key">Appareil photo</span><span class="article-spec-val">{{ s.camera }}</span></div>{% endif %}
+                                            {% if s.camera_front is defined %}<div class="article-spec-row"><span class="article-spec-key">Caméra frontale</span><span class="article-spec-val">{{ s.camera_front }}</span></div>{% endif %}
+                                            {% if s.other_cameras is defined %}<div class="article-spec-row"><span class="article-spec-key">Autres caméras</span><span class="article-spec-val">{{ s.other_cameras }}</span></div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Connectivité #}
+                            {% if s.network is defined or s.sim is defined or s.connector is defined or s.connectivity is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading5" role="tab">
+                                        <button class="specs-accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                                            <i class="fas fa-wifi mr-2"></i>Connectivité
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse5" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading5" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            {% if s.network is defined %}<div class="article-spec-row"><span class="article-spec-key">Réseau</span><span class="article-spec-val">{{ s.network }}</span></div>{% endif %}
+                                            {% if s.sim is defined %}<div class="article-spec-row"><span class="article-spec-key">SIM</span><span class="article-spec-val">{{ s.sim }}</span></div>{% endif %}
+                                            {% if s.connector is defined %}<div class="article-spec-row"><span class="article-spec-key">Connectique</span><span class="article-spec-val">{{ s.connector }}</span></div>{% endif %}
+                                            {% if s.connectivity is defined %}<div class="article-spec-row"><span class="article-spec-key">WiFi / BT / NFC</span><span class="article-spec-val">{{ s.connectivity }}</span></div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Batterie & physique #}
+                            {% if s.battery_capacity is defined or s.battery_health is defined or s.weight is defined or s.color is defined or s.dimensions is defined or s.sensors is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading6" role="tab">
+                                        <button class="specs-accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+                                            <i class="fas fa-battery-three-quarters mr-2"></i>Batterie & Physique
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse6" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading6" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            {% if s.battery_capacity is defined %}<div class="article-spec-row"><span class="article-spec-key">Capacité</span><span class="article-spec-val">{{ s.battery_capacity }}</span></div>{% endif %}
+                                            {% if s.battery_health is defined %}
+                                                <div class="article-spec-row">
+                                                    <span class="article-spec-key">Santé batterie</span>
+                                                    <span class="article-spec-val">
+                                                        <span class="battery-pill {{ s.battery_health >= 85 ? 'battery-good' : (s.battery_health >= 70 ? 'battery-mid' : 'battery-low') }}">{{ s.battery_health }}%</span>
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                            {% if s.color is defined %}<div class="article-spec-row"><span class="article-spec-key">Couleur</span><span class="article-spec-val">{{ s.color }}</span></div>{% endif %}
+                                            {% if s.weight is defined %}<div class="article-spec-row"><span class="article-spec-key">Poids</span><span class="article-spec-val">{{ s.weight }}</span></div>{% endif %}
+                                            {% if s.dimensions is defined %}<div class="article-spec-row"><span class="article-spec-key">Dimensions</span><span class="article-spec-val">{{ s.dimensions }}</span></div>{% endif %}
+                                            {% if s.sensors is defined %}<div class="article-spec-row"><span class="article-spec-key">Capteurs</span><span class="article-spec-val">{{ s.sensors }}</span></div>{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# DAS — légal #}
+                            {% if s.sar is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading7" role="tab">
+                                        <button class="specs-accordion-button specs-accordion-button--legal collapsed" type="button" data-toggle="collapse" data-target="#collapse7" aria-expanded="false" aria-controls="collapse7">
+                                            <i class="fas fa-exclamation-triangle mr-2"></i>DAS — Information légale
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse7" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading7" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body specs-accordion-body--legal">
+                                            <div class="article-spec-row">
+                                                <span class="article-spec-key">DAS tête (W/kg)</span>
+                                                <span class="article-spec-val">{{ s.sar }}</span>
+                                            </div>
+                                            <p style="font-size:11px;color:#856404;margin-top:8px;margin-bottom:0;">ⓘ Valeur DAS conforme à la réglementation européenne (limite : 2 W/kg)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            {# Note du reconditionneur #}
+                            {% if s.note is defined %}
+                                <div class="specs-accordion-item">
+                                    <h2 class="specs-accordion-header" id="heading8" role="tab">
+                                        <button class="specs-accordion-button collapsed" type="button" data-toggle="collapse" data-target="#collapse8" aria-expanded="false" aria-controls="collapse8">
+                                            <i class="fas fa-sticky-note mr-2"></i>Note du reconditionneur
+                                            <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse8" class="collapse specs-accordion-collapse" role="tabpanel" aria-labelledby="heading8" data-parent="#specsAccordion">
+                                        <div class="specs-accordion-body">
+                                            <p style="font-style:italic;color:#6c757d;margin:0;font-size:13px;">{{ s.note }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        </div>
+
+                    {% elseif article.categorie == 'film_hydrogel' %}
+                        {% set models = article.specs.compatible_models ?? [] %}
+                        {% if models is not empty %}
+                            <div class="article-spec-row article-spec-row--full">
+                                <span class="article-spec-key">Modèles compatibles</span>
+                                <span class="article-spec-val compatible-models-list">{{ models|join(', ') }}</span>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="specs-accordion" id="specsAccordionGeneric" role="tablist">
+                            <div class="specs-accordion-item">
+                                <h2 class="specs-accordion-header" id="headingGeneric" role="tab">
+                                    <button class="specs-accordion-button" type="button" data-toggle="collapse" data-target="#collapseGeneric" aria-expanded="true" aria-controls="collapseGeneric">
+                                        <i class="fas fa-list-ul mr-2"></i>Spécifications
+                                        <i class="fas fa-chevron-down specs-chevron ml-auto"></i>
+                                    </button>
+                                </h2>
+                                <div id="collapseGeneric" class="collapse show specs-accordion-collapse" role="tabpanel" aria-labelledby="headingGeneric" data-parent="#specsAccordionGeneric">
+                                    <div class="specs-accordion-body">
+                                        {% for key, val in article.specs %}
+                                            {% if val is not iterable %}
+                                                <div class="article-spec-row">
+                                                    <span class="article-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
+                                                    <span class="article-spec-val">{{ val }}</span>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {# ── GARANTIES LÉGALES ── #}
+            <div class="article-legal-block">
+                <div class="article-legal-row">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>Garantie légale de conformité</strong>
+                        <span>{{ article.isNew ? '2 ans' : '1 an' }} — Art. L217-3 C. conso.</span>
+                    </div>
+                </div>
+                <div class="article-legal-row">
+                    <i class="fas fa-search"></i>
+                    <div>
+                        <strong>Garantie vices cachés</strong>
+                        <span>Art. 1641 C. civ.</span>
+                    </div>
+                </div>
+                <div class="article-legal-row">
+                    <i class="fas fa-undo-alt"></i>
+                    <div>
+                        <strong>Droit de rétractation</strong>
+                        <span>14 jours — Art. L221-18 C. conso.</span>
+                    </div>
+                </div>
+                <div class="article-legal-row">
+                    <i class="fas fa-store"></i>
+                    <div>
+                        <strong>Retrait en boutique</strong>
+                        <span>1–2 jours ouvrés — Pélissanne</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="article-bottom-links">
+                <a href="{{ path('legal_cgv') }}" class="legal-cgv-link">
+                    <i class="fas fa-file-contract mr-1"></i> CGV complètes
+                </a>
+                <a href="{{ path('boutique_index', article.categorie ? {categorie: article.categorie} : {}) }}" class="article-back-link">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour à la boutique
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════════════════
+       AVIS CLIENTS pour cet article
+    ══════════════════════════════════════════════════════ #}
+    <section class="article-reviews-section">
+        <div class="article-reviews-head">
+            <h2 class="article-reviews-title">
+                <i class="fas fa-star-half-alt mr-2" style="color:#f59e0b;"></i>
+                Avis clients
+            </h2>
+            {% if articleAvgRating %}
+                <div class="article-reviews-summary">
+                    <span class="article-reviews-score">{{ articleAvgRating }}</span>
+                    <div class="article-reviews-stars">
+                        {% for i in range(1, 5) %}
+                            <i class="{{ i <= (articleAvgRating|round) ? 'fas' : 'far' }} fa-star"></i>
+                        {% endfor %}
+                    </div>
+                    <span class="article-reviews-count">({{ articleReviews|length }} avis)</span>
+                </div>
+            {% else %}
+                <span style="color:#6b7280;font-size:13px;">Aucun avis pour ce produit pour l'instant</span>
+            {% endif %}
+        </div>
+
+        {% if articleReviews is empty %}
+            <div class="article-reviews-empty">
+                <i class="fas fa-comments"></i>
+                <p>Soyez le premier à laisser un avis sur ce produit après votre achat !</p>
+            </div>
+        {% else %}
+            <div class="rev-list">
+                {% for review in articleReviews|slice(0, 3) %}
+                    {# Version compacte d'une card avis #}
+                    {% set name = review.displayName %}
+                    {% set parts = name|split(' ') %}
+                    {% set initials = (parts[0]|first ~ (parts[1]|default('')|first))|upper %}
+                    {% set colors = ['#3b82f6', '#16a34a', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444'] %}
+                    {% set bgColor = colors[loop.index0 % colors|length] %}
+                    <article class="rev-card {{ review.isVerified ? 'rev-card--verified' : '' }}">
+                        <div class="rev-card-header">
+                            <div class="rev-card-avatar" style="background:{{ bgColor }};">{{ initials }}</div>
+                            <div class="rev-card-meta">
+                                <div class="rev-card-author">
+                                    {{ name }}
+                                    {% if review.isVerified %}
+                                        <span class="rev-badge-verified"><i class="fas fa-check-circle"></i> Achat vérifié</span>
+                                    {% endif %}
+                                </div>
+                                <div class="rev-card-date">
+                                    {{ review.publishedAt ? review.publishedAt|date('d F Y') : review.createdAt|date('d F Y') }}
+                                </div>
+                            </div>
+                            <div class="rev-card-stars">
+                                {% for i in range(1, 5) %}
+                                    <i class="{{ i <= review.rating ? 'fas' : 'far' }} fa-star"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <h3 class="rev-card-title">{{ review.title }}</h3>
+                        <p class="rev-card-comment">{{ review.comment|nl2br }}</p>
+                        {% if review.adminResponse %}
+                            <div class="rev-card-response">
+                                <div class="rev-card-response-header">
+                                    <i class="fas fa-reply"></i>
+                                    <strong>Réponse de D'Panne Phones</strong>
+                                </div>
+                                <p>{{ review.adminResponse|nl2br }}</p>
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+
+            {% if articleReviews|length > 3 %}
+                <div style="text-align:center;margin-top:20px;">
+                    <a href="{{ path('reviews_index') }}" class="rev-page-cta">
+                        Voir tous les avis ({{ articleReviews|length }}) →
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+    </section>
+
+</div>
+
+{# ══════════════════════════════════════════════════════
+   SECTION HYDROGEL — uniquement pour les films hydrogel
+══════════════════════════════════════════════════════ #}
+{% if article.categorie == 'film_hydrogel' %}
+<div class="hydrogel-section">
+
+    {# ── Qu'est-ce qu'un film hydrogel ? ── #}
+    <div class="hydrogel-intro">
+        <div class="hydrogel-intro-content">
+            <div class="hydrogel-eyebrow"><i class="fas fa-shield-alt mr-2"></i>Protection écran</div>
+            <h2 class="hydrogel-intro-title">Qu'est-ce qu'un film hydrogel ?</h2>
+            <p class="hydrogel-intro-text">
+                L'hydrogel est un mélange d'<strong>eau et de polymères</strong> — la même matière utilisée dans les lentilles de contact. Fin, transparent et <strong>auto-régénérant</strong>, il offre une résistance exceptionnelle aux chocs et rayures tout en préservant la qualité tactile de votre écran.
+            </p>
+            <p class="hydrogel-intro-text">
+                Contrairement au verre trempé, il s'adapte parfaitement aux <strong>écrans incurvés</strong> et ne se brise pas à l'impact — il absorbe et se régénère.
+            </p>
+        </div>
+        <div class="hydrogel-intro-img">
+            <img src="{{ asset('images/accueil/Hydrogel3.png') }}" alt="Film hydrogel">
+        </div>
+    </div>
+
+    {# ── Avantages ── #}
+    <div class="hydrogel-advantages">
+        <h2 class="hydrogel-section-title">Les avantages du film hydrogel</h2>
+        <div class="hydrogel-advantages-grid">
+            <div class="hydrogel-advantage-card">
+                <div class="hydrogel-advantage-icon" style="background:#dbeafe;color:rgb(9,71,113);">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Auto-régénérant</h3>
+                <p>Les micro-rayures du quotidien disparaissent d'elles-mêmes grâce à la plasticité naturelle du matériau.</p>
+            </div>
+            <div class="hydrogel-advantage-card">
+                <div class="hydrogel-advantage-icon" style="background:#dcfce7;color:#16a34a;">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </div>
+                <h3>S'adapte à tous les écrans</h3>
+                <p>Bords incurvés, encoche, poinçon… il épouse parfaitement la forme de votre écran, là où le verre trempé échoue.</p>
+            </div>
+            <div class="hydrogel-advantage-card">
+                <div class="hydrogel-advantage-icon" style="background:#fef9c3;color:#a16207;">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <h3>Ultra-transparent</h3>
+                <p>Fin (≈ 0,40 mm), il ne modifie pas les couleurs ni la sensibilité tactile de votre écran.</p>
+            </div>
+            <div class="hydrogel-advantage-card">
+                <div class="hydrogel-advantage-icon" style="background:#fce7f3;color:#be185d;">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <h3>Compatible lecteur d'empreinte</h3>
+                <p>Fonctionne parfaitement avec les capteurs d'empreintes digitales sous l'écran.</p>
+            </div>
+            <div class="hydrogel-advantage-card">
+                <div class="hydrogel-advantage-icon" style="background:#ede9fe;color:#7c3aed;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Résistant aux chocs</h3>
+                <p>Il absorbe l'énergie des impacts et protège votre écran sans se casser, contrairement au verre trempé.</p>
+            </div>
+            <div class="hydrogel-advantage-card">
+                <div class="hydrogel-advantage-icon" style="background:#ffedd5;color:#c2410c;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Longue durée de vie</h3>
+                <p>Sa durée de vie est supérieure à celle du verre trempé — pas de remplacement fréquent.</p>
+            </div>
+        </div>
+    </div>
+
+    {# ── VS Verre trempé ── #}
+    <div class="hydrogel-vs">
+        <h2 class="hydrogel-section-title">Film hydrogel vs Verre trempé</h2>
+        <div class="hydrogel-vs-table">
+            <div class="hydrogel-vs-header">
+                <div></div>
+                <div class="hydrogel-vs-col hydrogel-vs-col--hydro">
+                    <i class="fas fa-shield-alt mr-2"></i>Film Hydrogel
+                </div>
+                <div class="hydrogel-vs-col hydrogel-vs-col--verre">
+                    <i class="fas fa-glass-martini mr-2"></i>Verre Trempé
+                </div>
+            </div>
+            {% set vsRows = [
+                ['Écrans incurvés',       '✅ Oui',        '❌ Non'],
+                ['Auto-régénérant',       '✅ Oui',        '❌ Non'],
+                ['Se brise à l\'impact',  '❌ Non',        '⚠️ Oui'],
+                ['Lecteur empreinte',     '✅ Compatible', '⚠️ Partiel'],
+                ['Épaisseur',             '≈ 0,40 mm',     '≈ 0,33 mm'],
+                ['Durée de vie',          '✅ Longue',     '⚠️ Moyenne']
+            ] %}
+            {% for row in vsRows %}
+            <div class="hydrogel-vs-row">
+                <div class="hydrogel-vs-label">{{ row[0] }}</div>
+                <div class="hydrogel-vs-col hydrogel-vs-col--hydro">{{ row[1] }}</div>
+                <div class="hydrogel-vs-col hydrogel-vs-col--verre">{{ row[2] }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ── Étapes de pose ── #}
+    <div class="hydrogel-steps">
+        <h2 class="hydrogel-section-title">Comment poser votre film hydrogel ?</h2>
+        <p class="hydrogel-steps-sub">Des étapes simples et rapides — le kit inclut lingettes sèche et humide, autocollants anti-poussière et spatule de lissage.</p>
+
+        <div class="hydrogel-steps-grid hydrogel-steps-grid--8">
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">1</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-broom"></i></div>
+                <h3>Nettoyer l'écran</h3>
+                <p>Prendre la lingette humide <strong>(1)</strong> et enlever soigneusement les traces et poussières. Absorber avec la lingette sèche <strong>(2)</strong> les derniers résidus.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">2</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-hand-paper"></i></div>
+                <h3>Retirer de son support</h3>
+                <p>Retirer le film hydrogel de son support. La feuille est composée de trois couches distinctes.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">3</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-layer-group"></i></div>
+                <h3>Les trois couches</h3>
+                <p><strong>(1)</strong> pellicule de positionnement (basse et haute). <strong>(2)</strong> le film hydrogel. <strong>(3)</strong> pellicule de soutien. Ne pas séparer les couches — les laisser assemblées.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">4</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-mobile-alt"></i></div>
+                <h3>Placer le film</h3>
+                <p>Mettre le smartphone à plat et positionner la feuille. Elle adhère à l'écran sans se coller directement. Exercer une légère pression sur la ligne prédécoupée <strong>(4)</strong>.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">5</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-angle-double-up"></i></div>
+                <h3>Saisir la feuille</h3>
+                <p>Soulever par l'extrémité la partie basse à 90° jusqu'à la ligne prédécoupée <strong>(4)</strong>. Avec la spatule, lisser délicatement pour que la pellicule de positionnement basse s'échappe.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">6</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-angle-double-down"></i></div>
+                <h3>Autre extrémité</h3>
+                <p>Répéter l'opération de l'autre côté : soulever à 90° jusqu'à la ligne prédécoupée <strong>(4)</strong> et lisser avec la spatule pour libérer la pellicule de positionnement.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">7</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-compress-arrows-alt"></i></div>
+                <h3>Éliminer les bulles</h3>
+                <p>À l'aide de la spatule ou du doigt, lisser intégralement l'ensemble pour chasser l'air et les bulles vers l'extérieur.</p>
+            </div>
+
+            <div class="hydrogel-step">
+                <div class="hydrogel-step-num">8</div>
+                <div class="hydrogel-step-icon"><i class="fas fa-check-circle"></i></div>
+                <h3>Ôter la pellicule</h3>
+                <p>Dernière étape : sélectionner un des coins du smartphone et retirer la pellicule de soutien supérieure <strong>(3)</strong>. C'est terminé !</p>
+            </div>
+
+        </div>
+
+        <div class="hydrogel-tip">
+            <i class="fas fa-lightbulb" style="font-size:20px;color:#f59e0b;flex-shrink:0;"></i>
+            <div>
+                <strong>Conseil pro</strong> — Travaillez dans une pièce sans courant d'air pour éviter les poussières. Si une bulle persiste après la pose, elle disparaîtra d'elle-même en 24–48h grâce à l'auto-régénération du film hydrogel.
+            </div>
+        </div>
+    </div>
+
+    {# ── CTA final ── #}
+    <div class="hydrogel-cta">
+        <h2>Besoin d'aide pour la pose ?</h2>
+        <p>Venez en boutique — notre équipe pose votre film hydrogel en quelques minutes, sur place, sans rendez-vous.</p>
+        <div class="hydrogel-cta-btns">
+            <a href="{{ path('contact') }}" class="hydrogel-cta-btn hydrogel-cta-btn--primary">
+                <i class="fas fa-store mr-2"></i>Venir en boutique
+            </a>
+            <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="hydrogel-cta-btn hydrogel-cta-btn--secondary">
+                <i class="fas fa-arrow-up mr-2"></i>Commander en ligne
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Partenaires — D'panne Phones{% endblock %}
+
+{% block body %}
+
+{# ═══════════════════════════════════════════
+   BANNIÈRE HERO — grande (460px) avec tout le contenu
+═══════════════════════════════════════════ #}
+<div id="carouselExampleIndicators2" class="carousel slide banner-partenaires mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_partenaires', 'images/baner/partenaires.svg')) }}" alt="Nos partenaires">
+            <div class="carousel-caption home partners-caption">
+                <div class="partners-caption-badge">
+                    <span class="partners-caption-dot"></span>
+                    <span>Réseau de partenaires locaux</span>
+                </div>
+                <h5 class="partners-caption-title">
+                    Ensemble, on <span class="partners-caption-accent">fait vivre</span> la région
+                </h5>
+                <p class="partners-caption-sub">
+                    Commerces, artisans et entreprises de confiance à Pélissanne et alentours
+                </p>
+                <div class="partners-caption-stats">
+                    <div class="ptn-stat">
+                        <div class="ptn-stat-num">{{ (premium|length) + (normal|length) }}</div>
+                        <div class="ptn-stat-label">Partenaires</div>
+                    </div>
+                    <div class="ptn-stat-sep"></div>
+                    <div class="ptn-stat">
+                        <div class="ptn-stat-num">100%</div>
+                        <div class="ptn-stat-label">Locaux</div>
+                    </div>
+                    <div class="ptn-stat-sep"></div>
+                    <div class="ptn-stat">
+                        <div class="ptn-stat-num"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="ptn-stat-label">Pélissanne &amp; région</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ptn-content" class="ptn-container">
+
+    {# ══════════════════════════════════════════════
+       PARTENAIRES PREMIUM — Cards détaillées
+    ═══════════════════════════════════════════════ #}
+    {% if premium is not empty %}
+    <section class="ptn-section">
+        <header class="ptn-section-head">
+            <div class="ptn-section-eyebrow">
+                <i class="fas fa-star"></i>
+                <span>Mis à l'honneur</span>
+            </div>
+            <h2 class="ptn-section-title">Nos partenaires privilégiés</h2>
+            <p class="ptn-section-desc">
+                Des professionnels de confiance avec qui nous collaborons étroitement.
+            </p>
+        </header>
+
+        <div class="ptn-premium-grid">
+            {% for p in premium %}
+                <article class="ptn-premium-card">
+                    <div class="ptn-premium-ribbon">
+                        <i class="fas fa-star"></i> Premium
+                    </div>
+
+                    <div class="ptn-premium-img">
+                        {% if p.image %}
+                            <img src="{{ asset('uploads/images/' ~ p.image) }}" alt="{{ p.name }}" loading="lazy">
+                        {% else %}
+                            <div class="ptn-premium-noimg">
+                                <i class="fas fa-store"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="ptn-premium-body">
+                        {% if p.category %}
+                            <div class="ptn-premium-category">
+                                <i class="fas fa-tag"></i> {{ p.category }}
+                            </div>
+                        {% endif %}
+
+                        <h3 class="ptn-premium-name">{{ p.name }}</h3>
+
+                        {% if p.description %}
+                            <div class="ptn-premium-desc">{{ p.description|nl2br }}</div>
+                        {% endif %}
+
+                        {% if p.link %}
+                            <div class="ptn-premium-actions">
+                                <a href="{{ p.link }}" target="_blank" rel="noopener noreferrer" class="ptn-premium-btn">
+                                    <span>Visiter le site</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# ══════════════════════════════════════════════
+       PARTENAIRES NORMAL — Grille de logos
+    ═══════════════════════════════════════════════ #}
+    {% if normal is not empty %}
+    <section class="ptn-section">
+        <header class="ptn-section-head">
+            <div class="ptn-section-eyebrow ptn-section-eyebrow--blue">
+                <i class="fas fa-handshake"></i>
+                <span>Ils nous soutiennent</span>
+            </div>
+            <h2 class="ptn-section-title">Notre réseau de confiance</h2>
+            <p class="ptn-section-desc">
+                Les commerces et artisans de la région qui nous font confiance.
+            </p>
+        </header>
+
+        <div class="ptn-normal-grid">
+            {% for p in normal %}
+                {% set wrapperTag = p.link ? 'a' : 'div' %}
+                <{{ wrapperTag }}
+                    {% if p.link %}href="{{ p.link }}" target="_blank" rel="noopener noreferrer"{% endif %}
+                    class="ptn-normal-tile {{ not p.link ? 'ptn-normal-tile--nolink' : '' }}">
+                    <div class="ptn-normal-img">
+                        {% if p.image %}
+                            <img src="{{ asset('uploads/images/' ~ p.image) }}" alt="{{ p.name }}" loading="lazy">
+                        {% else %}
+                            <div class="ptn-normal-noimg">
+                                <i class="fas fa-store"></i>
+                            </div>
+                        {% endif %}
+                        {% if p.link %}
+                            <span class="ptn-normal-hover">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="ptn-normal-info">
+                        <div class="ptn-normal-name">{{ p.name }}</div>
+                        {% if p.category %}
+                            <div class="ptn-normal-cat">{{ p.category }}</div>
+                        {% endif %}
+                    </div>
+                </{{ wrapperTag }}>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# ══════════════════════════════════════════════
+       ÉTAT VIDE
+    ═══════════════════════════════════════════════ #}
+    {% if premium is empty and normal is empty %}
+    <section class="ptn-section">
+        <div class="ptn-empty">
+            <div class="ptn-empty-icon">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <h3>Notre réseau se construit</h3>
+            <p>Nous sélectionnons actuellement les partenaires qui partagent nos valeurs de qualité et de service. Revenez bientôt !</p>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ══════════════════════════════════════════════
+       BANDEAU VALEURS
+    ═══════════════════════════════════════════════ #}
+    <section class="ptn-values">
+        <div class="ptn-value">
+            <div class="ptn-value-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <h4>Ancrés localement</h4>
+            <p>Nous privilégions les commerces et artisans de Pélissanne et de la région.</p>
+        </div>
+        <div class="ptn-value">
+            <div class="ptn-value-icon"><i class="fas fa-shield-alt"></i></div>
+            <h4>Sélection rigoureuse</h4>
+            <p>Chaque partenaire est choisi pour son sérieux et la qualité de ses services.</p>
+        </div>
+        <div class="ptn-value">
+            <div class="ptn-value-icon"><i class="fas fa-heart"></i></div>
+            <h4>Relation de confiance</h4>
+            <p>Des collaborations durables fondées sur la recommandation mutuelle.</p>
+        </div>
+    </section>
+
+    {# ══════════════════════════════════════════════
+       CTA DEVENIR PARTENAIRE
+    ═══════════════════════════════════════════════ #}
+    <section class="ptn-cta">
+        <div class="ptn-cta-pattern"></div>
+        <div class="ptn-cta-content">
+            <div class="ptn-cta-icon">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <h2>Vous aussi, rejoignez notre réseau</h2>
+            <p>
+                Vous êtes un commerce, un artisan ou une entreprise de la région ?
+                Mettez en avant votre activité auprès de nos clients et bénéficiez d'une visibilité locale forte.
+            </p>
+            <div class="ptn-cta-actions">
+                <a href="{{ path('contact') }}" class="ptn-cta-btn ptn-cta-btn--primary">
+                    <i class="fas fa-envelope mr-2"></i>
+                    <span>Devenir partenaire</span>
+                </a>
+                <a href="tel:+33783748311" class="ptn-cta-btn ptn-cta-btn--ghost">
+                    <i class="fas fa-phone mr-2"></i>
+                    <span>07 83 74 83 11</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

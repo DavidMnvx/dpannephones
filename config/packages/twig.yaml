@@ -1,6 +1,13 @@
 twig:
     file_name_pattern: '*.twig'
 
+    # Variables globales accessibles dans tous les templates
+    globals:
+        # ID Google Analytics 4 — vide par défaut (tracking désactivé).
+        # Activé automatiquement dès que GOOGLE_ANALYTICS_ID est renseigné dans .env.local (dev)
+        # ou dans les variables d'env du VPS (prod).
+        google_analytics_id: '%env(default::GOOGLE_ANALYTICS_ID)%'
+
 when@test:
     twig:
         strict_variables: true

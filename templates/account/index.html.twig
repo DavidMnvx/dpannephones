@@ -1,0 +1,447 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Compte — D'Panne Phones{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_account', 'images/baner/connexion.png')) }}" alt="Mon Compte">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Mon Compte</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="account-page-wrap">
+
+    {# ── Flash messages ── #}
+    {% for msg in app.flashes('success') %}
+        <div class="account-flash account-flash--success"><i class="fas fa-check-circle mr-2"></i>{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="account-flash account-flash--error"><i class="fas fa-times-circle mr-2"></i>{{ msg }}</div>
+    {% endfor %}
+
+    {# ── En-tête bienvenue ── #}
+    <div class="account-welcome">
+        <div class="account-welcome-avatar">
+            {{ user.prenom|first|upper }}{{ user.nom|first|upper }}
+        </div>
+        <div class="account-welcome-info">
+            <h1 class="account-welcome-name">Bonjour, {{ user.prenom }} {{ user.nom }}</h1>
+            <p class="account-welcome-email"><i class="fas fa-envelope mr-1"></i>{{ user.email }}</p>
+            <span class="account-status-badge {{ user.isVerified ? 'account-status--verified' : 'account-status--pending' }}">
+                <i class="fas fa-{{ user.isVerified ? 'check-circle' : 'clock' }} mr-1"></i>
+                {{ user.isVerified ? 'Compte vérifié' : 'Email non confirmé' }}
+            </span>
+        </div>
+        <a href="{{ path('app_logout') }}" class="account-logout-btn">
+            <i class="fas fa-sign-out-alt mr-1"></i> Déconnexion
+        </a>
+    </div>
+
+    {# ── Statistiques rapides ── #}
+    <div class="account-stats-row">
+        <div class="account-stat-card">
+            <div class="account-stat-icon"><i class="fas fa-shopping-bag"></i></div>
+            <div class="account-stat-num">{{ commandes|length }}</div>
+            <div class="account-stat-label">Commande{{ commandes|length > 1 ? 's' : '' }} totale{{ commandes|length > 1 ? 's' : '' }}</div>
+        </div>
+        <div class="account-stat-card">
+            <div class="account-stat-icon account-stat-icon--orange"><i class="fas fa-spinner"></i></div>
+            <div class="account-stat-num">{{ commandesEnCours|length }}</div>
+            <div class="account-stat-label">En cours</div>
+        </div>
+        <div class="account-stat-card">
+            <div class="account-stat-icon account-stat-icon--green"><i class="fas fa-check-circle"></i></div>
+            <div class="account-stat-num">{{ commandesPayees }}</div>
+            <div class="account-stat-label">Payée{{ commandesPayees > 1 ? 's' : '' }}</div>
+        </div>
+        <div class="account-stat-card">
+            <div class="account-stat-icon account-stat-icon--blue"><i class="fas fa-euro-sign"></i></div>
+            <div class="account-stat-num">{{ totalDepense|number_format(2, ',', ' ') }} €</div>
+            <div class="account-stat-label">Total dépensé</div>
+        </div>
+    </div>
+
+    <div class="account-grid">
+
+        {# ══════════════════════════════════
+           BLOC 1 — Informations personnelles
+           ══════════════════════════════════ #}
+        <div class="account-card" id="card-infos">
+            <div class="account-card-header">
+                <i class="fas fa-user-circle"></i>
+                <h2>Mes informations</h2>
+                <button type="button" class="account-edit-toggle" onclick="toggleProfileEdit()" id="btn-edit-toggle">
+                    <i class="fas fa-edit mr-1"></i>Modifier
+                </button>
+            </div>
+
+            {# Vue lecture #}
+            <div class="account-card-body" id="profile-view">
+                <div class="account-info-row">
+                    <span class="account-info-label">Prénom</span>
+                    <span class="account-info-val">{{ user.prenom }}</span>
+                </div>
+                <div class="account-info-row">
+                    <span class="account-info-label">Nom</span>
+                    <span class="account-info-val">{{ user.nom }}</span>
+                </div>
+                <div class="account-info-row">
+                    <span class="account-info-label">Email</span>
+                    <span class="account-info-val">{{ user.email }}</span>
+                </div>
+                {% if user.phone %}
+                <div class="account-info-row">
+                    <span class="account-info-label">Téléphone</span>
+                    <span class="account-info-val">{{ user.phone }}</span>
+                </div>
+                {% endif %}
+                {% if user.adresse %}
+                <div class="account-info-row">
+                    <span class="account-info-label">Adresse</span>
+                    <span class="account-info-val">{{ user.adresse }}</span>
+                </div>
+                {% endif %}
+                {% if user.codePostal and user.ville %}
+                <div class="account-info-row">
+                    <span class="account-info-label">Ville</span>
+                    <span class="account-info-val">{{ user.codePostal }} {{ user.ville }}</span>
+                </div>
+                {% endif %}
+                <div class="account-info-row">
+                    <span class="account-info-label">Statut</span>
+                    <span class="account-info-val">
+                        {% if user.isVerified %}
+                            <span style="color:#166534;font-weight:700;"><i class="fas fa-check-circle mr-1"></i>Vérifié</span>
+                        {% else %}
+                            <span style="color:#856404;font-weight:600;"><i class="fas fa-clock mr-1"></i>En attente
+                            — <a href="{{ path('app_resend_verify') }}" style="color:rgb(9,71,113);">Renvoyer l'email</a></span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            {# Formulaire d'édition (masqué par défaut) #}
+            <div class="account-card-body account-profile-form" id="profile-form" style="display:none;">
+                {{ form_start(profileForm, {'attr': {'class': 'profile-edit-form'}}) }}
+                <div class="profile-form-grid">
+                    <div class="profile-field">
+                        {{ form_label(profileForm.prenom) }}
+                        {{ form_widget(profileForm.prenom) }}
+                        {{ form_errors(profileForm.prenom) }}
+                    </div>
+                    <div class="profile-field">
+                        {{ form_label(profileForm.nom) }}
+                        {{ form_widget(profileForm.nom) }}
+                        {{ form_errors(profileForm.nom) }}
+                    </div>
+                    <div class="profile-field">
+                        {{ form_label(profileForm.phone) }}
+                        {{ form_widget(profileForm.phone) }}
+                        {{ form_errors(profileForm.phone) }}
+                    </div>
+                    <div class="profile-field profile-field--full">
+                        {{ form_label(profileForm.adresse) }}
+                        {{ form_widget(profileForm.adresse) }}
+                        {{ form_errors(profileForm.adresse) }}
+                    </div>
+                    <div class="profile-field">
+                        {{ form_label(profileForm.codePostal) }}
+                        {{ form_widget(profileForm.codePostal) }}
+                        {{ form_errors(profileForm.codePostal) }}
+                    </div>
+                    <div class="profile-field">
+                        {{ form_label(profileForm.ville) }}
+                        {{ form_widget(profileForm.ville) }}
+                        {{ form_errors(profileForm.ville) }}
+                    </div>
+                </div>
+                <div class="profile-form-actions">
+                    <button type="submit" class="profile-btn-save">
+                        <i class="fas fa-save mr-1"></i>Enregistrer
+                    </button>
+                    <button type="button" class="profile-btn-cancel" onclick="toggleProfileEdit()">
+                        <i class="fas fa-times mr-1"></i>Annuler
+                    </button>
+                </div>
+                {{ form_end(profileForm) }}
+            </div>
+        </div>
+
+        {# ══════════════════════════════════
+           BLOC 2 — Accès rapide
+           ══════════════════════════════════ #}
+        <div class="account-card">
+            <div class="account-card-header">
+                <i class="fas fa-th-large"></i>
+                <h2>Accès rapide</h2>
+            </div>
+            <div class="account-card-body account-shortcuts">
+                <a href="{{ path('boutique_index') }}" class="account-shortcut">
+                    <div class="account-shortcut-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div>
+                        <strong>La Boutique</strong>
+                        <span>Acheter un article</span>
+                    </div>
+                </a>
+                <a href="{{ path('cart_index') }}" class="account-shortcut">
+                    <div class="account-shortcut-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div>
+                        <strong>Mon Panier</strong>
+                        <span>Voir mes articles</span>
+                    </div>
+                </a>
+                <a href="{{ path('reparations_home') }}" class="account-shortcut">
+                    <div class="account-shortcut-icon account-shortcut-icon--orange"><i class="fas fa-tools"></i></div>
+                    <div>
+                        <strong>Réparation</strong>
+                        <span>Déposer mon appareil</span>
+                    </div>
+                </a>
+                <a href="{{ path('contact') }}" class="account-shortcut">
+                    <div class="account-shortcut-icon account-shortcut-icon--green"><i class="fas fa-headset"></i></div>
+                    <div>
+                        <strong>SAV & Support</strong>
+                        <span>Contacter l'équipe</span>
+                    </div>
+                </a>
+                <a href="{{ path('legal_cgv') }}" class="account-shortcut-icon--gray account-shortcut">
+                    <div class="account-shortcut-icon account-shortcut-icon--gray"><i class="fas fa-file-contract"></i></div>
+                    <div>
+                        <strong>CGV</strong>
+                        <span>Conditions générales</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        {# ══════════════════════════════════
+           BLOC 3 — Contacter le vendeur
+           ══════════════════════════════════ #}
+        <div class="account-card account-card--contact">
+            <div class="account-card-header">
+                <i class="fas fa-headset"></i>
+                <h2>Contacter le vendeur</h2>
+            </div>
+            <div class="account-card-body">
+                <p class="account-contact-intro">
+                    Une question sur votre commande ? Un problème avec un produit ? Notre équipe est disponible pour vous aider.
+                </p>
+                <div class="account-contact-options">
+                    <a href="{{ path('contact') }}" class="account-contact-btn account-contact-btn--primary">
+                        <i class="fas fa-envelope mr-2"></i>
+                        <div>
+                            <strong>Envoyer un message</strong>
+                            <span>Via le formulaire de contact</span>
+                        </div>
+                    </a>
+                    <a href="tel:+33000000000" class="account-contact-btn account-contact-btn--secondary">
+                        <i class="fas fa-phone mr-2"></i>
+                        <div>
+                            <strong>Nous appeler</strong>
+                            <span>Du lundi au samedi</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="account-contact-info">
+                    <i class="fas fa-map-marker-alt mr-1"></i>
+                    Retrouvez-nous également en boutique — service rapide et personnalisé.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# Raccourci "Mes avis" #}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
+        <a href="{{ path('user_reviews') }}" class="account-orders-cta" style="text-decoration:none;background:#f8fafc;color:rgb(9,71,113);border:1px solid #e2e8f0;padding:10px 18px;border-radius:10px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;">
+            <i class="fas fa-star-half-alt mr-2" style="color:#f59e0b;"></i> Mes avis
+        </a>
+        <a href="{{ path('reviews_index') }}" class="account-orders-cta" style="text-decoration:none;background:#f8fafc;color:rgb(9,71,113);border:1px solid #e2e8f0;padding:10px 18px;border-radius:10px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;">
+            <i class="fas fa-comments mr-2" style="color:rgb(9,71,113);"></i> Voir tous les avis du site
+        </a>
+    </div>
+
+    {# ══════════════════════════════════════════════════════════
+       COMMANDES EN COURS
+       ══════════════════════════════════════════════════════════ #}
+    <div class="account-orders-section">
+        <div class="account-orders-header">
+            <h2><i class="fas fa-spinner mr-2"></i>Commandes en cours</h2>
+            <span class="account-orders-count account-orders-count--active">{{ commandesEnCours|length }}</span>
+        </div>
+
+        {% if commandesEnCours is empty %}
+            <div class="account-orders-empty">
+                <i class="fas fa-check-double"></i>
+                <p>Aucune commande en cours pour le moment.</p>
+                <a href="{{ path('boutique_index') }}" class="account-orders-cta">
+                    <i class="fas fa-shopping-bag mr-1"></i> Découvrir la boutique
+                </a>
+            </div>
+        {% else %}
+            <div class="account-orders-list">
+                {% for commande in commandesEnCours %}
+                    {{ _self.renderOrderCard(commande, true) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    {# ══════════════════════════════════════════════════════════
+       COMMANDES FINALISÉES
+       ══════════════════════════════════════════════════════════ #}
+    <div class="account-orders-section">
+        <div class="account-orders-header">
+            <h2><i class="fas fa-history mr-2"></i>Commandes finalisées</h2>
+            <span class="account-orders-count">{{ commandesTerminees|length }}</span>
+        </div>
+
+        {% if commandesTerminees is empty %}
+            <div class="account-orders-empty">
+                <i class="fas fa-box-open"></i>
+                <p>Aucune commande finalisée pour le moment.</p>
+            </div>
+        {% else %}
+            <div class="account-orders-list">
+                {% for commande in commandesTerminees %}
+                    {{ _self.renderOrderCard(commande, false, reviewedCommandeIds) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{# ── Macro carte commande ── #}
+{% macro renderOrderCard(commande, enCours, reviewedCommandeIds = []) %}
+    {% set statutClass = {
+        'en_attente': 'statut--pending',
+        'payee': 'statut--paid',
+        'en_preparation': 'statut--prep',
+        'expediee': 'statut--shipped',
+        'livree': 'statut--done',
+        'retiree': 'statut--done',
+        'annulee': 'statut--cancelled'
+    }[commande.statut] ?? 'statut--pending' %}
+    {% set statutLabel = {
+        'en_attente': 'En attente',
+        'payee': 'Payée',
+        'en_preparation': 'En préparation',
+        'expediee': 'Expédiée',
+        'livree': 'Livrée',
+        'retiree': 'Retirée en boutique',
+        'annulee': 'Annulée'
+    }[commande.statut] ?? commande.statut %}
+
+    <div class="account-order-card {{ commande.statut == 'annulee' ? 'account-order-card--cancelled' : '' }}">
+        <div class="account-order-top">
+            <div class="account-order-meta">
+                <span class="account-order-num"># {{ commande.id }}</span>
+                <span class="account-order-date">
+                    <i class="fas fa-calendar mr-1"></i>
+                    {{ commande.createdAt|date('d/m/Y à H:i') }}
+                </span>
+            </div>
+            <div class="account-order-right">
+                <span class="account-order-statut {{ statutClass }}">{{ statutLabel }}</span>
+                <span class="account-order-total">{{ commande.total|number_format(2, ',', ' ') }} €</span>
+            </div>
+        </div>
+
+        {% if commande.items is not empty %}
+            <div class="account-order-items">
+                {% for item in commande.items %}
+                    <div class="account-order-item">
+                        {% if item.article and item.article.image %}
+                            <img src="{{ asset('uploads/images/' ~ item.article.image) }}" alt="{{ item.articleName }}" class="account-order-item-img">
+                        {% else %}
+                            <div class="account-order-item-img account-order-item-img--placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
+                        <div class="account-order-item-info">
+                            <strong>{{ item.articleName }}</strong>
+                            <span>{{ item.quantite }} × {{ item.prix|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                        <span class="account-order-item-subtotal">{{ item.sousTotal|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if commande.numeroSuivi %}
+            <div class="account-order-tracking">
+                <div class="account-tracking-header">
+                    <i class="fas fa-truck mr-1"></i>
+                    {% if commande.transporteur %}{{ commande.transporteur }} — {% endif %}
+                    Numéro de suivi
+                </div>
+                <div class="account-tracking-num">{{ commande.numeroSuivi }}</div>
+                {% set trackingUrl = {
+                    'Colissimo':     'https://www.laposte.fr/outils/suivre-vos-envois?code=' ~ commande.numeroSuivi,
+                    'Chronopost':    'https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT=' ~ commande.numeroSuivi,
+                    'Mondial Relay': 'https://www.mondialrelay.fr/suivi-de-colis/?NumColis=' ~ commande.numeroSuivi,
+                    'DHL':           'https://www.dhl.com/fr-fr/home/tracking.html?tracking-id=' ~ commande.numeroSuivi,
+                    'DPD':           'https://www.dpd.fr/trace/' ~ commande.numeroSuivi,
+                    'La Poste':      'https://www.laposte.fr/outils/suivre-vos-envois?code=' ~ commande.numeroSuivi
+                }[commande.transporteur] ?? null %}
+                {% if trackingUrl %}
+                    <a href="{{ trackingUrl }}" target="_blank" rel="noopener" class="account-tracking-link">
+                        <i class="fas fa-external-link-alt mr-1"></i>Suivre mon colis
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if enCours %}
+            <div class="account-order-footer">
+                <a href="{{ path('contact') }}" class="account-order-contact">
+                    <i class="fas fa-headset mr-1"></i> Contacter le SAV pour cette commande
+                </a>
+            </div>
+        {% else %}
+            {# Commande finalisée → proposer de laisser un avis (ou afficher "déjà laissé") #}
+            {% if commande.statut in ['livree', 'retiree'] %}
+                <div class="account-order-footer">
+                    {% if commande.id in reviewedCommandeIds %}
+                        <span class="account-order-review-done">
+                            <i class="fas fa-check-circle mr-1"></i> Merci, vous avez déjà laissé un avis pour cette commande
+                        </span>
+                    {% else %}
+                        <a href="{{ path('review_new', {commande: commande.id}) }}" class="account-order-review-btn">
+                            <i class="fas fa-pen-to-square mr-1"></i> Laisser un avis sur cette commande
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endmacro %}
+
+<script>
+function toggleProfileEdit() {
+    var view = document.getElementById('profile-view');
+    var form = document.getElementById('profile-form');
+    var btn  = document.getElementById('btn-edit-toggle');
+    if (form.style.display === 'none') {
+        view.style.display = 'none';
+        form.style.display = 'block';
+        btn.innerHTML = '<i class="fas fa-times mr-1"></i>Annuler';
+        btn.classList.add('account-edit-toggle--active');
+    } else {
+        view.style.display = 'block';
+        form.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-edit mr-1"></i>Modifier';
+        btn.classList.remove('account-edit-toggle--active');
+    }
+}
+</script>
+
+{% endblock %}

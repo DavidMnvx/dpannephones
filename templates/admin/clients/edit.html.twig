@@ -1,0 +1,179 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'clients' %}
+{% block title %}Modifier {{ user.prenom }} {{ user.nom }} — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-commandes-page">
+
+    <div class="admin-page-header">
+        <div>
+            <a href="{{ path('admin_client_show', {id: user.id}) }}" class="admin-back-link">
+                <i class="fas fa-arrow-left mr-1"></i>Retour à la fiche client
+            </a>
+            <h1 class="admin-page-title">
+                <div class="admin-client-avatar admin-client-avatar--lg">{{ user.prenom|first|upper }}{{ user.nom|first|upper }}</div>
+                Modifier — {{ user.prenom }} {{ user.nom }}
+            </h1>
+        </div>
+    </div>
+
+    {% for msg in app.flashes('error') %}
+        <div class="admin-flash admin-flash--error"><i class="fas fa-times-circle mr-2"></i>{{ msg }}</div>
+    {% endfor %}
+
+    <div class="admin-edit-grid">
+
+        {# Formulaire principal #}
+        <div class="admin-card admin-card--edit">
+            <div class="admin-card-header">
+                <i class="fas fa-user-edit mr-2"></i>Informations personnelles
+            </div>
+
+            {{ form_start(form, {'attr': {'class': 'admin-client-form', 'novalidate': 'novalidate'}}) }}
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-section">
+                    <div class="admin-form-section-title">Identité</div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-field">
+                            {{ form_label(form.prenom) }}
+                            {{ form_widget(form.prenom, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.prenom) }}
+                        </div>
+                        <div class="admin-form-field">
+                            {{ form_label(form.nom) }}
+                            {{ form_widget(form.nom, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.nom) }}
+                        </div>
+                    </div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-field">
+                            {{ form_label(form.email) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+                        <div class="admin-form-field">
+                            {{ form_label(form.phone) }}
+                            {{ form_widget(form.phone, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.phone) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-form-section">
+                    <div class="admin-form-section-title">Adresse</div>
+                    <div class="admin-form-row admin-form-row--full">
+                        <div class="admin-form-field">
+                            {{ form_label(form.adresse) }}
+                            {{ form_widget(form.adresse, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.adresse) }}
+                        </div>
+                    </div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-field">
+                            {{ form_label(form.codePostal) }}
+                            {{ form_widget(form.codePostal, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.codePostal) }}
+                        </div>
+                        <div class="admin-form-field">
+                            {{ form_label(form.ville) }}
+                            {{ form_widget(form.ville, {'attr': {'class': 'admin-input'}}) }}
+                            {{ form_errors(form.ville) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-form-section">
+                    <div class="admin-form-section-title">Statut du compte</div>
+                    <div class="admin-verified-toggle">
+                        {# Le checkbox Symfony — caché, mais soumis avec le formulaire #}
+                        <div style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;overflow:hidden;">
+                            {{ form_widget(form.isVerified, {'attr': {'id': 'cb-isVerified'}}) }}
+                        </div>
+                        {{ form_errors(form.isVerified) }}
+
+                        {# Toggle visuel piloté par JS #}
+                        <div class="admin-toggle-wrap" id="toggle-wrap" onclick="toggleVerified()">
+                            <span class="admin-toggle-track" id="toggle-track">
+                                <span class="admin-toggle-thumb"></span>
+                            </span>
+                            <span class="admin-toggle-text" id="toggle-text">
+                                Email vérifié — le client peut se connecter et commander normalement
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit" class="btn-admin-save">
+                    <i class="fas fa-save mr-2"></i>Enregistrer les modifications
+                </button>
+                <a href="{{ path('admin_client_show', {id: user.id}) }}" class="btn-admin-cancel">
+                    <i class="fas fa-times mr-1"></i>Annuler
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+
+        {# Panneau latéral — danger zone #}
+        <div class="admin-card admin-card--danger-zone">
+            <div class="admin-card-header admin-card-header--danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Zone dangereuse
+            </div>
+            <div class="admin-danger-body">
+                <p class="admin-danger-desc">
+                    La suppression est <strong>irréversible</strong>. Les commandes de ce client resteront dans le système mais ne seront plus rattachées à un compte.
+                </p>
+                <form method="post" action="{{ path('admin_client_delete', {id: user.id}) }}" id="delete-form">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_client_' ~ user.id) }}">
+                    <button type="button" class="btn-admin-delete" onclick="confirmDelete()">
+                        <i class="fas fa-trash mr-2"></i>Supprimer ce client
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+// ── Toggle "Compte vérifié" ──
+(function() {
+    // Trouve le vrai checkbox rendu par Symfony (quel que soit le wrapper)
+    var cb = document.getElementById('cb-isVerified')
+          || document.querySelector('[name$="[isVerified]"]')
+          || document.querySelector('[name$="[is_verified]"]');
+    var track = document.getElementById('toggle-track');
+
+    function applyState() {
+        if (!cb || !track) return;
+        if (cb.checked) {
+            track.classList.add('admin-toggle--on');
+        } else {
+            track.classList.remove('admin-toggle--on');
+        }
+    }
+
+    window.toggleVerified = function() {
+        if (!cb) return;
+        cb.checked = !cb.checked;
+        applyState();
+    };
+
+    document.addEventListener('DOMContentLoaded', applyState);
+})();
+
+// ── Suppression ──
+function confirmDelete() {
+    if (confirm('Supprimer définitivement {{ user.prenom }} {{ user.nom }} ?\n\nSes commandes seront conservées mais ne seront plus rattachées à un compte.')) {
+        document.getElementById('delete-form').submit();
+    }
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500" preserveAspectRatio="xMidYMid slice" width="1600" height="500">
+  <defs>
+    <linearGradient id="bannerBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1f3a"/>
+      <stop offset="50%" stop-color="#094771"/>
+      <stop offset="100%" stop-color="#0d4d7a"/>
+    </linearGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.32"/>
+      <stop offset="60%" stop-color="#f59e0b" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sideGlow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2196f3" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#2196f3" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="sideGlow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Fond dégradé -->
+  <rect width="1600" height="500" fill="url(#bannerBg)"/>
+
+  <!-- Lueur centrale dorée (point d'ancrage du texte) -->
+  <circle cx="800" cy="250" r="480" fill="url(#centerGlow)"/>
+
+  <!-- Lueurs symétriques sur les côtés -->
+  <circle cx="150" cy="250" r="280" fill="url(#sideGlow1)"/>
+  <circle cx="1450" cy="250" r="280" fill="url(#sideGlow1)"/>
+  <circle cx="400" cy="450" r="200" fill="url(#sideGlow2)"/>
+  <circle cx="1200" cy="450" r="200" fill="url(#sideGlow2)"/>
+
+  <!-- Cercles concentriques centraux (hub réseau) -->
+  <circle cx="800" cy="250" r="200" fill="none" stroke="#fff" stroke-width="1" opacity="0.06"/>
+  <circle cx="800" cy="250" r="280" fill="none" stroke="#fff" stroke-width="1" opacity="0.05"/>
+  <circle cx="800" cy="250" r="360" fill="none" stroke="#fff" stroke-width="1" opacity="0.04"/>
+
+  <!-- Nœuds symétriques du réseau (partenaires connectés) -->
+  <!-- Gauche -->
+  <g opacity="0.35">
+    <circle cx="200" cy="160" r="5" fill="#fbbf24"/>
+    <circle cx="200" cy="160" r="10" fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  <g opacity="0.28">
+    <circle cx="320" cy="360" r="4" fill="#2196f3"/>
+    <circle cx="320" cy="360" r="9" fill="none" stroke="#2196f3" stroke-width="1.5" opacity="0.5"/>
+  </g>
+  <g opacity="0.25">
+    <circle cx="120" cy="320" r="3" fill="#22c55e"/>
+    <circle cx="120" cy="320" r="7" fill="none" stroke="#22c55e" stroke-width="1.2" opacity="0.5"/>
+  </g>
+  <g opacity="0.22">
+    <circle cx="420" cy="120" r="3" fill="#fbbf24"/>
+    <circle cx="420" cy="120" r="7" fill="none" stroke="#fbbf24" stroke-width="1.2" opacity="0.5"/>
+  </g>
+
+  <!-- Droite (miroir parfait) -->
+  <g opacity="0.35">
+    <circle cx="1400" cy="160" r="5" fill="#fbbf24"/>
+    <circle cx="1400" cy="160" r="10" fill="none" stroke="#fbbf24" stroke-width="1.5" opacity="0.6"/>
+  </g>
+  <g opacity="0.28">
+    <circle cx="1280" cy="360" r="4" fill="#2196f3"/>
+    <circle cx="1280" cy="360" r="9" fill="none" stroke="#2196f3" stroke-width="1.5" opacity="0.5"/>
+  </g>
+  <g opacity="0.25">
+    <circle cx="1480" cy="320" r="3" fill="#22c55e"/>
+    <circle cx="1480" cy="320" r="7" fill="none" stroke="#22c55e" stroke-width="1.2" opacity="0.5"/>
+  </g>
+  <g opacity="0.22">
+    <circle cx="1180" cy="120" r="3" fill="#fbbf24"/>
+    <circle cx="1180" cy="120" r="7" fill="none" stroke="#fbbf24" stroke-width="1.2" opacity="0.5"/>
+  </g>
+
+  <!-- Lignes de connexion symétriques (hub → nœuds) -->
+  <g opacity="0.12" fill="none" stroke-width="1">
+    <!-- Gauche -->
+    <line x1="800" y1="250" x2="200" y2="160" stroke="#fbbf24"/>
+    <line x1="800" y1="250" x2="320" y2="360" stroke="#2196f3"/>
+    <line x1="800" y1="250" x2="120" y2="320" stroke="#22c55e"/>
+    <line x1="800" y1="250" x2="420" y2="120" stroke="#fbbf24"/>
+    <!-- Droite -->
+    <line x1="800" y1="250" x2="1400" y2="160" stroke="#fbbf24"/>
+    <line x1="800" y1="250" x2="1280" y2="360" stroke="#2196f3"/>
+    <line x1="800" y1="250" x2="1480" y2="320" stroke="#22c55e"/>
+    <line x1="800" y1="250" x2="1180" y2="120" stroke="#fbbf24"/>
+  </g>
+
+  <!-- Petits points de lumière en fond (même nombre de chaque côté) -->
+  <g opacity="0.18" fill="#fff">
+    <!-- Gauche -->
+    <circle cx="80" cy="80" r="1.5"/>
+    <circle cx="250" cy="60" r="1.5"/>
+    <circle cx="150" cy="420" r="1.5"/>
+    <circle cx="380" cy="450" r="1.5"/>
+    <!-- Droite (miroir) -->
+    <circle cx="1520" cy="80" r="1.5"/>
+    <circle cx="1350" cy="60" r="1.5"/>
+    <circle cx="1450" cy="420" r="1.5"/>
+    <circle cx="1220" cy="450" r="1.5"/>
+  </g>
+
+  <!-- Étoiles décoratives (même quantité de chaque côté) -->
+  <g opacity="0.22">
+    <!-- Gauche -->
+    <g transform="translate(60, 220)">
+      <polygon points="0,-10 3,-3 10,-3 5,2 7,10 0,5 -7,10 -5,2 -10,-3 -3,-3" fill="#fbbf24"/>
+    </g>
+    <!-- Droite -->
+    <g transform="translate(1540, 220)">
+      <polygon points="0,-10 3,-3 10,-3 5,2 7,10 0,5 -7,10 -5,2 -10,-3 -3,-3" fill="#fbbf24"/>
+    </g>
+  </g>
+</svg>

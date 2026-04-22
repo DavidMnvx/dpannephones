@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="ecBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#ecBg)"/>
+
+  <!-- Boîtier case -->
+  <g transform="translate(200, 280)">
+    <ellipse cx="0" cy="0" rx="70" ry="30" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <ellipse cx="0" cy="-3" rx="68" ry="28" fill="#f8fafc"/>
+    <!-- LED -->
+    <circle cx="0" cy="-8" r="3" fill="#22c55e" opacity="0.9"/>
+  </g>
+
+  <!-- Écouteur gauche -->
+  <g transform="translate(130, 150) rotate(-10)">
+    <!-- Tige -->
+    <rect x="-6" y="0" width="12" height="60" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <!-- Tête -->
+    <ellipse cx="0" cy="0" rx="22" ry="18" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <!-- Embout silicone -->
+    <ellipse cx="-18" cy="-4" rx="8" ry="10" fill="#e2e8f0"/>
+    <!-- Micro -->
+    <rect x="-3" y="45" width="6" height="4" rx="1" fill="#cbd5e1"/>
+  </g>
+
+  <!-- Écouteur droit -->
+  <g transform="translate(270, 150) rotate(10)">
+    <!-- Tige -->
+    <rect x="-6" y="0" width="12" height="60" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <!-- Tête -->
+    <ellipse cx="0" cy="0" rx="22" ry="18" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+    <!-- Embout silicone -->
+    <ellipse cx="18" cy="-4" rx="8" ry="10" fill="#e2e8f0"/>
+    <!-- Micro -->
+    <rect x="-3" y="45" width="6" height="4" rx="1" fill="#cbd5e1"/>
+  </g>
+
+  <!-- Ondes sonores -->
+  <g opacity="0.25" fill="none" stroke="#3b82f6" stroke-width="1.5">
+    <path d="M 95 140 Q 85 150 95 160"/>
+    <path d="M 85 130 Q 70 150 85 170"/>
+    <path d="M 305 140 Q 315 150 305 160"/>
+    <path d="M 315 130 Q 330 150 315 170"/>
+  </g>
+
+  <text x="200" y="370" font-family="Arial, sans-serif" font-size="11" font-weight="700"
+        fill="#1e3a5f" text-anchor="middle" letter-spacing="4" opacity="0.7">
+    ÉCOUTEURS BLUETOOTH
+  </text>
+</svg>

@@ -1,0 +1,226 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'partenaires' %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Partenaires
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-handshake mr-2"></i>Partenaires</h2>
+        <p>Gérez les partenaires affichés sur la page /partenaires du site</p>
+    </div>
+    <div class="admin-stats">
+        <div class="stat-box">
+            <span class="stat-number">{{ partenaires|filter(p => p.type == 'premium')|length }}</span>
+            <span class="stat-label">Premium</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ partenaires|filter(p => p.type == 'normal')|length }}</span>
+            <span class="stat-label">Normal</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ partenaires|filter(p => p.isActive)|length }}</span>
+            <span class="stat-label">Actifs</span>
+        </div>
+    </div>
+</div>
+
+{# Flash messages #}
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+{# ── Formulaire d'ajout ── #}
+<div class="admin-card">
+    <h3><i class="fas fa-plus-circle"></i> Ajouter un partenaire</h3>
+
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'admin-form'}}) }}
+
+        <div class="form-section-title">Identité</div>
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.name) }}</div>
+            <div class="col-md-6">{{ form_row(form.type) }}</div>
+        </div>
+
+        <hr class="form-divider">
+        <div class="form-section-title">Média & Lien</div>
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.image) }}</div>
+            <div class="col-md-6">{{ form_row(form.link) }}</div>
+        </div>
+
+        <hr class="form-divider">
+        <div class="form-section-title">Présentation <small class="text-muted">(Premium uniquement)</small></div>
+        {{ form_row(form.description) }}
+
+        <hr class="form-divider">
+        <div class="form-section-title">Organisation</div>
+        <div class="row">
+            <div class="col-md-5">{{ form_row(form.category) }}</div>
+            <div class="col-md-4">{{ form_row(form.sortOrder) }}</div>
+            <div class="col-md-3 d-flex align-items-end">{{ form_row(form.isActive) }}</div>
+        </div>
+
+        <div style="margin-top:24px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-plus mr-1"></i> Ajouter le partenaire
+            </button>
+        </div>
+    {{ form_end(form) }}
+</div>
+
+{# ── Liste des partenaires Premium ── #}
+<div class="admin-card">
+    <h3><i class="fas fa-star" style="color:#f59e0b;"></i> Partenaires Premium
+        <span style="font-weight:400;color:#adb5bd;">({{ partenaires|filter(p => p.type == 'premium')|length }})</span>
+    </h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width:60px;">Ordre</th>
+                <th style="width:80px;">Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Lien</th>
+                <th style="width:80px;">Actif</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in partenaires|filter(p => p.type == 'premium') %}
+                <tr>
+                    <td><span class="badge badge-secondary">{{ p.sortOrder ?? 0 }}</span></td>
+                    <td>
+                        {% if p.image %}
+                            <img src="{{ asset('uploads/images/' ~ p.image) }}" alt="{{ p.name }}" width="48" height="48" style="object-fit:contain;border-radius:6px;background:#f8fafc;">
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ p.name }}</strong>
+                        {% if p.description %}
+                            <div style="font-size:11px;color:#6c757d;margin-top:2px;">{{ p.description|slice(0, 60) }}{% if p.description|length > 60 %}…{% endif %}</div>
+                        {% endif %}
+                    </td>
+                    <td>{{ p.category ?? '—' }}</td>
+                    <td>
+                        {% if p.link %}
+                            <a href="{{ p.link }}" target="_blank" rel="noopener" style="font-size:12px;color:rgb(9,71,113);">
+                                <i class="fas fa-external-link-alt mr-1"></i>Voir
+                            </a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{{ path('admin_partenaire_toggle', {id: p.id}) }}" style="display:inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_partenaire_' ~ p.id) }}">
+                            <button type="submit" class="btn btn-sm {{ p.isActive ? 'btn-success' : 'btn-secondary' }}" title="Cliquer pour {{ p.isActive ? 'désactiver' : 'activer' }}">
+                                {% if p.isActive %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_partenaire_edit', {id: p.id}) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Éditer
+                        </a>
+                        <form method="post" action="{{ path('admin_partenaire_delete', {id: p.id}) }}" style="display:inline;"
+                              onsubmit="return confirm('Supprimer définitivement ce partenaire ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_partenaire_' ~ p.id) }}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted">Aucun partenaire Premium.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Liste des partenaires Normal ── #}
+<div class="admin-card">
+    <h3><i class="fas fa-th-large" style="color:rgb(9,71,113);"></i> Partenaires Normal
+        <span style="font-weight:400;color:#adb5bd;">({{ partenaires|filter(p => p.type == 'normal')|length }})</span>
+    </h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width:60px;">Ordre</th>
+                <th style="width:80px;">Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Lien</th>
+                <th style="width:80px;">Actif</th>
+                <th style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in partenaires|filter(p => p.type == 'normal') %}
+                <tr>
+                    <td><span class="badge badge-secondary">{{ p.sortOrder ?? 0 }}</span></td>
+                    <td>
+                        {% if p.image %}
+                            <img src="{{ asset('uploads/images/' ~ p.image) }}" alt="{{ p.name }}" width="48" height="48" style="object-fit:contain;border-radius:6px;background:#f8fafc;">
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ p.name }}</strong></td>
+                    <td>{{ p.category ?? '—' }}</td>
+                    <td>
+                        {% if p.link %}
+                            <a href="{{ p.link }}" target="_blank" rel="noopener" style="font-size:12px;color:rgb(9,71,113);">
+                                <i class="fas fa-external-link-alt mr-1"></i>Voir
+                            </a>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>
+                        <form method="post" action="{{ path('admin_partenaire_toggle', {id: p.id}) }}" style="display:inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_partenaire_' ~ p.id) }}">
+                            <button type="submit" class="btn btn-sm {{ p.isActive ? 'btn-success' : 'btn-secondary' }}">
+                                {% if p.isActive %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_partenaire_edit', {id: p.id}) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Éditer
+                        </a>
+                        <form method="post" action="{{ path('admin_partenaire_delete', {id: p.id}) }}" style="display:inline;"
+                              onsubmit="return confirm('Supprimer définitivement ce partenaire ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_partenaire_' ~ p.id) }}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted">Aucun partenaire Normal.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top:20px;text-align:center;">
+    <a href="{{ path('partenaires_index') }}" target="_blank" class="btn-admin-back" style="display:inline-flex;align-items:center;gap:7px;">
+        <i class="fas fa-external-link-alt mr-1"></i> Voir la page publique /partenaires
+    </a>
+</div>
+
+{% endblock %}

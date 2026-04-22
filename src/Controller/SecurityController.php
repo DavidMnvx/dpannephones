@@ -5,7 +5,9 @@ use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Service\RegistrationEmailService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -21,7 +23,8 @@ class SecurityController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $em,
-        RegistrationEmailService $registrationEmailService
+        RegistrationEmailService $registrationEmailService,
+        LoggerInterface $logger
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('home');
@@ -44,7 +47,10 @@ class SecurityController extends AbstractController
             try {
                 $registrationEmailService->sendVerificationEmail($user, 'app_verify_email');
             } catch (\Exception $e) {
-                // Log l'erreur mais ne bloque pas l'inscription
+                $logger->error('Erreur envoi email confirmation: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'user_email' => $user->getEmail(),
+                ]);
                 $this->addFlash('warning', 'Compte créé mais l\'email de confirmation n\'a pas pu être envoyé. Contactez-nous.');
             }
 
@@ -60,34 +66,61 @@ class SecurityController extends AbstractController
     public function verifyUserEmail(
         Request $request,
         VerifyEmailHelperInterface $verifyEmailHelper,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        RegistrationEmailService $registrationEmailService,
+        Security $security,
+        LoggerInterface $logger
     ): Response {
         $id = $request->query->get('id');
 
         if (!$id) {
-            return $this->redirectToRoute('app_register');
+            $this->addFlash('warning', 'Lien de vérification invalide. Demandez un nouveau lien ci-dessous.');
+            return $this->redirectToRoute('app_resend_verify');
         }
 
         $user = $em->getRepository(User::class)->find($id);
 
         if (!$user) {
-            return $this->redirectToRoute('app_register');
+            $this->addFlash('warning', 'Compte introuvable. Veuillez vous inscrire ou demander un nouveau lien.');
+            return $this->redirectToRoute('app_resend_verify');
+        }
+
+        // Déjà vérifié → connecter directement si pas encore authentifié
+        if ($user->isVerified()) {
+            if (!$this->getUser()) {
+                $security->login($user, 'form_login', 'main');
+            }
+            $this->addFlash('success', '✅ Votre email est déjà confirmé. Bienvenue !');
+            return $this->redirectToRoute('account_index');
         }
 
         try {
+            $logger->info('[Verify] URI reçue : ' . $request->getUri());
             $verifyEmailHelper->validateEmailConfirmationFromRequest($request, (string) $user->getId(), $user->getEmail());
         } catch (VerifyEmailExceptionInterface $e) {
-            $this->addFlash('verify_email_error', 'Le lien de vérification est invalide ou a expiré. ' . $e->getReason());
-            return $this->redirectToRoute('app_register');
+            $logger->error('[Verify] Échec validation : ' . $e->getMessage() . ' | Reason: ' . $e->getReason());
+            $this->addFlash('warning', 'Votre lien de confirmation a expiré ou est invalide. Cliquez sur "Renvoyer" pour recevoir un nouveau lien.');
+            return $this->redirectToRoute('app_resend_verify');
         }
 
+        // Valider le compte
         $user->setIsVerified(true);
         $user->setStatus('active');
         $em->flush();
 
-        $this->addFlash('success', '🎉 Votre email a bien été confirmé ! Vous pouvez maintenant vous connecter.');
+        // Email de bienvenue
+        try {
+            $registrationEmailService->sendWelcomeEmail($user);
+        } catch (\Exception $e) {
+            // silencieux
+        }
 
-        return $this->redirectToRoute('app_login');
+        // Connexion automatique
+        $security->login($user, 'form_login', 'main');
+
+        $this->addFlash('success', '🎉 Email confirmé ! Bienvenue sur D\'Panne Phones.');
+
+        return $this->redirectToRoute('account_index');
     }
 
     #[Route('/verify/resend', name: 'app_resend_verify')]

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bgBoul" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <linearGradient id="breadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bgBoul)"/>
+
+  <!-- Épis de blé en arrière plan -->
+  <g transform="translate(60, 130) rotate(-20)" opacity="0.15">
+    <rect x="-1" y="0" width="2" height="80" fill="#92400e"/>
+    <ellipse cx="-6" cy="10" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="6" cy="18" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="-6" cy="26" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="6" cy="34" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="-6" cy="42" rx="4" ry="8" fill="#92400e"/>
+  </g>
+  <g transform="translate(340, 150) rotate(20)" opacity="0.15">
+    <rect x="-1" y="0" width="2" height="80" fill="#92400e"/>
+    <ellipse cx="-6" cy="10" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="6" cy="18" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="-6" cy="26" rx="4" ry="8" fill="#92400e"/>
+    <ellipse cx="6" cy="34" rx="4" ry="8" fill="#92400e"/>
+  </g>
+
+  <!-- Cercle couronne -->
+  <circle cx="200" cy="170" r="115" fill="none" stroke="#92400e" stroke-width="2" stroke-dasharray="4 4" opacity="0.35"/>
+
+  <!-- Baguette de pain stylisée -->
+  <g transform="translate(200, 170)">
+    <ellipse cx="0" cy="0" rx="85" ry="28" fill="url(#breadGrad)"/>
+    <ellipse cx="0" cy="-3" rx="82" ry="25" fill="#f59e0b" opacity="0.7"/>
+    <!-- Entailles baguette -->
+    <line x1="-55" y1="-18" x2="-45" y2="-3" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-30" y1="-20" x2="-20" y2="-5" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+    <line x1="-5" y1="-21" x2="5" y2="-6" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="-20" x2="30" y2="-5" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+    <line x1="45" y1="-18" x2="55" y2="-3" stroke="#7c2d12" stroke-width="2" stroke-linecap="round"/>
+    <!-- Pointes -->
+    <ellipse cx="-85" cy="0" rx="6" ry="10" fill="#92400e"/>
+    <ellipse cx="85" cy="0" rx="6" ry="10" fill="#92400e"/>
+  </g>
+
+  <!-- Petite couronne/étoile au dessus -->
+  <g transform="translate(200, 85)">
+    <polygon points="0,-14 4,-4 14,-4 6,3 9,13 0,7 -9,13 -6,3 -14,-4 -4,-4"
+             fill="#d97706" opacity="0.85"/>
+  </g>
+
+  <!-- Texte -->
+  <text x="200" y="330" font-family="Georgia, serif" font-style="italic" font-size="32" font-weight="bold"
+        fill="#7c2d12" text-anchor="middle">Au Pain</text>
+  <text x="200" y="365" font-family="Georgia, serif" font-style="italic" font-size="26" font-weight="normal"
+        fill="#92400e" text-anchor="middle">d'Autrefois</text>
+</svg>

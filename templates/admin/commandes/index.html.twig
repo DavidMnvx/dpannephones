@@ -1,0 +1,116 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'commandes' %}
+{% block title %}Commandes — Admin D'Panne Phones{% endblock %}
+
+{% block admin_content %}
+<div class="admin-commandes-page">
+
+  {# En-tête #}
+  <div class="admin-page-header">
+    <div>
+      <a href="{{ path('admin_index') }}" class="admin-back-link"><i class="fas fa-arrow-left mr-1"></i>Tableau de bord</a>
+      <h1 class="admin-page-title"><i class="fas fa-shopping-bag mr-2"></i>Gestion des commandes</h1>
+    </div>
+    <div class="admin-page-header-stats">
+      <span class="admin-header-stat"><strong>{{ total }}</strong> commandes au total</span>
+    </div>
+  </div>
+
+  {# Filtres par statut #}
+  <div class="admin-statut-tabs">
+    <a href="{{ path('admin_commandes') }}" class="admin-statut-tab {{ statutFiltre == '' ? 'active' : '' }}">
+      Toutes <span class="tab-count">{{ total }}</span>
+    </a>
+    <a href="{{ path('admin_commandes', {statut: 'payee'}) }}" class="admin-statut-tab statut-tab--payee {{ statutFiltre == 'payee' ? 'active' : '' }}">
+      <i class="fas fa-check-circle mr-1"></i>Payées <span class="tab-count">{{ counts.payee ?? 0 }}</span>
+    </a>
+    <a href="{{ path('admin_commandes', {statut: 'en_preparation'}) }}" class="admin-statut-tab statut-tab--prep {{ statutFiltre == 'en_preparation' ? 'active' : '' }}">
+      <i class="fas fa-cog mr-1"></i>En préparation <span class="tab-count">{{ counts.en_preparation ?? 0 }}</span>
+    </a>
+    <a href="{{ path('admin_commandes', {statut: 'expediee'}) }}" class="admin-statut-tab statut-tab--shipped {{ statutFiltre == 'expediee' ? 'active' : '' }}">
+      <i class="fas fa-truck mr-1"></i>Expédiées <span class="tab-count">{{ counts.expediee ?? 0 }}</span>
+    </a>
+    <a href="{{ path('admin_commandes', {statut: 'livree'}) }}" class="admin-statut-tab statut-tab--done {{ statutFiltre == 'livree' ? 'active' : '' }}">
+      <i class="fas fa-box-open mr-1"></i>Livrées <span class="tab-count">{{ counts.livree ?? 0 }}</span>
+    </a>
+    <a href="{{ path('admin_commandes', {statut: 'retiree'}) }}" class="admin-statut-tab statut-tab--done {{ statutFiltre == 'retiree' ? 'active' : '' }}">
+      <i class="fas fa-store mr-1"></i>Retirées <span class="tab-count">{{ counts.retiree ?? 0 }}</span>
+    </a>
+    <a href="{{ path('admin_commandes', {statut: 'annulee'}) }}" class="admin-statut-tab statut-tab--cancelled {{ statutFiltre == 'annulee' ? 'active' : '' }}">
+      <i class="fas fa-times-circle mr-1"></i>Annulées <span class="tab-count">{{ counts.annulee ?? 0 }}</span>
+    </a>
+  </div>
+
+  {# Flash messages #}
+  {% for msg in app.flashes('success') %}
+    <div class="admin-flash admin-flash--success"><i class="fas fa-check-circle mr-2"></i>{{ msg }}</div>
+  {% endfor %}
+
+  {# Tableau des commandes #}
+  {% if commandes is empty %}
+    <div class="admin-empty-state">
+      <i class="fas fa-inbox"></i>
+      <p>Aucune commande {{ statutFiltre ? 'avec ce statut' : '' }}</p>
+    </div>
+  {% else %}
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Client</th>
+          <th>Articles</th>
+          <th>Total</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for commande in commandes %}
+        <tr class="admin-table-row">
+          <td class="cmd-id">#{{ commande.id }}</td>
+          <td class="cmd-date">{{ commande.createdAt|date('d/m/Y') }}<br><small>{{ commande.createdAt|date('H:i') }}</small></td>
+          <td class="cmd-client">
+            {% if commande.user %}
+              <a href="{{ path('admin_client_show', {id: commande.user.id}) }}" class="admin-link">
+                {{ commande.user.prenom }} {{ commande.user.nom }}
+              </a>
+              <br><small class="text-muted">{{ commande.user.email }}</small>
+            {% else %}
+              <span class="text-muted">— Client supprimé</span>
+            {% endif %}
+          </td>
+          <td class="cmd-items">
+            {% for item in commande.items %}
+              <div class="cmd-item-line">{{ item.quantite }}× {{ item.articleName }}</div>
+            {% endfor %}
+          </td>
+          <td class="cmd-total"><strong>{{ commande.total|number_format(2, ',', ' ') }} €</strong></td>
+          <td>
+            {% set s = commande.statut %}
+            <span class="badge-statut badge-statut--{{ s == 'payee' ? 'payee' : (s == 'en_preparation' ? 'prep' : (s in ['livree','retiree'] ? 'done' : (s == 'expediee' ? 'shipped' : (s == 'annulee' ? 'cancelled' : 'pending')))) }}">
+              {% if s == 'en_attente' %}En attente
+              {% elseif s == 'payee' %}Payée
+              {% elseif s == 'en_preparation' %}En préparation
+              {% elseif s == 'expediee' %}Expédiée
+              {% elseif s == 'livree' %}Livrée
+              {% elseif s == 'retiree' %}Retirée
+              {% elseif s == 'annulee' %}Annulée
+              {% else %}{{ s }}{% endif %}
+            </span>
+          </td>
+          <td>
+            <a href="{{ path('admin_commande_show', {id: commande.id}) }}" class="btn-admin-action btn-admin-action--view">
+              <i class="fas fa-eye mr-1"></i>Voir
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock admin_content %}

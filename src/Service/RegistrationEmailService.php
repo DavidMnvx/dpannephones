@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\User;
@@ -14,7 +15,8 @@ class RegistrationEmailService
         private VerifyEmailHelperInterface $verifyEmailHelper,
         private string $mailerFrom,
         private string $mailerFromName,
-    ) {}
+    ) {
+    }
 
     public function sendVerificationEmail(User $user, string $verifyRoute): void
     {
@@ -22,19 +24,33 @@ class RegistrationEmailService
             $verifyRoute,
             (string) $user->getId(),
             $user->getEmail(),
-            ['id' => $user->getId()]
+            ['id' => $user->getId()] // indispensable : inclut l'id dans l'URL
         );
 
         $email = (new TemplatedEmail())
             ->from(new Address($this->mailerFrom, $this->mailerFromName))
-            ->to(new Address($user->getEmail(), $user->getPrenom() . ' ' . $user->getNom()))
-            ->subject('✅ Confirmez votre adresse email — D\'Panne Phones')
-            ->htmlTemplate('emails/verify_email.html.twig')
+            ->to(new Address($user->getEmail()))
+            ->subject('Confirmer votre adresse email — D\'Panne Phones')
+            ->htmlTemplate('email/confirmation_email.html.twig')
             ->context([
-                'user'              => $user,
-                'signedUrl'         => $signatureComponents->getSignedUrl(),
+                'signedUrl' => $signatureComponents->getSignedUrl(),
                 'expiresAtMessageKey' => $signatureComponents->getExpirationMessageKey(),
                 'expiresAtMessageData' => $signatureComponents->getExpirationMessageData(),
+                'user' => $user,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
+    public function sendWelcomeEmail(User $user): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address($this->mailerFrom, $this->mailerFromName))
+            ->to(new Address($user->getEmail()))
+            ->subject('Bienvenue chez D\'Panne Phones!')
+            ->htmlTemplate('email/welcome_email.html.twig')
+            ->context([
+                'user' => $user,
             ]);
 
         $this->mailer->send($email);

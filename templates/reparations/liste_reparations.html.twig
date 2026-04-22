@@ -1,103 +1,205 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Réparations — {{ modele.name }}{% endblock %}
+{% block title %}Réparations — {{ modele.name }} — D'Panne Phones{% endblock %}
 
 {% block body %}
 
-{# Bannière #}
-<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/reparation/reparation_mobile2.jpeg') }}" alt="Réparation">
-        </div>
-    </div>
-</div>
+{% include 'reparations/_hero_reparation.html.twig' with {
+    step: 4,
+    type: type,
+    title: 'Réparations ' ~ modele.name,
+    subtitle: 'Sélectionnez les prestations souhaitées — le devis se met à jour automatiquement.',
+    breadcrumb: [
+        { label: 'Réparation', url: path('reparations_home') },
+        { label: 'Marques',    url: path('choix_marque', {type: type}) },
+        { label: modele.marque.name, url: path('choix_modele', {marqueId: modele.marque.id, type: type}) },
+        { label: modele.name }
+    ]
+} %}
 
-<div class="container mt-4 mb-5">
-    <div class="text-center mb-5">
-        <h1 class="rep-page-title">Réparations disponibles pour le {{ modele.name }}</h1>
-        <p class="rep-page-subtitle">Cochez les réparations souhaitées pour estimer votre devis, puis contactez-nous pour prendre rendez-vous.</p>
-    </div>
+<div class="rep-container rep-container--flex">
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+    {# ══ Colonne gauche : liste des réparations ══ #}
+    <div class="rep-main-col">
 
-            {% if reparations is not empty %}
-                <p class="section-label">Réparations spécifiques au modèle</p>
-                {% for reparation in reparations %}
-                    <div class="rep-card" onclick="toggleCheck(this)">
-                        <div class="rep-info">
-                            <div class="rep-name">{{ reparation.name }}</div>
-                            {% if reparation.description %}
-                                <p class="rep-desc">{{ reparation.description }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="rep-right">
-                            <span class="rep-price {{ reparation.prix == 0 ? 'free' : '' }}">
-                                {{ reparation.prix == 0 ? 'Gratuit' : reparation.prix ~ ' € TTC' }}
-                            </span>
-                            <input type="checkbox" class="rep-checkbox reparation-checkbox" data-price="{{ reparation.prix }}" onclick="event.stopPropagation()">
-                        </div>
-                    </div>
-                {% endfor %}
-                <hr class="section-divider">
-            {% endif %}
-
-            <p class="section-label">Services communs</p>
-            {% set predefined_reparations = [
-                {'name': 'Tiroir SIM', 'description': 'Sur commande en 24h-48h.', 'prix': 10},
-                {'name': 'Désoxydation', 'description': 'Résultat en 24h-48h selon les dégâts.', 'prix': 49},
-                {'name': 'Transfert de données', 'description': 'Le temps varie selon l\'espace disque.', 'prix': 19},
-                {'name': 'Diagnostique', 'description': 'Réalisé directement en boutique.', 'prix': 0}
-            ] %}
-            {% for reparation in predefined_reparations %}
-                <div class="rep-card" onclick="toggleCheck(this)">
-                    <div class="rep-info">
-                        <div class="rep-name">{{ reparation.name }}</div>
-                        <p class="rep-desc">{{ reparation.description }}</p>
-                    </div>
-                    <div class="rep-right">
-                        <span class="rep-price {{ reparation.prix == 0 ? 'free' : '' }}">
-                            {{ reparation.prix == 0 ? 'Gratuit' : reparation.prix ~ ' € TTC' }}
-                        </span>
-                        <input type="checkbox" class="rep-checkbox reparation-checkbox" data-price="{{ reparation.prix }}" onclick="event.stopPropagation()">
-                    </div>
-                </div>
-            {% endfor %}
-
-            {# Total bar #}
-            <div class="total-bar mt-4">
+        {# Bandeau récap modèle #}
+        <div class="rep-context-bar">
+            <div class="rep-context-brand">
+                {% if modele.image %}
+                    <img src="{{ asset('uploads/images/' ~ modele.image) }}" alt="{{ modele.name }}">
+                {% elseif modele.marque.image %}
+                    <img src="{{ asset('uploads/images/' ~ modele.marque.image) }}" alt="{{ modele.marque.name }}">
+                {% endif %}
                 <div>
-                    <div class="total-label">Estimation totale (TTC)</div>
-                    <div class="total-amount"><span id="total-price">0.00</span> €</div>
+                    <small>Modèle sélectionné</small>
+                    <strong>{{ modele.marque.name }} {{ modele.name }}</strong>
                 </div>
-                <a href="{{ path('contact') }}" class="btn-rdv">
-                    <i class="fas fa-calendar-alt mr-2"></i> Prendre rendez-vous
-                </a>
+            </div>
+            <a href="{{ path('choix_modele', {marqueId: modele.marque.id, type: type}) }}" class="rep-context-change">
+                <i class="fas fa-exchange-alt mr-1"></i> Changer
+            </a>
+        </div>
+
+        {# Info guide #}
+        <div class="rep-guide-info">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>Comment ça marche ?</strong>
+                <span>Cochez les réparations nécessaires ci-dessous. Votre devis estimatif s'affiche à droite. Cliquez sur "Prendre rendez-vous" pour finaliser.</span>
+            </div>
+        </div>
+
+        {# ── Réparations spécifiques au modèle ── #}
+        {% if reparations is not empty %}
+            <div class="rep-section">
+                <div class="rep-section-head">
+                    <i class="fas fa-wrench" style="color:rgb(9,71,113);"></i>
+                    <h2>Réparations pour votre {{ modele.name }}</h2>
+                </div>
+                <div class="rep-list">
+                    {% for reparation in reparations %}
+                        <label class="rep-item" for="rep-{{ reparation.id }}"
+                               style="animation-delay: {{ (loop.index0 * 0.03) }}s;">
+                            <input type="checkbox"
+                                   id="rep-{{ reparation.id }}"
+                                   class="rep-item-checkbox reparation-checkbox"
+                                   data-price="{{ reparation.prix }}"
+                                   data-name="{{ reparation.name }}">
+                            <div class="rep-item-content">
+                                <div class="rep-item-main">
+                                    <div class="rep-item-name">{{ reparation.name }}</div>
+                                    {% if reparation.description %}
+                                        <p class="rep-item-desc">{{ reparation.description }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="rep-item-right">
+                                    <span class="rep-item-price {{ reparation.prix == 0 ? 'rep-item-price--free' : '' }}">
+                                        {{ reparation.prix == 0 ? 'Gratuit' : reparation.prix ~ ' €' }}
+                                    </span>
+                                    <div class="rep-item-check">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        {# ── Services communs ── #}
+        <div class="rep-section">
+            <div class="rep-section-head">
+                <i class="fas fa-tools" style="color:#f59e0b;"></i>
+                <h2>Services communs</h2>
+                <small>Disponibles pour tous les modèles</small>
             </div>
 
+            {% set predefined_reparations = [
+                {'id': 'sim',       'name': 'Tiroir SIM',           'description': 'Remplacement tiroir SIM — pièce sur commande 24-48h.',           'prix': 10,  'icon': 'fa-sim-card'},
+                {'id': 'desox',     'name': 'Désoxydation',         'description': 'Traitement après contact avec liquide — résultat sous 24-48h.',  'prix': 49,  'icon': 'fa-tint'},
+                {'id': 'transfert', 'name': 'Transfert de données', 'description': 'Migration complète de vos données vers un nouvel appareil.',    'prix': 19,  'icon': 'fa-exchange-alt'},
+                {'id': 'diag',      'name': 'Diagnostique',         'description': 'Analyse complète directement en boutique — sans rendez-vous.',  'prix': 0,   'icon': 'fa-stethoscope'}
+            ] %}
+            <div class="rep-list">
+                {% for rep in predefined_reparations %}
+                    <label class="rep-item rep-item--common" for="rep-{{ rep.id }}"
+                           style="animation-delay: {{ (loop.index0 * 0.03) }}s;">
+                        <input type="checkbox"
+                               id="rep-{{ rep.id }}"
+                               class="rep-item-checkbox reparation-checkbox"
+                               data-price="{{ rep.prix }}"
+                               data-name="{{ rep.name }}">
+                        <div class="rep-item-content">
+                            <div class="rep-item-icon">
+                                <i class="fas {{ rep.icon }}"></i>
+                            </div>
+                            <div class="rep-item-main">
+                                <div class="rep-item-name">{{ rep.name }}</div>
+                                <p class="rep-item-desc">{{ rep.description }}</p>
+                            </div>
+                            <div class="rep-item-right">
+                                <span class="rep-item-price {{ rep.prix == 0 ? 'rep-item-price--free' : '' }}">
+                                    {{ rep.prix == 0 ? 'Gratuit' : rep.prix ~ ' €' }}
+                                </span>
+                                <div class="rep-item-check">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Aide #}
+        <div class="rep-help-box">
+            <div class="rep-help-icon"><i class="fas fa-question-circle"></i></div>
+            <div class="rep-help-content">
+                <strong>Une panne qui n'est pas dans la liste ?</strong>
+                <p>Nous traitons aussi les cas particuliers — contactez-nous pour un devis sur-mesure.</p>
+                <div class="rep-help-actions">
+                    <a href="{{ path('contact') }}" class="rep-help-btn">
+                        <i class="fas fa-envelope mr-1"></i> Nous écrire
+                    </a>
+                    <a href="tel:+33783748311" class="rep-help-btn rep-help-btn--phone">
+                        <i class="fas fa-phone mr-1"></i> 07 83 74 83 11
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+
+    {# ══ Colonne droite : devis sticky ══ #}
+    <aside class="rep-devis">
+        <div class="rep-devis-sticky">
+            <div class="rep-devis-header">
+                <i class="fas fa-receipt mr-2"></i>
+                <span>Mon devis</span>
+            </div>
+
+            <div class="rep-devis-empty" id="devisEmpty">
+                <i class="fas fa-hand-pointer"></i>
+                <p>Cochez une réparation pour commencer votre devis</p>
+            </div>
+
+            <ul class="rep-devis-list" id="devisList"></ul>
+
+            <div class="rep-devis-summary" id="devisSummary" style="display:none;">
+                <div class="rep-devis-row">
+                    <span>Nombre de réparations</span>
+                    <span id="devisCount">0</span>
+                </div>
+                <div class="rep-devis-total">
+                    <span>Total estimé TTC</span>
+                    <span class="rep-devis-amount"><span id="total-price">0,00</span> €</span>
+                </div>
+            </div>
+
+            <a href="{{ path('contact') }}" class="rep-devis-cta" id="devisCta">
+                <i class="fas fa-calendar-check mr-2"></i>
+                Prendre rendez-vous
+            </a>
+
+            <div class="rep-devis-reassurance">
+                <div><i class="fas fa-shield-alt"></i> Garantie 6 mois</div>
+                <div><i class="fas fa-clock"></i> Réparation sous 24-48h</div>
+                <div><i class="fas fa-euro-sign"></i> Devis sans engagement</div>
+            </div>
+        </div>
+    </aside>
+
 </div>
 
-{# Contact #}
-<div class="container contact-section mt-5 mb-5">
-    <div class="row justify-content-center text-center mb-3">
-        <div class="col-12">
-            <p id="pDoute" class="mb-3">Vous ne trouvez pas votre réparation ou avez un doute sur la panne ?</p>
-        </div>
-        <div class="col-md-3 mt-3 d-flex flex-column align-items-center">
-            <p>Contactez-nous par mail</p>
-            <a href="{{ path('contact') }}" id="contactezNous" class="btn btn-outline-primary btn-contact mb-5">Contactez-nous</a>
-        </div>
-        <div class="col-md-1 d-flex align-items-center justify-content-center">
-            <p class="font-weight-bold">OU</p>
-        </div>
-        <div class="col-md-3 mt-3 d-flex flex-column align-items-center">
-            <p>par téléphone</p>
-            <a class="btn btn-outline-primary btn-contact" id="contactezNous" href="tel:+33783748311">07 83 74 83 11</a>
-        </div>
+{# ── Barre devis mobile (sticky bas) ── #}
+<div class="rep-mobile-devis" id="mobileDevis" style="display:none;">
+    <div class="rep-mobile-devis-info">
+        <small><span id="mobileDevisCount">0</span> réparation(s)</small>
+        <strong><span id="mobileTotal">0,00</span> €</strong>
     </div>
+    <a href="{{ path('contact') }}" class="rep-mobile-devis-btn">
+        <i class="fas fa-calendar-check mr-1"></i> Rendez-vous
+    </a>
 </div>
 
 {% endblock %}
@@ -105,26 +207,77 @@
 {% block javascripts %}
 {{ parent() }}
 <script>
-function toggleCheck(card) {
-    const checkbox = card.querySelector('.reparation-checkbox');
-    checkbox.checked = !checkbox.checked;
-    card.classList.toggle('selected', checkbox.checked);
-    updateTotal();
-}
+(function() {
+    const checkboxes = document.querySelectorAll('.reparation-checkbox');
+    const devisList  = document.getElementById('devisList');
+    const devisEmpty = document.getElementById('devisEmpty');
+    const devisSummary = document.getElementById('devisSummary');
+    const totalEl    = document.getElementById('total-price');
+    const countEl    = document.getElementById('devisCount');
+    const mobileDevis = document.getElementById('mobileDevis');
+    const mobileTotal = document.getElementById('mobileTotal');
+    const mobileCount = document.getElementById('mobileDevisCount');
 
-document.querySelectorAll('.reparation-checkbox').forEach(cb => {
-    cb.addEventListener('change', function() {
-        this.closest('.rep-card').classList.toggle('selected', this.checked);
-        updateTotal();
-    });
-});
+    function formatPrice(n) {
+        return n.toFixed(2).replace('.', ',');
+    }
 
-function updateTotal() {
-    let total = 0;
-    document.querySelectorAll('.reparation-checkbox:checked').forEach(cb => {
-        total += parseFloat(cb.getAttribute('data-price'));
-    });
-    document.getElementById('total-price').textContent = total.toFixed(2);
-}
+    function updateDevis() {
+        const selected = [];
+        let total = 0;
+
+        checkboxes.forEach(cb => {
+            // Toggle class selected sur le label parent
+            const item = cb.closest('.rep-item');
+            if (cb.checked) {
+                item.classList.add('rep-item--selected');
+                const price = parseFloat(cb.dataset.price) || 0;
+                selected.push({
+                    name: cb.dataset.name,
+                    price: price
+                });
+                total += price;
+            } else {
+                item.classList.remove('rep-item--selected');
+            }
+        });
+
+        // Mise à jour liste devis
+        devisList.innerHTML = '';
+        selected.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'rep-devis-item';
+            li.innerHTML = `
+                <span class="rep-devis-item-name">${item.name}</span>
+                <span class="rep-devis-item-price">${item.price === 0 ? 'Gratuit' : formatPrice(item.price) + ' €'}</span>
+            `;
+            devisList.appendChild(li);
+        });
+
+        // Affichage empty / summary
+        if (selected.length === 0) {
+            devisEmpty.style.display = 'block';
+            devisSummary.style.display = 'none';
+            mobileDevis.style.display = 'none';
+        } else {
+            devisEmpty.style.display = 'none';
+            devisSummary.style.display = 'block';
+            mobileDevis.style.display = 'flex';
+        }
+
+        // Totaux
+        totalEl.textContent = formatPrice(total);
+        mobileTotal.textContent = formatPrice(total);
+        countEl.textContent = selected.length;
+        mobileCount.textContent = selected.length;
+
+        // Animation du total
+        totalEl.parentElement.classList.remove('rep-devis-amount--pulse');
+        void totalEl.parentElement.offsetWidth;
+        totalEl.parentElement.classList.add('rep-devis-amount--pulse');
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateDevis));
+})();
 </script>
 {% endblock %}

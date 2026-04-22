@@ -1,52 +1,195 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}Connexion — D'Panne Phones{% endblock %}
 
 {% block body %}
 
-    <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" data-interval="4000">
-        
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <img class="d-block w-100" src="{{ asset('images/baner/connexion.png') }}" alt="First slide">
-                <div class="carousel-caption">
-                    <h5 id="quiSommesNous" >Connexion</h5>
-                </div>
-            </div>        
-        </div>
-    </div>
-    <div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-center">
-                    <h1>Connectez-vous</h1>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% if error %}
-                            <div class="alert alert-danger">
-                                {{ error.messageKey|trans(error.messageData, 'security') }}
-                            </div>
-                        {% endif %}
-
-                        <div class="form-group">
-                            <label for="username">Email</label>
-                            <input type="text" class="form-control" id="username" name="_username" value="{{ last_username }}" required autofocus>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="password">Mot de passe</label>
-                            <input type="password" class="form-control" id="password" name="_password" required>
-                        </div>
-
-                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-                        <button type="submit" class="btn btn-primary btn-outline-block">Connexion</button>
-                    </form>
-                </div>
+{# Bannière réduite #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_login', 'images/baner/connexion.png')) }}" alt="Connexion">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Connexion</h5>
             </div>
         </div>
     </div>
 </div>
+
+<div class="login-page-wrap">
+    <div class="login-grid">
+
+        {# ════════════════════════════════
+           COLONNE GAUCHE — Avantages compte
+           ════════════════════════════════ #}
+        <div class="login-info-col">
+            <div class="login-info-card">
+                <div class="login-info-logo">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>D'Panne Phones</span>
+                </div>
+
+                <h2 class="login-info-title">Votre espace personnel</h2>
+                <p class="login-info-sub">Connectez-vous pour profiter de tous nos services</p>
+
+                <div class="login-info-items">
+                    <div class="login-info-item">
+                        <div class="login-info-icon"><i class="fas fa-history"></i></div>
+                        <div>
+                            <strong>Suivi de commandes</strong>
+                            <span>Consultez l'historique et l'état de vos commandes</span>
+                        </div>
+                    </div>
+                    <div class="login-info-item">
+                        <div class="login-info-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <div>
+                            <strong>Panier sauvegardé</strong>
+                            <span>Retrouvez vos articles même après votre déconnexion</span>
+                        </div>
+                    </div>
+                    <div class="login-info-item">
+                        <div class="login-info-icon"><i class="fas fa-shield-alt"></i></div>
+                        <div>
+                            <strong>Garanties &amp; SAV</strong>
+                            <span>Gérez facilement vos garanties et demandes SAV</span>
+                        </div>
+                    </div>
+                    <div class="login-info-item">
+                        <div class="login-info-icon"><i class="fas fa-tag"></i></div>
+                        <div>
+                            <strong>Offres exclusives</strong>
+                            <span>Accédez aux promotions réservées à nos membres</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ════════════════════════════════
+           COLONNE DROITE — Formulaire
+           ════════════════════════════════ #}
+        <div class="login-form-col">
+            <div class="login-form-card">
+
+                <div class="login-form-header">
+                    <h1 class="login-form-title">Connexion</h1>
+                    <p class="login-form-sub">Heureux de vous revoir !</p>
+                </div>
+
+                {# Message d'erreur #}
+                {% if error %}
+                    <div class="login-alert login-alert--error">
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        {% if error.messageKey == 'Invalid credentials.' %}
+                            Email ou mot de passe incorrect. Vérifiez vos identifiants.
+                        {% else %}
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {# Flashes (ex: compte non vérifié) #}
+                {% for message in app.flashes('warning') %}
+                    <div class="login-alert login-alert--warning">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+                {% for message in app.flashes('success') %}
+                    <div class="login-alert login-alert--success">
+                        <i class="fas fa-check-circle mr-2"></i>{{ message }}
+                    </div>
+                {% endfor %}
+
+                <form method="post" class="login-form">
+
+                    <div class="login-field">
+                        <label for="username" class="login-label">
+                            <i class="fas fa-envelope mr-1"></i> Adresse email
+                        </label>
+                        <input type="email"
+                               id="username"
+                               name="_username"
+                               value="{{ last_username }}"
+                               class="login-input"
+                               placeholder="votre@email.fr"
+                               required
+                               autofocus>
+                    </div>
+
+                    <div class="login-field">
+                        <div class="login-label-row">
+                            <label for="password" class="login-label">
+                                <i class="fas fa-lock mr-1"></i> Mot de passe
+                            </label>
+                            {# Lien mot de passe oublié — à activer quand la fonctionnalité sera prête #}
+                            {# <a href="{{ path('app_forgot_password') }}" class="login-forgot">Mot de passe oublié ?</a> #}
+                        </div>
+                        <div class="login-password-wrap">
+                            <input type="password"
+                                   id="password"
+                                   name="_password"
+                                   class="login-input"
+                                   placeholder="••••••••"
+                                   required>
+                            <button type="button" class="login-eye-btn" onclick="togglePassword()" title="Afficher / masquer">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <button type="submit" class="login-submit-btn">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Se connecter
+                    </button>
+
+                </form>
+
+                {# Séparateur #}
+                <div class="login-divider">
+                    <span>ou</span>
+                </div>
+
+                {# Liens supplémentaires #}
+                <div class="login-extra-links">
+                    <p class="login-no-account">
+                        Pas encore de compte ?
+                        <a href="{{ path('app_register') }}" class="login-link-register">
+                            <i class="fas fa-user-plus mr-1"></i>Créer un compte gratuit
+                        </a>
+                    </p>
+                    <p class="login-resend-link">
+                        Email de confirmation non reçu ?
+                        <a href="{{ path('app_resend_verify') }}" class="login-link-secondary">
+                            <i class="fas fa-paper-plane mr-1"></i>Renvoyer l'email
+                        </a>
+                    </p>
+                </div>
+
+                {# Sécurité / RGPD bas de formulaire #}
+                <div class="login-security-note">
+                    <i class="fas fa-lock"></i>
+                    Connexion sécurisée — Vos données sont protégées
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    var input = document.getElementById('password');
+    var icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+</script>
+
 {% endblock %}

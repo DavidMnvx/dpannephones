@@ -1,0 +1,61 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'partenaires' %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> ›
+    <a href="{{ path('admin_partenaires') }}">Partenaires</a> ›
+    Éditer
+</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-edit"></i> Éditer le partenaire : {{ partenaire.name }}</h3>
+
+    {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'admin-form'}}) }}
+
+        <div class="form-section-title">Identité</div>
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.name) }}</div>
+            <div class="col-md-6">{{ form_row(form.type) }}</div>
+        </div>
+
+        <hr class="form-divider">
+        <div class="form-section-title">Média & Lien</div>
+
+        {% if partenaire.image %}
+            <div style="margin-bottom:14px;">
+                <label class="d-block" style="font-weight:600;font-size:13px;">Image actuelle :</label>
+                <img src="{{ asset('uploads/images/' ~ partenaire.image) }}" alt="{{ partenaire.name }}" height="80"
+                     style="border-radius:8px;background:#f8fafc;padding:8px;">
+                <small class="d-block text-muted mt-1">Laissez le champ image vide pour conserver l'image actuelle.</small>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.image) }}</div>
+            <div class="col-md-6">{{ form_row(form.link) }}</div>
+        </div>
+
+        <hr class="form-divider">
+        <div class="form-section-title">Présentation <small class="text-muted">(Premium uniquement)</small></div>
+        {{ form_row(form.description) }}
+
+        <hr class="form-divider">
+        <div class="form-section-title">Organisation</div>
+        <div class="row">
+            <div class="col-md-5">{{ form_row(form.category) }}</div>
+            <div class="col-md-4">{{ form_row(form.sortOrder) }}</div>
+            <div class="col-md-3 d-flex align-items-end">{{ form_row(form.isActive) }}</div>
+        </div>
+
+        <div style="margin-top:24px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-save mr-1"></i> Sauvegarder les modifications
+            </button>
+            <a href="{{ path('admin_partenaires') }}" class="btn-admin-back">
+                <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
+            </a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

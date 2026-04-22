@@ -2,6 +2,19 @@
 {% block title %}Commande confirmée — D'Panne Phones{% endblock %}
 
 {% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_payment_success', 'images/baner/Boutique.png')) }}" alt="Paiement">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Commande confirmée</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="auth-page-wrap">
   <div class="auth-card auth-card--center payment-success-card">
 
@@ -51,14 +64,65 @@
       </table>
     </div>
 
-    {# Info livraison/contact #}
-    <div class="auth-info-box" style="text-align:left;margin:20px 0;">
-      <i class="fas fa-store mr-2"></i>
-      Votre commande est prête à être préparée. Nous vous contacterons dès qu'elle est disponible en boutique ou pour convenir d'un retrait.
+    {# ── Étapes de livraison ── #}
+    <div class="success-steps">
+      <div class="success-step success-step--done">
+        <div class="success-step-icon"><i class="fas fa-check"></i></div>
+        <div class="success-step-label">Paiement confirmé</div>
+      </div>
+      <div class="success-step-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="success-step">
+        <div class="success-step-icon"><i class="fas fa-cog"></i></div>
+        <div class="success-step-label">Préparation</div>
+      </div>
+      <div class="success-step-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="success-step">
+        <div class="success-step-icon"><i class="fas fa-truck"></i></div>
+        <div class="success-step-label">Expédition</div>
+      </div>
+      <div class="success-step-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="success-step">
+        <div class="success-step-icon"><i class="fas fa-box-open"></i></div>
+        <div class="success-step-label">Livraison</div>
+      </div>
+    </div>
+
+    {# ── Info livraison ── #}
+    <div class="success-delivery-info">
+      <div class="success-delivery-row">
+        <i class="fas fa-envelope" style="color:rgb(9,71,113);"></i>
+        <span>Un email de confirmation vient de vous être envoyé avec le récapitulatif de votre commande.</span>
+      </div>
+      <div class="success-delivery-row">
+        <i class="fas fa-truck" style="color:#7a2c8e;"></i>
+        <span>Dès l'expédition, vous recevrez un <strong>email avec votre numéro de suivi</strong> (Colissimo, Chronopost ou Mondial Relay).</span>
+      </div>
+      <div class="success-delivery-row">
+        <i class="fas fa-clock" style="color:#ffb700;"></i>
+        <span>Délai estimé : <strong>2–3 jours ouvrés</strong> après expédition.</span>
+      </div>
+      <div class="success-delivery-row">
+        <i class="fas fa-store" style="color:#16a34a;"></i>
+        <span>Retrait en boutique possible à <strong>Pélissanne</strong> sur rendez-vous.</span>
+      </div>
+    </div>
+
+    {# ── Note spam ── #}
+    <div class="spam-notice">
+      <i class="fas fa-info-circle"></i>
+      <div>
+        <strong>Pensez à vérifier vos spams / courrier indésirable</strong>
+        <span>Nos emails peuvent parfois s'y retrouver. Si c'est le cas, ajoutez <em>contact@dpannephones.com</em> à vos contacts pour ne rien manquer.</span>
+      </div>
     </div>
 
     <div class="payment-success-actions">
-      <a href="{{ path('boutique_index') }}" class="auth-btn-primary" style="text-decoration:none;display:inline-flex;">
+      {% if is_granted('ROLE_USER') %}
+      <a href="{{ path('account_index') }}" class="auth-btn-primary" style="text-decoration:none;display:inline-flex;">
+        <i class="fas fa-user mr-2"></i> Suivre ma commande
+      </a>
+      {% endif %}
+      <a href="{{ path('boutique_index') }}" class="auth-btn-secondary" style="text-decoration:none;display:inline-flex;margin-top:10px;">
         <i class="fas fa-shopping-bag mr-2"></i> Continuer mes achats
       </a>
       <a href="{{ path('home') }}" class="auth-link" style="display:block;margin-top:12px;">

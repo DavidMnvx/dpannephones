@@ -33,11 +33,29 @@ security:
                 path: /
                 always_remember_me: true
 
+            # Protection anti brute-force sur le login :
+            #  - max 5 tentatives ratées en 1 minute par IP
+            #  - + max 5 tentatives ratées par compte/identifiant en 15 minutes
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+
     access_control:
 
-        - { path: ^/logout, roles: ROLE_USER }
-        - { path: ^/home, roles: ROLE_USER }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # Espace administration — ROLE_ADMIN requis
+        - { path: ^/admin, roles: ROLE_ADMIN }
+
+        # Espace client — ROLE_USER requis
+        - { path: ^/mon-compte, roles: ROLE_USER }
+        - { path: ^/logout,     roles: ROLE_USER }
+        - { path: ^/avis/laisser, roles: ROLE_USER }
+
+        # Paiement / panier — pas de restriction (invité possible)
+        # sauf checkout qui nécessite d'être connecté (mieux pour le suivi commande)
+        - { path: ^/payment, roles: ROLE_USER }
 
 when@test:
     security:

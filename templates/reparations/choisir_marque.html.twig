@@ -1,84 +1,72 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Choix de la marque {% endblock %}
-
-{% block stylesheets %}
-    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
-{% endblock %}
+{% block title %}Choix de la marque — D'Panne Phones{% endblock %}
 
 {% block body %}
 
-{# Banière #}
+{% include 'reparations/_hero_reparation.html.twig' with {
+    step: 2,
+    type: type,
+    title: 'Choisissez votre marque',
+    subtitle: 'Sélectionnez la marque de votre ' ~ (type == 'tablet' ? 'tablette' : 'téléphone') ~ ' — nous vous afficherons tous les modèles disponibles.',
+    breadcrumb: [
+        { label: 'Réparation', url: path('reparations_home') },
+        { label: 'Marques' }
+    ]
+} %}
 
-<div id="carouselExampleIndicators2"  class="carousel slide mb-5" data-ride="carousel" data-interval="4000" >
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/reparation/reparation_mobile2.jpeg') }}" alt="First slide">
-            <div class="carousel-caption">
-                <h5 id="uneRep" >Une Réparation ?</h5>
+<div class="rep-container">
 
-            </div>
-        </div>
-    </div>
-</div>
-
-{# Banière #}
-
-{# card section marques #}
-
-<div class="container mt-5 mb-2 text-center">
-    <h1 class="marques-title">Quelle est la marque de votre appareil ?</h1>
-    <p class="marques-subtitle">Sélectionnez votre marque ci-dessous — nous vous afficherons toutes les réparations disponibles pour votre modèle.</p>
-</div>
-
-<div class="container mt-5 pt-3">
     {% if marques is empty %}
-        <p class="text-center text-muted">Aucune marque disponible pour ce type d'appareil.</p>
+        <div class="rep-empty">
+            <i class="fas fa-tags"></i>
+            <h3>Aucune marque disponible</h3>
+            <p>Contactez-nous pour nous signaler votre appareil — nous ajoutons régulièrement de nouvelles marques.</p>
+            <a href="{{ path('contact') }}" class="rep-empty-btn">
+                <i class="fas fa-envelope mr-1"></i> Nous contacter
+            </a>
+        </div>
     {% else %}
-        <div class="marques-grid">
+        <div class="rep-brands-grid">
             {% for marque in marques %}
                 <a href="{{ path('choix_modele', {'marqueId': marque.id, 'type': type}) }}"
-                   class="marque-card reveal delay-{{ loop.index <= 4 ? loop.index : 4 }}"
-                   style="width:100%;max-width:180px;">
-                    {% if marque.image %}
-                        <img src="{{ asset('uploads/images/' ~ marque.image) }}" alt="{{ marque.name }}">
-                    {% else %}
-                        <div style="height:70px; display:flex; align-items:center; justify-content:center;">
-                            <i class="fas fa-mobile-alt fa-2x" style="color:#dee2e6;"></i>
-                        </div>
-                    {% endif %}
-                    <span>{{ marque.name }}</span>
+                   class="rep-brand-card"
+                   style="animation-delay: {{ (loop.index0 * 0.05) }}s;">
+                    <div class="rep-brand-img">
+                        {% if marque.image %}
+                            <img src="{{ asset('uploads/images/' ~ marque.image) }}" alt="{{ marque.name }}" loading="lazy">
+                        {% else %}
+                            <i class="fas fa-mobile-alt"></i>
+                        {% endif %}
+                    </div>
+                    <div class="rep-brand-name">{{ marque.name }}</div>
+                    <div class="rep-brand-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
                 </a>
             {% endfor %}
         </div>
     {% endif %}
-</div>
 
-{# card section marques #}
-
-{# contact #}
-
-<div class="container contact-section mt-5 mb-5">
-    <div class="row justify-content-center text-center mb-3">
-        <div class="col-12">
-            <p id="pDoute" class="mb-3">Vous ne trouvez pas votre marque ou vous avez un doute sur la panne ?</p>
+    {# Bloc aide / contact #}
+    <div class="rep-help-box">
+        <div class="rep-help-icon">
+            <i class="fas fa-comments"></i>
         </div>
-        <div class="col-md-3 mt-5 d-flex flex-column align-items-center">
-            <p>Contactez nous par mail</p>
-            <a href="{{ path('contact') }}" id="contactezNous" class="btn btn-outline-primary btn-contact mb-5">Contactez nous</a>
-        </div>
-        <div class="col-md-1 d-flex align-items-center justify-content-center">
-            <p class="font-weight-bold">OU</p>
-        </div>
-        <div class="col-md-3 mt-5 d-flex flex-column align-items-center">
-            <p>par téléphone</p>
-            <a class="btn btn-outline-primary btn-contact" id="contactezNous" href="tel:+33783748311">07 83 74 83 11</a>
+        <div class="rep-help-content">
+            <strong>Vous ne trouvez pas votre marque ?</strong>
+            <p>Nous travaillons sur de nombreuses autres marques — contactez-nous pour nous décrire votre appareil.</p>
+            <div class="rep-help-actions">
+                <a href="{{ path('contact') }}" class="rep-help-btn">
+                    <i class="fas fa-envelope mr-1"></i> Nous écrire
+                </a>
+                <a href="tel:+33783748311" class="rep-help-btn rep-help-btn--phone">
+                    <i class="fas fa-phone mr-1"></i> 07 83 74 83 11
+                </a>
+            </div>
         </div>
     </div>
+
 </div>
-
-{# contact #}
-
-
 
 {% endblock %}

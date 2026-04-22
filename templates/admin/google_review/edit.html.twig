@@ -1,0 +1,38 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'google_reviews' %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> ›
+    <a href="{{ path('admin_google_reviews') }}">Avis Google</a> ›
+    Éditer
+</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-edit"></i> Éditer l'avis de {{ review.authorName }}</h3>
+
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.authorName) }}</div>
+            <div class="col-md-3">{{ form_row(form.rating) }}</div>
+            <div class="col-md-3">{{ form_row(form.relativeTime) }}</div>
+        </div>
+        {{ form_row(form.text) }}
+        <hr class="form-divider">
+        <div class="row">
+            <div class="col-md-8">{{ form_row(form.profilePhotoUrl) }}</div>
+            <div class="col-md-2">{{ form_row(form.sortOrder) }}</div>
+            <div class="col-md-2 d-flex align-items-end">{{ form_row(form.isActive) }}</div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-save mr-1"></i> Sauvegarder
+            </button>
+            <a href="{{ path('admin_google_reviews') }}" class="btn-admin-back">
+                <i class="fas fa-arrow-left mr-1"></i> Retour
+            </a>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

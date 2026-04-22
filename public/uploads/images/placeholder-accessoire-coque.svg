@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="coBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#coBg)"/>
+
+  <!-- Coque transparente -->
+  <g transform="translate(200, 200)">
+    <!-- Contour coque -->
+    <rect x="-60" y="-120" width="120" height="240" rx="22" fill="rgba(255,255,255,0.3)" stroke="#f59e0b" stroke-width="3"/>
+    <rect x="-56" y="-116" width="112" height="232" rx="18" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+    <!-- Découpe caméra -->
+    <g transform="translate(-35, -90)">
+      <rect x="-18" y="-10" width="36" height="48" rx="10" fill="rgba(0,0,0,0.2)"/>
+      <circle cx="-6" cy="0" r="7" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="6" cy="0" r="7" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="-6" cy="15" r="7" fill="rgba(0,0,0,0.3)"/>
+      <circle cx="6" cy="15" r="7" fill="rgba(0,0,0,0.3)"/>
+    </g>
+    <!-- Reflets -->
+    <rect x="-50" y="-100" width="10" height="180" rx="5" fill="#fff" opacity="0.35"/>
+    <rect x="35" y="-80" width="5" height="140" rx="2" fill="#fff" opacity="0.25"/>
+    <!-- Découpes boutons -->
+    <rect x="-62" y="-50" width="4" height="14" rx="2" fill="#f59e0b" opacity="0.5"/>
+    <rect x="-62" y="-25" width="4" height="25" rx="2" fill="#f59e0b" opacity="0.5"/>
+    <rect x="58" y="-35" width="4" height="40" rx="2" fill="#f59e0b" opacity="0.5"/>
+  </g>
+
+  <!-- Icône protection -->
+  <g transform="translate(340, 60)" opacity="0.4">
+    <path d="M 0 -18 L 15 -12 L 15 5 Q 15 18 0 24 Q -15 18 -15 5 L -15 -12 Z" fill="#f59e0b"/>
+    <path d="M -6 0 L -2 4 L 6 -6" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="200" y="370" font-family="Arial, sans-serif" font-size="11" font-weight="700"
+        fill="#92400e" text-anchor="middle" letter-spacing="4" opacity="0.8">
+    COQUE DE PROTECTION
+  </text>
+</svg>

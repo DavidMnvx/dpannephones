@@ -19,6 +19,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'stats' ? 'active' : '' }}"
+                       href="{{ path('admin_stats') }}">
+                        <i class="fas fa-chart-line"></i> Statistiques
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ active_section is defined and active_section == 'marques' ? 'active' : '' }}"
                        href="{{ path('admin_index') }}#marques">
                         <i class="fas fa-tags"></i> Marques
@@ -42,6 +48,64 @@
                         <i class="fas fa-shopping-bag"></i> Articles boutique
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'commandes' ? 'active' : '' }}"
+                       href="{{ path('admin_commandes') }}">
+                        <i class="fas fa-receipt"></i> Commandes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'promos' ? 'active' : '' }}"
+                       href="{{ path('admin_promos') }}">
+                        <i class="fas fa-ticket-alt" style="color:#16a34a;"></i> Codes promo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'clients' ? 'active' : '' }}"
+                       href="{{ path('admin_clients') }}">
+                        <i class="fas fa-users"></i> Clients
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'partenaires' ? 'active' : '' }}"
+                       href="{{ path('admin_partenaires') }}">
+                        <i class="fas fa-handshake"></i> Partenaires
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'social' ? 'active' : '' }}"
+                       href="{{ path('admin_social_links') }}">
+                        <i class="fas fa-share-alt" style="color:#3b82f6;"></i> Réseaux sociaux
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'site_images' ? 'active' : '' }}"
+                       href="{{ path('admin_site_images') }}">
+                        <i class="fas fa-images"></i> Images du site
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'google_reviews' ? 'active' : '' }}"
+                       href="{{ path('admin_google_reviews') }}">
+                        <i class="fab fa-google"></i> Avis Google
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'client_reviews' ? 'active' : '' }}"
+                       href="{{ path('admin_client_reviews') }}">
+                        <i class="fas fa-star-half-alt" style="color:#f59e0b;"></i> Avis clients
+                        {% set pendingCount = admin_pending_reviews_count() %}
+                        {% if pendingCount > 0 %}
+                            <span class="sidebar-notif-badge" title="{{ pendingCount }} avis en attente de modération">{{ pendingCount }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+                    <a class="nav-link {{ active_section is defined and active_section == 'settings' ? 'active' : '' }}"
+                       href="{{ path('admin_settings') }}">
+                        <i class="fas fa-cog"></i> Paramètres
+                    </a>
+                </li>
             </ul>
         </nav>
 
@@ -52,4 +116,9 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% block admin_scripts %}{% endblock %}
 {% endblock %}

@@ -16,6 +16,98 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 #[Route('/admin/articles')]
 class ArticleController extends AbstractController
 {
+    /**
+     * Mapping centralisé : catégorie → [clé JSON specs => nom champ formulaire]
+     * Source unique de vérité pour new() et edit().
+     *
+     * ⚠️ Si tu ajoutes un champ dans ArticleType, ajoute-le juste ici — tout le reste suit.
+     */
+    private const SPECS_MAPPING = [
+        'pc_gamer' => [
+            'processeur'      => 'gamer_cpu',
+            'carte_graphique' => 'gamer_gpu',
+            'ram'             => 'gamer_ram',
+            'stockage'        => 'gamer_storage',
+            'carte_mere'      => 'gamer_motherboard',
+            'alimentation'    => 'gamer_psu',
+            'boitier'         => 'gamer_case',
+            'refroidissement' => 'gamer_cooling',
+            'connectique'     => 'gamer_connectivity',
+            'reseau'          => 'gamer_network',
+            'os'              => 'gamer_os',
+            'peripheriques'   => 'gamer_peripherals',
+            'ecran_inclus'    => 'gamer_screen_included',
+            'eclairage_rgb'   => 'gamer_rgb',
+            'garantie'        => 'gamer_warranty',
+        ],
+        'pc_bureautique' => [
+            'processeur'      => 'bureau_cpu',
+            'carte_graphique' => 'bureau_gpu',
+            'ram'             => 'bureau_ram',
+            'stockage'        => 'bureau_storage',
+            'carte_mere'      => 'bureau_motherboard',
+            'connectique'     => 'bureau_connectivity',
+            'reseau'          => 'bureau_network',
+            'os'              => 'bureau_os',
+            'ecran'           => 'bureau_screen',
+            'peripheriques'   => 'bureau_peripherals',
+            'garantie'        => 'bureau_warranty',
+        ],
+        'pc_portable' => [
+            'processeur'      => 'portable_cpu',
+            'carte_graphique' => 'portable_gpu',
+            'ram'             => 'portable_ram',
+            'stockage'        => 'portable_storage',
+            'ecran'           => 'portable_screen',
+            'type_ecran'      => 'portable_screen_type',
+            'resolution'      => 'portable_resolution',
+            'os'              => 'portable_os',
+            'autonomie'       => 'portable_battery',
+            'poids'           => 'portable_weight',
+            'clavier'         => 'portable_keyboard',
+            'webcam'          => 'portable_webcam',
+            'connectique'     => 'portable_connectivity',
+            'reseau'          => 'portable_network',
+            'garantie'        => 'portable_warranty',
+        ],
+        'accessoires' => [
+            'compatibilite' => 'acc_compatibility',
+            'materiau'      => 'acc_material',
+            'couleur'       => 'acc_color',
+            'connectique'   => 'acc_connector',
+            'puissance'     => 'acc_power',
+            'contenu_boite' => 'acc_contents',
+            'garantie'      => 'acc_warranty',
+        ],
+        'telephone' => [
+            'brand'            => 'tel_brand',
+            'model'            => 'tel_model',
+            'os'               => 'tel_os',
+            'year'             => 'tel_year',
+            'screen_size'      => 'tel_screen_size',
+            'screen_type'      => 'tel_screen_type',
+            'resolution'       => 'tel_resolution',
+            'processor'        => 'tel_processor',
+            'ram'              => 'tel_ram',
+            'storage_capacity' => 'tel_storage',
+            'camera'           => 'tel_camera',
+            'camera_front'     => 'tel_camera_front',
+            'other_cameras'    => 'tel_other_cameras',
+            'network'          => 'tel_network',
+            'sim'              => 'tel_sim',
+            'connectivity'     => 'tel_connectivity',
+            'connector'        => 'tel_connector',
+            'battery_capacity' => 'tel_battery_capacity',
+            'battery_health'   => 'tel_battery',
+            'weight'           => 'tel_weight',
+            'dimensions'       => 'tel_dimensions',
+            'sensors'          => 'tel_sensors',
+            'sar'              => 'tel_sar',
+            'note'             => 'tel_note',
+            'color'            => 'tel_color',
+        ],
+    ];
+
     #[Route('/', name: 'admin_article_index', methods: ['GET'])]
     public function index(ArticleRepository $articleRepository): Response
     {
@@ -32,91 +124,8 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imageFilename')->getData();
-
-            if ($imageFile) {
-                $safeFilename = $slugger->slug(pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME));
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
-
-                try {
-                    $imageFile->move($this->getParameter('images_directory'), $newFilename);
-                    $article->setImage($newFilename);
-                } catch (FileException $e) {}
-            }
-
-            // Assemble specs from form data
-            $categorie = $form->get('categorie')->getData();
-            $specs = [];
-
-            if ($categorie === 'pc_gamer') {
-                $map = [
-                    'cpu'         => 'gamer_cpu',
-                    'gpu'         => 'gamer_gpu',
-                    'ram'         => 'gamer_ram',
-                    'storage'     => 'gamer_storage',
-                    'motherboard' => 'gamer_motherboard',
-                    'psu'         => 'gamer_psu',
-                    'case'        => 'gamer_case',
-                    'cooling'     => 'gamer_cooling',
-                    'os'          => 'gamer_os',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            } elseif ($categorie === 'pc_bureautique') {
-                $map = [
-                    'cpu'         => 'bureau_cpu',
-                    'ram'         => 'bureau_ram',
-                    'storage'     => 'bureau_storage',
-                    'os'          => 'bureau_os',
-                    'screen_size' => 'bureau_screen',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            } elseif ($categorie === 'pc_portable') {
-                $map = [
-                    'cpu'         => 'portable_cpu',
-                    'gpu'         => 'portable_gpu',
-                    'ram'         => 'portable_ram',
-                    'storage'     => 'portable_storage',
-                    'os'          => 'portable_os',
-                    'screen_size' => 'portable_screen',
-                    'battery'     => 'portable_battery',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            } elseif ($categorie === 'film_hydrogel') {
-                $raw = $form->get('hydrogel_models')->getData();
-                if ($raw) {
-                    $specs['compatible_models'] = array_values(array_filter(array_map('trim', explode("\n", $raw))));
-                }
-            } elseif ($categorie === 'telephone') {
-                $map = [
-                    'storage_capacity' => 'tel_storage',
-                    'color'            => 'tel_color',
-                    'network'          => 'tel_network',
-                    'battery_health'   => 'tel_battery',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            }
-
-            $article->setSpecs($specs ?: null);
+            $this->handleImageUpload($form, $article, $slugger);
+            $this->extractSpecsFromForm($form, $article);
 
             $em->persist($article);
             $em->flush();
@@ -136,160 +145,16 @@ class ArticleController extends AbstractController
     {
         $form = $this->createForm(ArticleType::class, $article);
 
-        // Pre-populate spec fields from saved specs (before handleRequest)
-        $specs = $article->getSpecs() ?? [];
+        // Pré-remplir les champs specs depuis les données stockées (avant handleRequest)
         if (!$request->isMethod('POST')) {
-            // PC Gamer
-            $gamerMap = [
-                'gamer_cpu'         => 'cpu',
-                'gamer_gpu'         => 'gpu',
-                'gamer_ram'         => 'ram',
-                'gamer_storage'     => 'storage',
-                'gamer_motherboard' => 'motherboard',
-                'gamer_psu'         => 'psu',
-                'gamer_case'        => 'case',
-                'gamer_cooling'     => 'cooling',
-                'gamer_os'          => 'os',
-            ];
-            foreach ($gamerMap as $fieldName => $specKey) {
-                if (isset($specs[$specKey])) {
-                    $form->get($fieldName)->setData($specs[$specKey]);
-                }
-            }
-            // PC Bureautique
-            $bureauMap = [
-                'bureau_cpu'     => 'cpu',
-                'bureau_ram'     => 'ram',
-                'bureau_storage' => 'storage',
-                'bureau_os'      => 'os',
-                'bureau_screen'  => 'screen_size',
-            ];
-            foreach ($bureauMap as $fieldName => $specKey) {
-                if (isset($specs[$specKey])) {
-                    $form->get($fieldName)->setData($specs[$specKey]);
-                }
-            }
-            // PC Portable
-            $portableMap = [
-                'portable_cpu'     => 'cpu',
-                'portable_gpu'     => 'gpu',
-                'portable_ram'     => 'ram',
-                'portable_storage' => 'storage',
-                'portable_os'      => 'os',
-                'portable_screen'  => 'screen_size',
-                'portable_battery' => 'battery',
-            ];
-            foreach ($portableMap as $fieldName => $specKey) {
-                if (isset($specs[$specKey])) {
-                    $form->get($fieldName)->setData($specs[$specKey]);
-                }
-            }
-            // Hydrogel
-            if (isset($specs['compatible_models']) && is_array($specs['compatible_models'])) {
-                $form->get('hydrogel_models')->setData(implode("\n", $specs['compatible_models']));
-            }
-            // Téléphone
-            $telMap = [
-                'tel_storage' => 'storage_capacity',
-                'tel_color'   => 'color',
-                'tel_network' => 'network',
-                'tel_battery' => 'battery_health',
-            ];
-            foreach ($telMap as $fieldName => $specKey) {
-                if (isset($specs[$specKey])) {
-                    $form->get($fieldName)->setData($specs[$specKey]);
-                }
-            }
+            $this->populateSpecsIntoForm($form, $article);
         }
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('imageFilename')->getData();
-
-            if ($imageFile) {
-                $safeFilename = $slugger->slug(pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME));
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
-
-                try {
-                    $imageFile->move($this->getParameter('images_directory'), $newFilename);
-                    $article->setImage($newFilename);
-                } catch (FileException $e) {}
-            }
-
-            // Assemble specs from form data
-            $categorie = $form->get('categorie')->getData();
-            $specs = [];
-
-            if ($categorie === 'pc_gamer') {
-                $map = [
-                    'cpu'         => 'gamer_cpu',
-                    'gpu'         => 'gamer_gpu',
-                    'ram'         => 'gamer_ram',
-                    'storage'     => 'gamer_storage',
-                    'motherboard' => 'gamer_motherboard',
-                    'psu'         => 'gamer_psu',
-                    'case'        => 'gamer_case',
-                    'cooling'     => 'gamer_cooling',
-                    'os'          => 'gamer_os',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            } elseif ($categorie === 'pc_bureautique') {
-                $map = [
-                    'cpu'         => 'bureau_cpu',
-                    'ram'         => 'bureau_ram',
-                    'storage'     => 'bureau_storage',
-                    'os'          => 'bureau_os',
-                    'screen_size' => 'bureau_screen',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            } elseif ($categorie === 'pc_portable') {
-                $map = [
-                    'cpu'         => 'portable_cpu',
-                    'gpu'         => 'portable_gpu',
-                    'ram'         => 'portable_ram',
-                    'storage'     => 'portable_storage',
-                    'os'          => 'portable_os',
-                    'screen_size' => 'portable_screen',
-                    'battery'     => 'portable_battery',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            } elseif ($categorie === 'film_hydrogel') {
-                $raw = $form->get('hydrogel_models')->getData();
-                if ($raw) {
-                    $specs['compatible_models'] = array_values(array_filter(array_map('trim', explode("\n", $raw))));
-                }
-            } elseif ($categorie === 'telephone') {
-                $map = [
-                    'storage_capacity' => 'tel_storage',
-                    'color'            => 'tel_color',
-                    'network'          => 'tel_network',
-                    'battery_health'   => 'tel_battery',
-                ];
-                foreach ($map as $specKey => $fieldName) {
-                    $val = $form->get($fieldName)->getData();
-                    if ($val) {
-                        $specs[$specKey] = $val;
-                    }
-                }
-            }
-
-            $article->setSpecs($specs ?: null);
+            $this->handleImageUpload($form, $article, $slugger);
+            $this->extractSpecsFromForm($form, $article);
 
             $em->flush();
             $this->addFlash('success', 'Article modifié avec succès !');
@@ -311,5 +176,91 @@ class ArticleController extends AbstractController
         $this->addFlash('success', 'Article supprimé.');
 
         return $this->redirectToRoute('admin_article_index');
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+    //  Helpers privés
+    // ─────────────────────────────────────────────────────────────────────
+
+    private function handleImageUpload($form, Article $article, SluggerInterface $slugger): void
+    {
+        $imageFile = $form->get('imageFilename')->getData();
+        if (!$imageFile) {
+            return;
+        }
+
+        $safeFilename = $slugger->slug(pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME));
+        $newFilename  = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+        try {
+            $imageFile->move($this->getParameter('images_directory'), $newFilename);
+            $article->setImage($newFilename);
+        } catch (FileException $e) {
+            // silent
+        }
+    }
+
+    /**
+     * Construit le JSON specs à partir des données du formulaire.
+     *
+     * On préserve les clés "custom" déjà présentes sur l'article qui ne sont PAS dans le mapping
+     * (utile pour ne pas perdre d'anciennes données techniques non couvertes par le form standard,
+     * ex. "certification", "longueur", "rotation"... ajoutées manuellement via seed/SQL).
+     */
+    private function extractSpecsFromForm($form, Article $article): void
+    {
+        $categorie = $form->get('categorie')->getData();
+        $mapping   = self::SPECS_MAPPING[$categorie] ?? [];
+
+        // 1. On part des specs existantes (pour préserver les clés custom hors mapping)
+        $existingSpecs = $article->getSpecs() ?? [];
+        $preservedCustom = array_diff_key($existingSpecs, array_flip(array_keys($mapping)));
+
+        // 2. On écrase avec les nouvelles valeurs du formulaire
+        $specs = [];
+        foreach ($mapping as $specKey => $fieldName) {
+            $val = $form->get($fieldName)->getData();
+            if ($val !== null && $val !== '') {
+                $specs[$specKey] = $val;
+            }
+        }
+
+        // 3. Cas spécial : hydrogel — liste de modèles compatibles (textarea multi-lignes)
+        if ($categorie === 'film_hydrogel') {
+            $raw = $form->get('hydrogel_models')->getData();
+            if ($raw) {
+                $specs['compatible_models'] = array_values(array_filter(array_map('trim', explode("\n", $raw))));
+            }
+        }
+
+        // 4. On fusionne : nouvelles valeurs du form + anciennes clés custom non couvertes
+        $merged = array_merge($preservedCustom, $specs);
+
+        $article->setSpecs($merged ?: null);
+    }
+
+    /**
+     * Pré-remplit les champs du formulaire avec les specs déjà stockées.
+     */
+    private function populateSpecsIntoForm($form, Article $article): void
+    {
+        $specs = $article->getSpecs() ?? [];
+        if (empty($specs)) {
+            return;
+        }
+
+        // Parcourir tous les mappings — les champs qui n'existent pas dans la catégorie courante sont juste ignorés
+        foreach (self::SPECS_MAPPING as $mapping) {
+            foreach ($mapping as $specKey => $fieldName) {
+                if (isset($specs[$specKey]) && $form->has($fieldName)) {
+                    $form->get($fieldName)->setData($specs[$specKey]);
+                }
+            }
+        }
+
+        // Cas spécial : hydrogel
+        if (isset($specs['compatible_models']) && is_array($specs['compatible_models']) && $form->has('hydrogel_models')) {
+            $form->get('hydrogel_models')->setData(implode("\n", $specs['compatible_models']));
+        }
     }
 }

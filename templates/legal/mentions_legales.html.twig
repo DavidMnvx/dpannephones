@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions légales — D'panne Phones{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_mentions_legales', 'images/baner/connexion.png')) }}" alt="Mentions légales">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Mentions légales</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="legal-page-wrap">
+
+    <div class="legal-toc">
+        <div class="legal-toc-title"><i class="fas fa-list mr-2"></i>Sommaire</div>
+        <a href="#editeur">1. Éditeur du site</a>
+        <a href="#hebergeur">2. Hébergeur</a>
+        <a href="#propriete">3. Propriété intellectuelle</a>
+        <a href="#responsabilite">4. Responsabilité</a>
+        <a href="#liens">5. Liens hypertextes</a>
+    </div>
+
+    <div class="legal-content">
+
+        <section id="editeur">
+            <h2 class="legal-h2"><i class="fas fa-building mr-2"></i>1. Éditeur du site</h2>
+            <p>Le site <strong>dpannephones.fr</strong> est édité par :</p>
+            <div class="legal-info-box">
+                <div class="legal-info-row"><span>Raison sociale</span><strong>D'panne Phones</strong></div>
+                <div class="legal-info-row"><span>Forme juridique</span><strong>EURL</strong></div>
+                <div class="legal-info-row"><span>SIRET</span><strong>88163303600010</strong></div>
+                <div class="legal-info-row"><span>Adresse</span><strong>Avenue Pasteur, Centre Commercial Le Galion — Parking Aldi, 13330 Pélissanne</strong></div>
+                <div class="legal-info-row"><span>Téléphone</span><strong>07 83 74 83 11</strong></div>
+                <div class="legal-info-row"><span>Email</span><strong>contact@dpannephones.com</strong></div>
+                <div class="legal-info-row"><span>Directeur de publication</span><strong>Mr Marot Florian</strong></div>
+            </div>
+        </section>
+
+        <section id="hebergeur">
+            <h2 class="legal-h2"><i class="fas fa-server mr-2"></i>2. Hébergeur</h2>
+            <div class="legal-info-box">
+                <div class="legal-info-row"><span>Société</span><strong>OVHcloud</strong></div>
+                <div class="legal-info-row"><span>Adresse</span><strong>OVH Groupe SA, société immatriculée au RCS de Lille sous le numéro 537 407 926 sise 2, rue Kellermann, 59100 Roubaix</strong></div>
+                <div class="legal-info-row"><span>Site</span><strong>https://www.ovhcloud.com</strong></div>
+            </div>
+        </section>
+
+        <section id="propriete">
+            <h2 class="legal-h2"><i class="fas fa-copyright mr-2"></i>3. Propriété intellectuelle</h2>
+            <p>
+                L'ensemble des contenus présents sur le site <strong>dpannephones.fr</strong> (textes, images, logos, graphismes, etc.)
+                est la propriété exclusive de D'panne Phones ou de ses partenaires, et est protégé par les lois françaises et
+                internationales relatives à la propriété intellectuelle.
+            </p>
+            <p>
+                Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site,
+                quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable.
+            </p>
+        </section>
+
+        <section id="responsabilite">
+            <h2 class="legal-h2"><i class="fas fa-exclamation-circle mr-2"></i>4. Responsabilité</h2>
+            <p>
+                D'panne Phones s'efforce de fournir des informations exactes et à jour sur ce site. Toutefois, des erreurs ou
+                omissions peuvent survenir. D'panne Phones décline toute responsabilité pour les dommages directs ou indirects
+                résultant de l'utilisation du site ou d'informations inexactes.
+            </p>
+            <p>
+                D'panne Phones se réserve le droit de modifier les contenus du site à tout moment, sans préavis.
+            </p>
+        </section>
+
+        <section id="liens">
+            <h2 class="legal-h2"><i class="fas fa-link mr-2"></i>5. Liens hypertextes</h2>
+            <p>
+                Le site peut contenir des liens vers des sites tiers. D'panne Phones n'exerce aucun contrôle sur ces sites
+                et décline toute responsabilité quant à leur contenu ou leur disponibilité.
+            </p>
+        </section>
+
+        <div class="legal-back-links">
+            <a href="{{ path('legal_cgv') }}"><i class="fas fa-file-contract mr-1"></i>CGV</a>
+            <a href="{{ path('legal_confidentialite') }}"><i class="fas fa-user-shield mr-1"></i>Confidentialité</a>
+            <a href="{{ path('home') }}"><i class="fas fa-home mr-1"></i>Accueil</a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

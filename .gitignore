@@ -1,4 +1,16 @@
 
+###> macOS / Windows noise ###
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+###< macOS / Windows noise ###
+
+###> Claude Code / worktrees ###
+.claude/
+.user.ini
+###< Claude Code / worktrees ###
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php

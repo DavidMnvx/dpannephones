@@ -1,0 +1,163 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'clients' %}
+{% block title %}{{ user.prenom }} {{ user.nom }} — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-commandes-page">
+
+  <div class="admin-page-header">
+    <div>
+      <a href="{{ path('admin_clients') }}" class="admin-back-link"><i class="fas fa-arrow-left mr-1"></i>Tous les clients</a>
+      <h1 class="admin-page-title">
+        <div class="admin-client-avatar admin-client-avatar--lg">{{ user.prenom|first|upper }}{{ user.nom|first|upper }}</div>
+        {{ user.prenom }} {{ user.nom }}
+      </h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      {% if user.isVerified %}
+        <span class="badge-statut badge-statut--payee"><i class="fas fa-check-circle mr-1"></i>Compte vérifié</span>
+      {% else %}
+        <span class="badge-statut badge-statut--pending"><i class="fas fa-clock mr-1"></i>Email non vérifié</span>
+      {% endif %}
+      <a href="{{ path('admin_client_edit', {id: user.id}) }}" class="btn-admin-action btn-admin-action--edit">
+        <i class="fas fa-user-edit mr-1"></i>Modifier
+      </a>
+      <form method="post" action="{{ path('admin_client_delete', {id: user.id}) }}" style="display:inline;" id="del-form-show">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_client_' ~ user.id) }}">
+        <button type="button" class="btn-admin-action btn-admin-action--delete"
+                onclick="if(confirm('Supprimer {{ user.prenom }} {{ user.nom }} ?\nSes commandes seront conservées.')) document.getElementById('del-form-show').submit();">
+          <i class="fas fa-trash mr-1"></i>Supprimer
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-show-grid">
+
+    {# Colonne gauche : historique commandes #}
+    <div class="admin-show-main">
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <i class="fas fa-shopping-bag mr-2"></i>Historique des commandes
+          <span class="tab-count ml-2">{{ commandes|length }}</span>
+        </div>
+
+        {% if commandes is empty %}
+          <div class="admin-empty-state admin-empty-state--sm">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune commande pour ce client.</p>
+          </div>
+        {% else %}
+          <table class="admin-table admin-table--inner">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Articles</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for commande in commandes %}
+              <tr class="admin-table-row">
+                <td class="cmd-id">#{{ commande.id }}</td>
+                <td class="cmd-date">
+                  {{ commande.createdAt|date('d/m/Y') }}<br>
+                  <small>{{ commande.createdAt|date('H:i') }}</small>
+                </td>
+                <td>
+                  {% for item in commande.items %}
+                    <div class="cmd-item-line">{{ item.quantite }}× {{ item.articleName }}</div>
+                  {% endfor %}
+                </td>
+                <td><strong>{{ commande.total|number_format(2, ',', ' ') }} €</strong></td>
+                <td>
+                  {% set s = commande.statut %}
+                  <span class="badge-statut badge-statut--{{ s == 'payee' ? 'payee' : (s == 'en_preparation' ? 'prep' : (s in ['livree','retiree'] ? 'done' : (s == 'expediee' ? 'shipped' : (s == 'annulee' ? 'cancelled' : 'pending')))) }}">
+                    {% if s == 'en_attente' %}En attente
+                    {% elseif s == 'payee' %}Payée
+                    {% elseif s == 'en_preparation' %}En préparation
+                    {% elseif s == 'expediee' %}Expédiée
+                    {% elseif s == 'livree' %}Livrée
+                    {% elseif s == 'retiree' %}Retirée
+                    {% elseif s == 'annulee' %}Annulée
+                    {% else %}{{ s }}{% endif %}
+                  </span>
+                </td>
+                <td>
+                  <a href="{{ path('admin_commande_show', {id: commande.id}) }}" class="btn-admin-action btn-admin-action--view">
+                    <i class="fas fa-eye mr-1"></i>Gérer
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr class="cmd-total-row">
+                <td colspan="3" class="text-right"><strong>Total dépensé</strong></td>
+                <td class="cmd-total-amount" colspan="3"><strong>{{ totalDepense|number_format(2, ',', ' ') }} €</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        {% endif %}
+      </div>
+
+    </div>
+
+    {# Colonne droite : infos client #}
+    <div class="admin-show-side">
+
+      <div class="admin-card">
+        <div class="admin-card-header"><i class="fas fa-id-card mr-2"></i>Informations</div>
+        <div class="admin-info-list">
+          <div class="admin-info-row">
+            <span class="admin-info-label">Nom complet</span>
+            <span class="admin-info-value">{{ user.prenom }} {{ user.nom }}</span>
+          </div>
+          <div class="admin-info-row">
+            <span class="admin-info-label">Email</span>
+            <span class="admin-info-value"><a href="mailto:{{ user.email }}" class="admin-link">{{ user.email }}</a></span>
+          </div>
+          <div class="admin-info-row">
+            <span class="admin-info-label">Téléphone</span>
+            <span class="admin-info-value"><a href="tel:{{ user.phone }}" class="admin-link">{{ user.phone }}</a></span>
+          </div>
+          <div class="admin-info-row">
+            <span class="admin-info-label">Adresse</span>
+            <span class="admin-info-value">{{ user.adresse }}<br>{{ user.codePostal }} {{ user.ville }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header"><i class="fas fa-chart-bar mr-2"></i>Statistiques</div>
+        <div class="admin-info-list">
+          <div class="admin-info-row">
+            <span class="admin-info-label">Commandes</span>
+            <span class="admin-info-value"><strong>{{ commandes|length }}</strong></span>
+          </div>
+          <div class="admin-info-row">
+            <span class="admin-info-label">Total dépensé</span>
+            <span class="admin-info-value cmd-total-amount"><strong>{{ totalDepense|number_format(2, ',', ' ') }} €</strong></span>
+          </div>
+          {% if commandes|length > 0 %}
+          <div class="admin-info-row">
+            <span class="admin-info-label">Dernière commande</span>
+            <span class="admin-info-value">{{ commandes|first.createdAt|date('d/m/Y') }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <a href="mailto:{{ user.email }}" class="btn-admin-contact">
+        <i class="fas fa-envelope mr-2"></i>Contacter ce client
+      </a>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

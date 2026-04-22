@@ -1,0 +1,137 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'social' %}
+{% block title %}Réseaux sociaux — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Réseaux sociaux
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-share-alt mr-2" style="color:#3b82f6;"></i>Réseaux sociaux</h2>
+        <p>Ajoutez, modifiez ou désactivez les liens vers vos réseaux sociaux. Ils s'affichent automatiquement dans le pied de page et sur les pages Contact / Qui sommes-nous.</p>
+    </div>
+    <div class="admin-stats">
+        <div class="stat-box">
+            <span class="stat-number">{{ links|length }}</span>
+            <span class="stat-label">Lien{{ links|length > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ links|filter(l => l.isActive)|length }}</span>
+            <span class="stat-label">Actif{{ links|filter(l => l.isActive)|length > 1 ? 's' : '' }}</span>
+        </div>
+    </div>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+<div style="margin-bottom:20px;">
+    <a href="{{ path('admin_social_link_new') }}" class="btn-admin-submit">
+        <i class="fas fa-plus mr-1"></i> Ajouter un réseau social
+    </a>
+</div>
+
+{% if links is empty %}
+    <div class="admin-card" style="text-align:center;padding:50px 30px;">
+        <i class="fas fa-share-alt" style="font-size:48px;color:#cbd5e1;margin-bottom:16px;"></i>
+        <h3 style="font-size:18px;color:#6b7280;">Aucun réseau social configuré</h3>
+        <p style="color:#9ca3af;font-size:13px;">Cliquez sur "Ajouter un réseau social" pour commencer.</p>
+    </div>
+{% else %}
+    <div class="admin-card">
+        <table class="table table-hover" style="margin-bottom:0;">
+            <thead style="background:#f8fafc;">
+                <tr>
+                    <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Plateforme</th>
+                    <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">URL</th>
+                    <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Libellé</th>
+                    <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Ordre</th>
+                    <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Statut</th>
+                    <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in links %}
+                    <tr>
+                        <td>
+                            <div style="display:inline-flex;align-items:center;gap:10px;">
+                                <span style="width:36px;height:36px;border-radius:50%;background:{{ l.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;">
+                                    <i class="{{ l.icon }}"></i>
+                                </span>
+                                <strong>{{ l.displayLabel }}</strong>
+                            </div>
+                        </td>
+                        <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                            <a href="{{ l.url }}" target="_blank" rel="noopener" style="font-size:12.5px;color:#64748b;">
+                                {{ l.url }}
+                                <i class="fas fa-external-link-alt ml-1" style="font-size:10px;"></i>
+                            </a>
+                        </td>
+                        <td style="font-size:13px;color:#475569;">
+                            {{ l.label ?: '—' }}
+                        </td>
+                        <td style="font-size:13px;color:#475569;">
+                            {{ l.sortOrder }}
+                        </td>
+                        <td>
+                            {% if l.isActive %}
+                                <span class="badge" style="background:#dcfce7;color:#15803d;padding:4px 10px;border-radius:12px;font-size:11.5px;font-weight:700;">
+                                    <i class="fas fa-check-circle mr-1"></i>Actif
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background:#f3f4f6;color:#6b7280;padding:4px 10px;border-radius:12px;font-size:11.5px;font-weight:700;">
+                                    <i class="fas fa-pause-circle mr-1"></i>Désactivé
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:right;white-space:nowrap;">
+                            <a href="{{ path('admin_social_link_edit', {id: l.id}) }}" class="btn btn-sm btn-outline-primary" style="margin-right:6px;">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form method="post" action="{{ path('admin_social_link_toggle', {id: l.id}) }}" style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_social_' ~ l.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-{{ l.isActive ? 'warning' : 'success' }}" title="{{ l.isActive ? 'Désactiver' : 'Activer' }}" style="margin-right:6px;">
+                                    <i class="fas fa-{{ l.isActive ? 'pause' : 'play' }}"></i>
+                                </button>
+                            </form>
+                            <form method="post" action="{{ path('admin_social_link_delete', {id: l.id}) }}" style="display:inline;"
+                                  onsubmit="return confirm('Supprimer définitivement ce lien ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_social_' ~ l.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+<div style="background:#eff6fb;border-left:3px solid rgb(9,71,113);padding:14px 18px;border-radius:10px;margin-top:24px;">
+    <div style="font-size:13px;font-weight:700;color:rgb(9,71,113);margin-bottom:4px;">
+        <i class="fas fa-lightbulb mr-1"></i>Où s'affichent ces liens ?
+    </div>
+    <ul style="font-size:12.5px;color:#475569;margin:0;padding-left:20px;line-height:1.7;">
+        <li>Dans le <strong>pied de page</strong> du site (toutes les pages publiques)</li>
+        <li>Sur la page <strong>/contact</strong> — section "Suivez-nous sur les réseaux sociaux"</li>
+        <li>Sur la page <strong>/qui-sommes-nous</strong> — même section</li>
+        <li>Seuls les liens <strong>actifs</strong> apparaissent — les désactivés restent en base mais sont masqués</li>
+        <li>L'<strong>ordre d'affichage</strong> suit la colonne "Ordre" (plus petit = premier)</li>
+    </ul>
+</div>
+
+{% endblock %}

@@ -126,7 +126,6 @@ class Model
     public function removeReparation(Reparation $reparation): self
     {
         if ($this->reparations->removeElement($reparation)) {
-            // set the owning side to null (unless already changed)
             if ($reparation->getModel() === $this) {
                 $reparation->setModel(null);
             }

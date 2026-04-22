@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Politique de confidentialité — D'panne Phones{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_confidentialite', 'images/baner/connexion.png')) }}" alt="Confidentialité">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Politique de confidentialité</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="legal-page-wrap">
+
+    <div class="legal-toc">
+        <div class="legal-toc-title"><i class="fas fa-list mr-2"></i>Sommaire</div>
+        <a href="#responsable">1. Responsable du traitement</a>
+        <a href="#donnees">2. Données collectées</a>
+        <a href="#finalite">3. Finalité & base légale</a>
+        <a href="#conservation">4. Durée de conservation</a>
+        <a href="#partage">5. Partage des données</a>
+        <a href="#droits">6. Vos droits (RGPD)</a>
+        <a href="#cookies">7. Cookies</a>
+        <a href="#contact">8. Contact</a>
+    </div>
+
+    <div class="legal-content">
+
+        <div class="legal-update-date">
+            <i class="fas fa-calendar-alt mr-1"></i> Dernière mise à jour : {{ "now"|date("d/m/Y") }}
+        </div>
+
+        <div class="legal-highlight legal-highlight--blue">
+            <i class="fas fa-user-shield mr-2"></i>
+            D'panne Phones s'engage à protéger la vie privée de ses utilisateurs et à traiter
+            leurs données personnelles dans le respect du <strong>Règlement Général sur la Protection des Données
+            (RGPD — UE 2016/679)</strong> et de la loi Informatique et Libertés.
+        </div>
+
+        <section id="responsable">
+            <h2 class="legal-h2"><i class="fas fa-building mr-2"></i>1. Responsable du traitement</h2>
+            <div class="legal-info-box">
+                <div class="legal-info-row"><span>Société</span><strong>D'panne Phones</strong></div>
+                <div class="legal-info-row"><span>Adresse</span><strong>Avenue Pasteur, Centre Commercial Le Galion — Parking Aldi, 13330 Pélissanne</strong></div>
+                <div class="legal-info-row"><span>Email</span><strong>contact@dpannephones.fr</strong></div>
+                <div class="legal-info-row"><span>Téléphone</span><strong>07 83 74 83 11</strong></div>
+            </div>
+        </section>
+
+        <section id="donnees">
+            <h2 class="legal-h2"><i class="fas fa-database mr-2"></i>2. Données collectées</h2>
+            <p>Dans le cadre de l'utilisation du site, D'panne Phones collecte les données suivantes :</p>
+            <div class="legal-data-table">
+                <div class="legal-data-header">
+                    <span>Donnée</span><span>Contexte de collecte</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Adresse email</span><span>Inscription au compte utilisateur</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Mot de passe (chiffré)</span><span>Inscription au compte utilisateur</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Données de paiement</span><span>Traitement via Stripe (non stockées sur nos serveurs)</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Historique des commandes</span><span>Achat en boutique en ligne</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Adresse IP / logs</span><span>Navigation sur le site (hébergeur)</span>
+                </div>
+            </div>
+            <p class="mt-3">
+                <i class="fas fa-lock mr-1" style="color:rgb(9,71,113)"></i>
+                <strong>Les données bancaires ne transitent jamais par nos serveurs.</strong>
+                Elles sont traitées directement et sécurisées par <strong>Stripe</strong>,
+                certifié PCI-DSS niveau 1 (le plus haut niveau de certification bancaire).
+            </p>
+        </section>
+
+        <section id="finalite">
+            <h2 class="legal-h2"><i class="fas fa-bullseye mr-2"></i>3. Finalité & base légale</h2>
+            <div class="legal-data-table">
+                <div class="legal-data-header">
+                    <span>Finalité</span><span>Base légale (RGPD)</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Gestion des comptes utilisateurs</span><span>Exécution du contrat</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Traitement des commandes</span><span>Exécution du contrat</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Vérification d'email (sécurité)</span><span>Intérêt légitime</span>
+                </div>
+                <div class="legal-data-row">
+                    <span>Statistiques de navigation</span><span>Intérêt légitime</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="conservation">
+            <h2 class="legal-h2"><i class="fas fa-clock mr-2"></i>4. Durée de conservation</h2>
+            <ul class="legal-list">
+                <li><strong>Données de compte</strong> : conservées jusqu'à la suppression du compte ou pendant 3 ans après la dernière activité</li>
+                <li><strong>Données de commandes</strong> : 10 ans (obligations comptables et fiscales)</li>
+                <li><strong>Logs de navigation</strong> : 1 an maximum</li>
+            </ul>
+        </section>
+
+        <section id="partage">
+            <h2 class="legal-h2"><i class="fas fa-share-alt mr-2"></i>5. Partage des données</h2>
+            <p>D'panne Phones ne vend ni ne loue vos données personnelles à des tiers. Vos données peuvent être partagées uniquement avec :</p>
+            <ul class="legal-list">
+                <li><strong>Stripe</strong> (traitement du paiement sécurisé)</li>
+                <li><strong>L'hébergeur du site</strong> (dans le cadre des logs techniques)</li>
+                <li><strong>Les autorités compétentes</strong> si la loi l'exige</li>
+            </ul>
+        </section>
+
+        <section id="droits">
+            <h2 class="legal-h2"><i class="fas fa-user-check mr-2"></i>6. Vos droits (RGPD)</h2>
+            <p>Conformément au RGPD, vous disposez des droits suivants concernant vos données personnelles :</p>
+            <div class="legal-rights-grid">
+                <div class="legal-right-card">
+                    <i class="fas fa-eye"></i>
+                    <strong>Accès</strong>
+                    <span>Obtenir une copie de vos données</span>
+                </div>
+                <div class="legal-right-card">
+                    <i class="fas fa-edit"></i>
+                    <strong>Rectification</strong>
+                    <span>Corriger vos données inexactes</span>
+                </div>
+                <div class="legal-right-card">
+                    <i class="fas fa-trash-alt"></i>
+                    <strong>Effacement</strong>
+                    <span>Demander la suppression de vos données</span>
+                </div>
+                <div class="legal-right-card">
+                    <i class="fas fa-ban"></i>
+                    <strong>Opposition</strong>
+                    <span>Vous opposer à un traitement</span>
+                </div>
+                <div class="legal-right-card">
+                    <i class="fas fa-pause-circle"></i>
+                    <strong>Limitation</strong>
+                    <span>Limiter le traitement de vos données</span>
+                </div>
+                <div class="legal-right-card">
+                    <i class="fas fa-download"></i>
+                    <strong>Portabilité</strong>
+                    <span>Récupérer vos données dans un format lisible</span>
+                </div>
+            </div>
+            <p class="mt-3">
+                Pour exercer ces droits, contactez-nous à <strong>contact@dpannephones.fr</strong>.
+                En cas de réclamation non résolue, vous pouvez saisir la <strong>CNIL</strong> :
+                <a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a>.
+            </p>
+        </section>
+
+        <section id="cookies">
+            <h2 class="legal-h2"><i class="fas fa-cookie-bite mr-2"></i>7. Cookies</h2>
+            <p>
+                Le site utilise différents types de cookies. <strong>Les cookies strictement nécessaires</strong> au fonctionnement
+                du site (session, panier, sécurité) ne nécessitent pas votre consentement. Les autres cookies ne sont déposés
+                qu'après votre accord explicite via notre bandeau de consentement.
+            </p>
+
+            <h3 class="legal-h3" style="margin-top:18px;">🔒 Cookies strictement nécessaires (exemptés de consentement)</h3>
+            <ul class="legal-list">
+                <li><strong>Cookie de session</strong> — maintient votre panier et votre connexion <em>(durée : session)</em></li>
+                <li><strong>Cookie CSRF</strong> — protection contre les attaques de type Cross-Site Request Forgery <em>(durée : session)</em></li>
+                <li><strong>Cookies Stripe</strong> — déposés lors du passage à la caisse pour sécuriser le paiement et prévenir la fraude <em>(durée : session, domaine : stripe.com)</em></li>
+                <li><strong>Cookie de consentement Tarteaucitron</strong> — mémorise vos choix de cookies <em>(durée : 12 mois)</em></li>
+            </ul>
+
+            <h3 class="legal-h3" style="margin-top:18px;">📊 Cookies de mesure d'audience (soumis à consentement)</h3>
+            <p>
+                Sous réserve de votre acceptation explicite, nous utilisons <strong>Google Analytics 4</strong> pour mesurer
+                l'audience du site. Nous avons activé les paramètres de respect de la vie privée les plus stricts :
+            </p>
+            <ul class="legal-list">
+                <li>Anonymisation de l'adresse IP (<code>anonymize_ip: true</code>)</li>
+                <li>Désactivation des signaux publicitaires Google (<code>allow_google_signals: false</code>)</li>
+                <li>Désactivation de la personnalisation publicitaire (<code>allow_ad_personalization_signals: false</code>)</li>
+                <li>Durée de conservation : <strong>14 mois maximum</strong></li>
+            </ul>
+            <p>
+                Vous pouvez à tout moment <strong>modifier vos choix de cookies</strong> en cliquant sur le lien
+                <em>« Gérer les cookies »</em> situé en bas de chaque page, ou via l'icône de gestion des cookies en bas à droite
+                de votre écran.
+            </p>
+
+            <h3 class="legal-h3" style="margin-top:18px;">🎯 Vos droits</h3>
+            <p>
+                Conformément à la <strong>directive ePrivacy</strong> et au <strong>RGPD</strong>, vous disposez du droit :
+            </p>
+            <ul class="legal-list">
+                <li>D'<strong>accepter</strong> ou de <strong>refuser</strong> tout ou partie des cookies soumis à consentement</li>
+                <li>De <strong>retirer votre consentement</strong> à tout moment (via le lien "Gérer les cookies")</li>
+                <li>De paramétrer votre navigateur pour bloquer automatiquement tous les cookies</li>
+            </ul>
+        </section>
+
+        <section id="contact">
+            <h2 class="legal-h2"><i class="fas fa-envelope mr-2"></i>8. Contact</h2>
+            <p>Pour toute question relative à la protection de vos données personnelles :</p>
+            <div class="legal-info-box">
+                <div class="legal-info-row"><span>Email</span><strong>contact@dpannephones.fr</strong></div>
+                <div class="legal-info-row"><span>Téléphone</span><strong>07 83 74 83 11</strong></div>
+                <div class="legal-info-row"><span>Courrier</span><strong>D'panne Phones — Avenue Pasteur, 13330 Pélissanne</strong></div>
+            </div>
+        </section>
+
+        <div class="legal-back-links">
+            <a href="{{ path('legal_mentions') }}"><i class="fas fa-info-circle mr-1"></i>Mentions légales</a>
+            <a href="{{ path('legal_cgv') }}"><i class="fas fa-file-contract mr-1"></i>CGV</a>
+            <a href="{{ path('home') }}"><i class="fas fa-home mr-1"></i>Accueil</a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

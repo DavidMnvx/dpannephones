@@ -1,0 +1,199 @@
+{% extends 'base.html.twig' %}
+{% block title %}Laisser un avis — D'Panne Phones{% endblock %}
+
+{% block body %}
+<div style="width:92%;max-width:860px;margin:40px auto;padding:0 16px;">
+
+    <div class="rev-form-card">
+
+        <div class="rev-form-header">
+            <div class="rev-form-icon"><i class="fas fa-pen-to-square"></i></div>
+            <h1 class="rev-form-title">Partagez votre expérience</h1>
+            <p class="rev-form-sub">
+                Votre avis nous aide à nous améliorer et guide les autres clients dans leurs choix.
+            </p>
+
+            {% if commande %}
+                <div class="rev-commande-badge">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    <span>Commande #{{ commande.id }} du {{ commande.createdAt|date('d/m/Y') }} — Achat vérifié</span>
+                </div>
+            {% endif %}
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'rev-form', 'novalidate': 'novalidate'}}) }}
+
+            {# ══ Sélecteur d'article ══ #}
+            {% if commandeArticles is defined and commandeArticles|length > 0 %}
+                <div class="rev-field">
+                    <label class="rev-field-label">
+                        <i class="fas fa-box mr-1" style="color:rgb(9,71,113);"></i>
+                        Sur quoi portez-vous votre avis ?
+                    </label>
+
+                    <div class="rev-article-select">
+                        {# Option "Avis général" #}
+                        {% if not hasGeneralReview %}
+                        <label class="rev-article-choice rev-article-choice--general">
+                            <input type="radio" name="{{ form.article.vars.full_name }}" value=""
+                                   class="rev-article-input"
+                                   {{ form.article.vars.value is empty ? 'checked' : '' }}>
+                            <div class="rev-article-img rev-article-img--general">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div class="rev-article-info">
+                                <strong>Avis général sur mon expérience</strong>
+                                <small>Accueil, conseil, service client, délais…</small>
+                            </div>
+                            <div class="rev-article-check"><i class="fas fa-check"></i></div>
+                        </label>
+                        {% else %}
+                        <div class="rev-article-choice rev-article-choice--disabled">
+                            <div class="rev-article-img rev-article-img--general"><i class="fas fa-store"></i></div>
+                            <div class="rev-article-info">
+                                <strong>Avis général sur mon expérience</strong>
+                                <small style="color:#16a34a;"><i class="fas fa-check-circle mr-1"></i>Déjà noté</small>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {# Chaque article de la commande #}
+                        {% for article in commandeArticles %}
+                            {% set isReviewed = article.id in reviewedArticleIds %}
+                            {% if isReviewed %}
+                                <div class="rev-article-choice rev-article-choice--disabled">
+                                    <div class="rev-article-img">
+                                        {% if article.image %}
+                                            <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                                        {% else %}
+                                            <i class="fas fa-image"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="rev-article-info">
+                                        <strong>{{ article.name }}</strong>
+                                        <small style="color:#16a34a;"><i class="fas fa-check-circle mr-1"></i>Déjà noté</small>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <label class="rev-article-choice">
+                                    <input type="radio" name="{{ form.article.vars.full_name }}" value="{{ article.id }}"
+                                           class="rev-article-input"
+                                           {{ form.article.vars.value == article.id ? 'checked' : '' }}>
+                                    <div class="rev-article-img">
+                                        {% if article.image %}
+                                            <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                                        {% else %}
+                                            <i class="fas fa-image"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="rev-article-info">
+                                        <strong>{{ article.name }}</strong>
+                                        {% if article.price %}
+                                            <small>{{ article.price|number_format(2, ',', ' ') }} €
+                                                {% if article.categorie %}· {{ article.categorie|replace({'_': ' '})|capitalize }}{% endif %}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                    <div class="rev-article-check"><i class="fas fa-check"></i></div>
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {# Marque le champ comme rendu pour éviter le doublon avec form_end() #}
+                    {% do form.article.setRendered %}
+                </div>
+            {% endif %}
+
+            {# ══ Note étoiles — nouveau design : étoiles à gauche + label à droite ══ #}
+            <div class="rev-field">
+                <label class="rev-field-label">
+                    <i class="fas fa-star mr-1" style="color:#f59e0b;"></i>
+                    Votre note <span style="color:#ef4444;">*</span>
+                </label>
+
+                <div class="rev-rating-pills">
+                    {% set ratingLabels = {
+                        5: {label: 'Excellent',  color: '#16a34a', bg: '#dcfce7'},
+                        4: {label: 'Très bien',  color: '#22c55e', bg: '#ecfdf5'},
+                        3: {label: 'Bien',       color: '#f59e0b', bg: '#fef3c7'},
+                        2: {label: 'Moyen',      color: '#f97316', bg: '#fff7ed'},
+                        1: {label: 'Décevant',   color: '#ef4444', bg: '#fee2e2'}
+                    } %}
+                    {% for score in [5, 4, 3, 2, 1] %}
+                        {% set info = ratingLabels[score] %}
+                        <label class="rev-rating-row">
+                            <input type="radio"
+                                   name="{{ form.rating.vars.full_name }}"
+                                   value="{{ score }}"
+                                   class="rev-rating-input"
+                                   {{ form.rating.vars.value == score ? 'checked' : '' }}>
+                            <div class="rev-rating-stars">
+                                {% for i in 1..5 %}
+                                    <i class="{{ i <= score ? 'fas' : 'far' }} fa-star"></i>
+                                {% endfor %}
+                            </div>
+                            <span class="rev-rating-pill" style="color:{{ info.color }};background:{{ info.bg }};border-color:{{ info.color }}33;">
+                                {{ info.label }}
+                            </span>
+                            <div class="rev-rating-check"><i class="fas fa-check"></i></div>
+                        </label>
+                    {% endfor %}
+                </div>
+                {{ form_errors(form.rating) }}
+                {% do form.rating.setRendered %}
+            </div>
+
+            <div class="rev-field">
+                {{ form_label(form.title, null, {'label_attr': {'class': 'rev-field-label'}}) }}
+                {{ form_widget(form.title, {'attr': {'class': 'rev-input'}}) }}
+                {{ form_errors(form.title) }}
+                <small class="rev-helper">Résumez votre avis en quelques mots (5-100 caractères).</small>
+            </div>
+
+            <div class="rev-field">
+                {{ form_label(form.comment, null, {'label_attr': {'class': 'rev-field-label'}}) }}
+                {{ form_widget(form.comment, {'attr': {'class': 'rev-textarea'}}) }}
+                {{ form_errors(form.comment) }}
+                <small class="rev-helper">Soyez précis : ce que vous avez aimé, ce qui pourrait être amélioré, etc.</small>
+            </div>
+
+            <div class="rev-field">
+                <label class="rev-field-label">{{ form_label(form.displayNameChoice) }}</label>
+                <div class="rev-display-choices">
+                    {% for choice in form.displayNameChoice %}
+                        <label class="rev-display-choice">
+                            {{ form_widget(choice, {'attr': {'class': 'rev-display-input'}}) }}
+                            <span>{{ choice.vars.label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+                {% do form.displayNameChoice.setRendered %}
+                <small class="rev-helper">
+                    <i class="fas fa-shield-alt mr-1"></i>
+                    Votre email ne sera jamais affiché publiquement.
+                </small>
+            </div>
+
+            <div class="rev-moderation-notice">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <strong>Modération préalable</strong>
+                    <span>Votre avis sera publié après validation par notre équipe (sous 24-48h).</span>
+                </div>
+            </div>
+
+            <div class="rev-form-actions">
+                <button type="submit" class="rev-submit-btn">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Publier mon avis
+                </button>
+                <a href="{{ path('account_index') }}" class="rev-cancel-link">
+                    <i class="fas fa-arrow-left mr-1"></i> Retour à mon compte
+                </a>
+            </div>
+
+        {# form_end rend seulement le CSRF token (tous les autres champs sont déjà rendus via setRendered) #}
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

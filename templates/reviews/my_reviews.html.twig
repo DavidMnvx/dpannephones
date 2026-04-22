@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mes avis — D'Panne Phones{% endblock %}
+
+{% block body %}
+<div style="width:92%;max-width:900px;margin:40px auto;padding:0 16px;">
+
+    <nav style="margin-bottom:20px;font-size:13px;color:#6b7280;">
+        <a href="{{ path('account_index') }}" style="color:rgb(9,71,113);text-decoration:none;">Mon compte</a>
+        <span style="margin:0 8px;">›</span>
+        <span style="color:#1a2b4b;font-weight:600;">Mes avis</span>
+    </nav>
+
+    <h1 class="rev-page-title" style="font-size:28px;">Mes avis</h1>
+    <p style="color:#64748b;margin-bottom:22px;">Retrouvez ici les avis que vous avez laissés sur D'Panne Phones.</p>
+
+    {# ══ Flash messages ══ #}
+    {% for msg in app.flashes('success') %}
+        <div class="rev-flash rev-flash--success">
+            <i class="fas fa-check-circle"></i>
+            <div>{{ msg|raw }}</div>
+            <button type="button" class="rev-flash-close" onclick="this.parentElement.style.display='none'" aria-label="Fermer">&times;</button>
+        </div>
+    {% endfor %}
+    {% for msg in app.flashes('error') %}
+        <div class="rev-flash rev-flash--error">
+            <i class="fas fa-exclamation-circle"></i>
+            <div>{{ msg|raw }}</div>
+            <button type="button" class="rev-flash-close" onclick="this.parentElement.style.display='none'" aria-label="Fermer">&times;</button>
+        </div>
+    {% endfor %}
+    {% for msg in app.flashes('info') %}
+        <div class="rev-flash rev-flash--info">
+            <i class="fas fa-info-circle"></i>
+            <div>{{ msg|raw }}</div>
+            <button type="button" class="rev-flash-close" onclick="this.parentElement.style.display='none'" aria-label="Fermer">&times;</button>
+        </div>
+    {% endfor %}
+    {% for msg in app.flashes('warning') %}
+        <div class="rev-flash rev-flash--warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>{{ msg|raw }}</div>
+            <button type="button" class="rev-flash-close" onclick="this.parentElement.style.display='none'" aria-label="Fermer">&times;</button>
+        </div>
+    {% endfor %}
+
+    {% if reviews is empty %}
+        <div class="rev-empty">
+            <i class="fas fa-pen-to-square"></i>
+            <h3>Vous n'avez pas encore laissé d'avis</h3>
+            <p>Après une commande, vous pourrez partager votre expérience ici.</p>
+            <a href="{{ path('account_index') }}" class="rev-page-cta" style="margin-top:16px;">
+                <i class="fas fa-arrow-left mr-2"></i> Retour à mon compte
+            </a>
+        </div>
+    {% else %}
+        <div class="rev-list">
+            {% for review in reviews %}
+                <article class="rev-card rev-card--my {{ review.status == 'pending' ? 'rev-card--pending' : '' }} {{ review.status == 'rejected' ? 'rev-card--rejected' : '' }}">
+
+                    {# Badge statut #}
+                    <div class="rev-my-status">
+                        {% if review.status == 'approved' %}
+                            <span class="rev-status rev-status--approved">
+                                <i class="fas fa-check-circle"></i> Publié
+                            </span>
+                        {% elseif review.status == 'pending' %}
+                            <span class="rev-status rev-status--pending">
+                                <i class="fas fa-clock"></i> En attente de modération
+                            </span>
+                        {% elseif review.status == 'rejected' %}
+                            <span class="rev-status rev-status--rejected">
+                                <i class="fas fa-times-circle"></i> Non publié
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="rev-card-header">
+                        <div class="rev-card-stars">
+                            {% for i in range(1, 5) %}
+                                <i class="{{ i <= review.rating ? 'fas' : 'far' }} fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="rev-card-date" style="margin-left:auto;">
+                            {{ review.createdAt|date('d/m/Y') }}
+                        </div>
+                    </div>
+
+                    <h3 class="rev-card-title">{{ review.title }}</h3>
+                    <p class="rev-card-comment">{{ review.comment|nl2br }}</p>
+
+                    {# Article ou commande lié #}
+                    {% if review.article %}
+                        <div class="rev-card-product">
+                            <i class="fas fa-box mr-1"></i>
+                            Sur l'article :
+                            {% if review.status == 'approved' %}
+                                <a href="{{ path('boutique_show', {id: review.article.id}) }}#avis">{{ review.article.name }}</a>
+                            {% else %}
+                                <strong>{{ review.article.name }}</strong>
+                            {% endif %}
+                        </div>
+                    {% elseif review.commande %}
+                        <div class="rev-card-product">
+                            <i class="fas fa-receipt mr-1"></i>
+                            Avis général — Commande #{{ review.commande.id }}
+                        </div>
+                    {% endif %}
+
+                    {% if review.adminResponse %}
+                        <div class="rev-card-response">
+                            <div class="rev-card-response-header">
+                                <i class="fas fa-reply"></i>
+                                <strong>Réponse de D'Panne Phones</strong>
+                            </div>
+                            <p>{{ review.adminResponse|nl2br }}</p>
+                        </div>
+                    {% endif %}
+
+                    {# Lien "Voir sur le site" si publié #}
+                    {% if review.status == 'approved' %}
+                        <div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;">
+                            <a href="{{ path('reviews_index') }}#avis-{{ review.id }}"
+                               style="color:rgb(9,71,113);font-size:13px;text-decoration:none;font-weight:600;">
+                                <i class="fas fa-external-link-alt mr-1"></i>
+                                Voir mon avis sur la page /avis
+                            </a>
+                        </div>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

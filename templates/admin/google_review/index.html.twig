@@ -1,0 +1,145 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'google_reviews' %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Avis Google
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fab fa-google mr-2"></i>Avis Google</h2>
+        <p>Gérez les avis Google affichés sur la page d'accueil</p>
+    </div>
+    <div class="admin-stats">
+        <div class="stat-box">
+            <span class="stat-number">{{ reviews|length }}</span>
+            <span class="stat-label">Avis</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ reviews|filter(r => r.isActive)|length }}</span>
+            <span class="stat-label">Visibles</span>
+        </div>
+        {% set avg = reviews|length > 0 ? (reviews|reduce((acc, r) => acc + r.rating, 0) / reviews|length)|round(1) : 0 %}
+        <div class="stat-box">
+            <span class="stat-number">{{ avg }}⭐</span>
+            <span class="stat-label">Moyenne</span>
+        </div>
+    </div>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+<div class="admin-card">
+    <h3><i class="fas fa-plus-circle"></i> Ajouter un avis Google</h3>
+
+    <div style="background:#eff6fb;border-left:3px solid rgb(9,71,113);padding:12px 16px;border-radius:8px;margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:700;color:rgb(9,71,113);margin-bottom:4px;">
+            <i class="fas fa-lightbulb mr-1"></i>Comment faire ?
+        </div>
+        <ol style="font-size:12.5px;color:#475569;margin:0;padding-left:20px;line-height:1.7;">
+            <li>Allez sur votre <a href="https://www.google.com/search?q=D%27Panne+Phones+P%C3%A9lissanne" target="_blank">page Google D'panne Phones</a> → "Voir tous les avis"</li>
+            <li>Copiez le nom, la note, la date affichée (ex: "il y a 2 semaines") et le texte</li>
+            <li>Collez ici et publiez — il apparaîtra immédiatement sur la page d'accueil</li>
+        </ol>
+    </div>
+
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+        <div class="form-section-title">Informations de l'avis</div>
+        <div class="row">
+            <div class="col-md-6">{{ form_row(form.authorName) }}</div>
+            <div class="col-md-3">{{ form_row(form.rating) }}</div>
+            <div class="col-md-3">{{ form_row(form.relativeTime) }}</div>
+        </div>
+        {{ form_row(form.text) }}
+
+        <hr class="form-divider">
+        <div class="form-section-title">Personnalisation</div>
+        <div class="row">
+            <div class="col-md-8">{{ form_row(form.profilePhotoUrl) }}</div>
+            <div class="col-md-2">{{ form_row(form.sortOrder) }}</div>
+            <div class="col-md-2 d-flex align-items-end">{{ form_row(form.isActive) }}</div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-plus mr-1"></i> Ajouter l'avis
+            </button>
+        </div>
+    {{ form_end(form) }}
+</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-list"></i> Liste des avis ({{ reviews|length }})</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width:50px;">Ordre</th>
+                <th>Auteur</th>
+                <th style="width:100px;">Note</th>
+                <th>Texte</th>
+                <th style="width:110px;">Date (texte)</th>
+                <th style="width:80px;">Actif</th>
+                <th style="width:200px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reviews %}
+                <tr>
+                    <td><span class="badge badge-secondary">{{ r.sortOrder }}</span></td>
+                    <td><strong>{{ r.authorName }}</strong></td>
+                    <td style="color:#f59e0b;font-size:14px;">
+                        {% for i in 1..5 %}<span style="{{ i > r.rating ? 'color:#e5e7eb;' : '' }}">★</span>{% endfor %}
+                    </td>
+                    <td style="font-size:12px;color:#4b5563;max-width:350px;">
+                        {{ r.text|slice(0, 120) }}{% if r.text|length > 120 %}…{% endif %}
+                    </td>
+                    <td style="font-size:12px;color:#6b7280;">{{ r.relativeTime ?? '—' }}</td>
+                    <td>
+                        <form method="post" action="{{ path('admin_google_review_toggle', {id: r.id}) }}" style="display:inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_google_review_' ~ r.id) }}">
+                            <button type="submit" class="btn btn-sm {{ r.isActive ? 'btn-success' : 'btn-secondary' }}">
+                                {% if r.isActive %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_google_review_edit', {id: r.id}) }}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Éditer
+                        </a>
+                        <form method="post" action="{{ path('admin_google_review_delete', {id: r.id}) }}" style="display:inline;"
+                              onsubmit="return confirm('Supprimer cet avis ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_google_review_' ~ r.id) }}">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted" style="padding:30px;">
+                    Aucun avis enregistré. Ajoutez-en un via le formulaire ci-dessus.
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top:16px;text-align:center;">
+    <a href="{{ path('home') }}#reviews" target="_blank" class="btn-admin-back" style="display:inline-flex;align-items:center;gap:7px;">
+        <i class="fas fa-external-link-alt mr-1"></i> Voir le rendu sur la page d'accueil
+    </a>
+</div>
+{% endblock %}

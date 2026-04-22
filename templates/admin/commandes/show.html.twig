@@ -1,0 +1,281 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'commandes' %}
+{% block title %}Commande #{{ commande.id }} — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-commandes-page">
+
+  {# En-tête #}
+  <div class="admin-page-header">
+    <div>
+      <a href="{{ path('admin_commandes') }}" class="admin-back-link"><i class="fas fa-arrow-left mr-1"></i>Toutes les commandes</a>
+      <h1 class="admin-page-title">Commande <span class="cmd-num">#{{ commande.id }}</span></h1>
+      <small class="text-muted">Passée le {{ commande.createdAt|date('d/m/Y à H:i') }}</small>
+    </div>
+    <div>
+      {% set s = commande.statut %}
+      <span class="badge-statut badge-statut--lg badge-statut--{{ s == 'payee' ? 'payee' : (s == 'en_preparation' ? 'prep' : (s in ['livree','retiree'] ? 'done' : (s == 'expediee' ? 'shipped' : (s == 'annulee' ? 'cancelled' : 'pending')))) }}">
+        {% if s == 'en_attente' %}<i class="fas fa-clock mr-1"></i>En attente
+        {% elseif s == 'payee' %}<i class="fas fa-check-circle mr-1"></i>Payée
+        {% elseif s == 'en_preparation' %}<i class="fas fa-cog mr-1"></i>En préparation
+        {% elseif s == 'expediee' %}<i class="fas fa-truck mr-1"></i>Expédiée
+        {% elseif s == 'livree' %}<i class="fas fa-box-open mr-1"></i>Livrée
+        {% elseif s == 'retiree' %}<i class="fas fa-store mr-1"></i>Retirée en boutique
+        {% elseif s == 'annulee' %}<i class="fas fa-times-circle mr-1"></i>Annulée
+        {% endif %}
+      </span>
+    </div>
+  </div>
+
+  {# Flash messages #}
+  {% for msg in app.flashes('success') %}
+    <div class="admin-flash admin-flash--success"><i class="fas fa-check-circle mr-2"></i>{{ msg }}</div>
+  {% endfor %}
+  {% for msg in app.flashes('error') %}
+    <div class="admin-flash admin-flash--error"><i class="fas fa-times-circle mr-2"></i>{{ msg }}</div>
+  {% endfor %}
+
+  <div class="admin-show-grid">
+
+    {# Colonne gauche : articles + total #}
+    <div class="admin-show-main">
+
+      {# Articles commandés #}
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <i class="fas fa-box mr-2"></i>Articles commandés
+        </div>
+        <table class="admin-table admin-table--inner">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th class="text-center">Qté</th>
+              <th class="text-right">Prix unit.</th>
+              <th class="text-right">Sous-total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in commande.items %}
+            <tr>
+              <td>
+                <div class="cmd-item-info">
+                  {% if item.article and item.article.image %}
+                    <img src="{{ asset('uploads/images/' ~ item.article.image) }}" alt="{{ item.articleName }}" class="cmd-item-thumb">
+                  {% else %}
+                    <div class="cmd-item-thumb cmd-item-thumb--placeholder"><i class="fas fa-mobile-alt"></i></div>
+                  {% endif %}
+                  <span>{{ item.articleName }}</span>
+                </div>
+              </td>
+              <td class="text-center">{{ item.quantite }}</td>
+              <td class="text-right">{{ item.prix|number_format(2, ',', ' ') }} €</td>
+              <td class="text-right"><strong>{{ item.sousTotal|number_format(2, ',', ' ') }} €</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            {% set discount = commande.discountAmount ?? 0 %}
+            {% set shipping = commande.shippingCost ?? 0 %}
+            {% set totalArticles = commande.total + discount - shipping %}
+
+            {% if commande.shippingCost is not null or discount > 0 %}
+              <tr>
+                <td colspan="3" class="text-right" style="color:#6b7280;font-size:13px;">Sous-total articles</td>
+                <td class="text-right" style="color:#374151;font-size:13px;">{{ totalArticles|number_format(2, ',', ' ') }} €</td>
+              </tr>
+
+              {% if discount > 0 %}
+                <tr>
+                  <td colspan="3" class="text-right" style="color:#15803d;font-size:13px;">
+                    <i class="fas fa-ticket-alt mr-1"></i>
+                    Code promo
+                    {% if commande.promoCodeUsed %}
+                      — <code style="background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:4px;font-size:11.5px;font-weight:700;">{{ commande.promoCodeUsed }}</code>
+                    {% endif %}
+                  </td>
+                  <td class="text-right" style="color:#15803d;font-size:13px;font-weight:700;">
+                    −{{ discount|number_format(2, ',', ' ') }} €
+                  </td>
+                </tr>
+              {% endif %}
+
+              {% if commande.shippingCost is not null %}
+                <tr>
+                  <td colspan="3" class="text-right" style="color:#6b7280;font-size:13px;">
+                    <i class="fas fa-truck mr-1"></i>
+                    Livraison
+                    {% if commande.shippingMode %}
+                      — <strong>{{ commande.transporteur ?? commande.shippingMode }}</strong>
+                    {% endif %}
+                  </td>
+                  <td class="text-right" style="color:#374151;font-size:13px;">
+                    {% if commande.shippingCost > 0 %}
+                      {{ commande.shippingCost|number_format(2, ',', ' ') }} €
+                    {% else %}
+                      <span style="color:#16a34a;font-weight:700;">Gratuit</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endif %}
+            {% endif %}
+            <tr class="cmd-total-row">
+              <td colspan="3" class="text-right"><strong>Total commande</strong></td>
+              <td class="text-right cmd-total-amount">{{ commande.total|number_format(2, ',', ' ') }} €</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      {# Avancement du statut #}
+      {% if statutsSuivants is not empty %}
+      <div class="admin-card admin-card--statut">
+        <div class="admin-card-header">
+          <i class="fas fa-exchange-alt mr-2"></i>Faire avancer la commande
+        </div>
+        <div class="admin-statut-actions">
+              {% for nextStatut in statutsSuivants %}
+
+            {% if nextStatut == 'expediee' %}
+              {# Formulaire spécial expédition avec numéro de suivi #}
+              <form method="post" action="{{ path('admin_commande_statut', {id: commande.id}) }}" class="form-expedier">
+                <input type="hidden" name="statut" value="expediee">
+                <div class="expedition-fields">
+                  <div class="expedition-field">
+                    <label>Transporteur</label>
+                    <select name="transporteur" class="expedition-input">
+                      <option value="">— Choisir —</option>
+                      <option value="Colissimo">Colissimo</option>
+                      <option value="Chronopost">Chronopost</option>
+                      <option value="Mondial Relay">Mondial Relay</option>
+                      <option value="DHL">DHL</option>
+                      <option value="DPD">DPD</option>
+                      <option value="GLS">GLS</option>
+                      <option value="La Poste">La Poste</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  </div>
+                  <div class="expedition-field">
+                    <label>Numéro de suivi</label>
+                    <input type="text" name="numero_suivi" placeholder="Ex : 6A12345678901"
+                           class="expedition-input" value="{{ commande.numeroSuivi ?? '' }}">
+                  </div>
+                </div>
+                <button type="submit" class="btn-statut btn-statut--ship">
+                  <i class="fas fa-truck mr-2"></i>Marquer comme expédiée &amp; envoyer le suivi
+                </button>
+              </form>
+
+            {% else %}
+              <form method="post" action="{{ path('admin_commande_statut', {id: commande.id}) }}" style="display:inline;">
+                <input type="hidden" name="statut" value="{{ nextStatut }}">
+                {% if nextStatut == 'annulee' %}
+                  <button type="submit" class="btn-statut btn-statut--cancel"
+                          onclick="return confirm('Annuler cette commande ?')">
+                    <i class="fas fa-times-circle mr-2"></i>Annuler la commande
+                  </button>
+                {% elseif nextStatut == 'en_preparation' %}
+                  <button type="submit" class="btn-statut btn-statut--prep">
+                    <i class="fas fa-cog mr-2"></i>Mettre en préparation
+                  </button>
+                {% elseif nextStatut == 'retiree' %}
+                  <button type="submit" class="btn-statut btn-statut--pickup">
+                    <i class="fas fa-store mr-2"></i>Retrait en boutique confirmé
+                  </button>
+                {% elseif nextStatut == 'livree' %}
+                  <button type="submit" class="btn-statut btn-statut--done">
+                    <i class="fas fa-check-circle mr-2"></i>Marquer comme livrée
+                  </button>
+                {% endif %}
+              </form>
+            {% endif %}
+
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+        {% if commande.statut not in ['en_attente'] %}
+        <div class="admin-card admin-card--info">
+          <i class="fas fa-info-circle mr-2"></i>
+          {% if commande.statut == 'annulee' %}Cette commande a été annulée.
+          {% else %}Cette commande est terminée — aucune action supplémentaire.{% endif %}
+        </div>
+        {% endif %}
+      {% endif %}
+
+    </div>
+
+    {# Colonne droite : infos client + paiement #}
+    <div class="admin-show-side">
+
+      {# Informations client #}
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <i class="fas fa-user mr-2"></i>Client
+        </div>
+        {% if commande.user %}
+        <div class="admin-client-info">
+          <div class="admin-client-avatar">{{ commande.user.prenom|first|upper }}{{ commande.user.nom|first|upper }}</div>
+          <div>
+            <strong>{{ commande.user.prenom }} {{ commande.user.nom }}</strong><br>
+            <a href="mailto:{{ commande.user.email }}" class="admin-link">{{ commande.user.email }}</a><br>
+            <span>{{ commande.user.phone }}</span><br>
+            <small class="text-muted">{{ commande.user.adresse }}, {{ commande.user.codePostal }} {{ commande.user.ville }}</small>
+          </div>
+        </div>
+        <div class="admin-card-footer">
+          <a href="{{ path('admin_client_show', {id: commande.user.id}) }}" class="btn-admin-action btn-admin-action--view">
+            <i class="fas fa-user mr-1"></i>Voir la fiche client
+          </a>
+        </div>
+        {% else %}
+          <p class="text-muted p-3">Client supprimé du système.</p>
+        {% endif %}
+      </div>
+
+      {# Numéro de suivi #}
+      {% if commande.numeroSuivi %}
+      <div class="admin-card admin-card--tracking">
+        <div class="admin-card-header">
+          <i class="fas fa-truck mr-2"></i>Suivi transporteur
+        </div>
+        <div class="admin-info-list">
+          {% if commande.transporteur %}
+          <div class="admin-info-row">
+            <span class="admin-info-label">Transporteur</span>
+            <span class="admin-info-value"><strong>{{ commande.transporteur }}</strong></span>
+          </div>
+          {% endif %}
+          <div class="admin-info-row">
+            <span class="admin-info-label">N° de suivi</span>
+            <span class="admin-info-value admin-tracking-num">{{ commande.numeroSuivi }}</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {# Paiement Stripe #}
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <i class="fab fa-stripe mr-2"></i>Paiement
+        </div>
+        <div class="admin-info-list">
+          <div class="admin-info-row">
+            <span class="admin-info-label">Montant</span>
+            <span class="admin-info-value cmd-total-amount">{{ commande.total|number_format(2, ',', ' ') }} €</span>
+          </div>
+          <div class="admin-info-row">
+            <span class="admin-info-label">Session Stripe</span>
+            <span class="admin-info-value admin-stripe-id">{{ commande.stripeSessionId ?? '—' }}</span>
+          </div>
+          <div class="admin-info-row">
+            <span class="admin-info-label">Date</span>
+            <span class="admin-info-value">{{ commande.createdAt|date('d/m/Y à H:i') }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

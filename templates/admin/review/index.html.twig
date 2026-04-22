@@ -1,0 +1,192 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'client_reviews' %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Avis clients
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-star-half-alt mr-2"></i>Avis clients — Modération</h2>
+        <p>Validez ou rejetez les avis déposés par vos clients avant publication</p>
+    </div>
+    <div class="admin-stats">
+        <div class="stat-box" style="background:linear-gradient(135deg, #fef3c7, #fde68a);">
+            <span class="stat-number">{{ counts.pending }}</span>
+            <span class="stat-label">En attente</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ counts.approved }}</span>
+            <span class="stat-label">Publiés</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-number">{{ counts.rejected }}</span>
+            <span class="stat-label">Rejetés</span>
+        </div>
+    </div>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+{# ── Onglets filtres ── #}
+<div class="filter-tabs mb-3" style="margin-bottom:20px;">
+    <a href="{{ path('admin_client_reviews', {filter: 'pending'}) }}"
+       class="filter-tab {{ filter == 'pending' ? 'active' : '' }}"
+       style="text-decoration:none;">
+        <i class="fas fa-clock mr-1"></i> En attente
+        <span class="tab-count" style="background:#f59e0b;color:#fff;">{{ counts.pending }}</span>
+    </a>
+    <a href="{{ path('admin_client_reviews', {filter: 'approved'}) }}"
+       class="filter-tab {{ filter == 'approved' ? 'active' : '' }}"
+       style="text-decoration:none;">
+        <i class="fas fa-check-circle mr-1"></i> Publiés
+        <span class="tab-count">{{ counts.approved }}</span>
+    </a>
+    <a href="{{ path('admin_client_reviews', {filter: 'rejected'}) }}"
+       class="filter-tab {{ filter == 'rejected' ? 'active' : '' }}"
+       style="text-decoration:none;">
+        <i class="fas fa-times-circle mr-1"></i> Rejetés
+        <span class="tab-count">{{ counts.rejected }}</span>
+    </a>
+    <a href="{{ path('admin_client_reviews', {filter: 'all'}) }}"
+       class="filter-tab {{ filter == 'all' ? 'active' : '' }}"
+       style="text-decoration:none;">
+        Tous <span class="tab-count">{{ counts.all }}</span>
+    </a>
+</div>
+
+{% if reviews is empty %}
+    <div class="admin-card" style="text-align:center;padding:50px 30px;">
+        <i class="fas fa-star-half-alt" style="font-size:48px;color:#cbd5e1;margin-bottom:16px;"></i>
+        <h3 style="font-size:18px;color:#6b7280;margin-bottom:8px;">Aucun avis dans cette catégorie</h3>
+        <p style="color:#9ca3af;font-size:13px;margin:0;">
+            {% if filter == 'pending' %}
+                Tous les avis ont été modérés ! 🎉
+            {% else %}
+                Rien à afficher ici pour l'instant.
+            {% endif %}
+        </p>
+    </div>
+{% else %}
+    {% for review in reviews %}
+        <div class="admin-card" style="margin-bottom:14px;padding:20px 22px;">
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;">
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-size:15px;font-weight:700;color:#1a2b4b;">
+                        {{ review.displayName }}
+                        {% if review.isVerified %}
+                            <span class="rev-badge-verified"><i class="fas fa-check-circle"></i> Vérifié</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size:12px;color:#6b7280;margin-top:2px;">
+                        <i class="fas fa-user" style="font-size:10px;"></i>
+                        {{ review.user.email }} · {{ review.createdAt|date('d/m/Y H:i') }}
+                    </div>
+                </div>
+                <div style="color:#f59e0b;font-size:18px;letter-spacing:2px;">
+                    {% for i in 1..5 %}<span style="{{ i > review.rating ? 'color:#e5e7eb;' : '' }}">★</span>{% endfor %}
+                </div>
+                {% if review.status == 'pending' %}
+                    <span class="rev-status rev-status--pending"><i class="fas fa-clock"></i> En attente</span>
+                {% elseif review.status == 'approved' %}
+                    <span class="rev-status rev-status--approved"><i class="fas fa-check-circle"></i> Publié</span>
+                {% else %}
+                    <span class="rev-status rev-status--rejected"><i class="fas fa-times-circle"></i> Rejeté</span>
+                {% endif %}
+            </div>
+
+            <h3 style="font-size:16px;font-weight:800;color:#0f172a;margin:6px 0 8px;">{{ review.title }}</h3>
+            <p style="font-size:14px;color:#374151;line-height:1.6;margin:0 0 14px;white-space:pre-wrap;">{{ review.comment }}</p>
+
+            {% if review.commande %}
+                <div style="font-size:12px;color:#6b7280;padding:6px 12px;background:#f8fafc;border-radius:6px;display:inline-block;margin-bottom:10px;">
+                    <i class="fas fa-receipt mr-1"></i>
+                    Commande #{{ review.commande.id }} du {{ review.commande.createdAt|date('d/m/Y') }} ({{ review.commande.total|number_format(2, ',', ' ') }} €)
+                </div>
+            {% endif %}
+
+            {# Réponse admin #}
+            {% if review.adminResponse %}
+                <div style="background:#eff6fb;border-left:3px solid rgb(9,71,113);padding:10px 14px;border-radius:8px;margin:12px 0;">
+                    <div style="font-size:12px;font-weight:700;color:rgb(9,71,113);margin-bottom:3px;">
+                        <i class="fas fa-reply mr-1"></i> Votre réponse publique
+                    </div>
+                    <p style="margin:0;font-size:13px;color:#374151;">{{ review.adminResponse|nl2br }}</p>
+                </div>
+            {% endif %}
+
+            {# Actions #}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #f1f5f9;margin-top:10px;">
+                {% if review.status == 'pending' %}
+                    <form method="post" action="{{ path('admin_review_approve', {id: review.id}) }}" style="display:inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('review_approve_' ~ review.id) }}">
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="fas fa-check"></i> Approuver et publier
+                        </button>
+                    </form>
+                    <form method="post" action="{{ path('admin_review_reject', {id: review.id}) }}" style="display:inline;"
+                          onsubmit="return confirm('Rejeter cet avis ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('review_reject_' ~ review.id) }}">
+                        <button type="submit" class="btn btn-sm btn-warning">
+                            <i class="fas fa-times"></i> Rejeter
+                        </button>
+                    </form>
+                {% elseif review.status == 'approved' %}
+                    <form method="post" action="{{ path('admin_review_reject', {id: review.id}) }}" style="display:inline;"
+                          onsubmit="return confirm('Dépublier cet avis ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('review_reject_' ~ review.id) }}">
+                        <button type="submit" class="btn btn-sm btn-warning">
+                            <i class="fas fa-eye-slash"></i> Dépublier
+                        </button>
+                    </form>
+                {% elseif review.status == 'rejected' %}
+                    <form method="post" action="{{ path('admin_review_approve', {id: review.id}) }}" style="display:inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('review_approve_' ~ review.id) }}">
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="fas fa-check"></i> Publier finalement
+                        </button>
+                    </form>
+                {% endif %}
+
+                {# Bouton "Répondre" #}
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('response-form-{{ review.id }}').style.display = document.getElementById('response-form-{{ review.id }}').style.display === 'none' ? 'block' : 'none';">
+                    <i class="fas fa-reply"></i> {{ review.adminResponse ? 'Modifier la réponse' : 'Répondre' }}
+                </button>
+
+                <form method="post" action="{{ path('admin_review_delete', {id: review.id}) }}" style="display:inline;margin-left:auto;"
+                      onsubmit="return confirm('⚠️ Supprimer définitivement cet avis ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('review_delete_' ~ review.id) }}">
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </form>
+            </div>
+
+            {# Formulaire de réponse (caché par défaut) #}
+            <div id="response-form-{{ review.id }}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;">
+                <form method="post" action="{{ path('admin_review_respond', {id: review.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('review_respond_' ~ review.id) }}">
+                    <label style="font-size:12px;font-weight:700;color:#1a2b4b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;display:block;">
+                        Votre réponse publique
+                    </label>
+                    <textarea name="admin_response" rows="3"
+                              style="width:100%;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;"
+                              placeholder="Bonjour, merci pour votre avis...">{{ review.adminResponse }}</textarea>
+                    <div style="margin-top:8px;">
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="fas fa-paper-plane mr-1"></i> Enregistrer la réponse
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'promos' %}
+{% block title %}Modifier {{ promo.code }} — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> ›
+    <a href="{{ path('admin_promos') }}">Codes promo</a> ›
+    Modifier
+</div>
+
+<div style="margin-bottom:20px;">
+    <a href="{{ path('admin_promos') }}" style="font-size:13px;color:#6c757d;text-decoration:none;">
+        <i class="fas fa-arrow-left mr-1"></i> Retour à la liste
+    </a>
+</div>
+
+<div class="admin-page-title">Modifier le code promo</div>
+<div class="admin-page-subtitle" style="margin-bottom:24px;">
+    <code style="background:#eef2ff;color:#4338ca;padding:4px 10px;border-radius:6px;font-weight:700;">{{ promo.code }}</code>
+    <span style="color:#9ca3af;margin-left:8px;">— Créé le {{ promo.createdAt|date('d/m/Y à H:i') }}</span>
+</div>
+
+<div class="admin-card">
+    <h3><i class="fas fa-edit"></i> Modification</h3>
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle mr-2"></i>{{ message }}
+        </div>
+    {% endfor %}
+
+    {# Statistiques d'utilisation #}
+    <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:14px 18px;margin-bottom:24px;display:flex;gap:28px;">
+        <div>
+            <div style="font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:0.05em;">Utilisations</div>
+            <div style="font-size:20px;font-weight:800;color:#0f172a;">
+                {{ promo.usageCount }}
+                {% if promo.usageLimit %}
+                    <span style="font-size:13px;color:#94a3b8;font-weight:500;"> / {{ promo.usageLimit }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <div style="font-size:11px;text-transform:uppercase;color:#64748b;letter-spacing:0.05em;">Statut</div>
+            <div style="font-size:14px;font-weight:700;color:{{ promo.isCurrentlyValid ? '#16a34a' : '#9ca3af' }};">
+                {{ promo.isCurrentlyValid ? '● Actif' : '○ Inactif' }}
+            </div>
+        </div>
+    </div>
+
+    {{ form_start(form, {'attr': {'class': 'admin-form'}}) }}
+
+        <div class="form-section-title">Identifiant</div>
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.code) }}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="form-section-title">Type et valeur</div>
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.type) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.value) }}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="form-section-title">Conditions d'utilisation (optionnelles)</div>
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.minCartAmount) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.usageLimit) }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {{ form_row(form.validFrom) }}
+            </div>
+            <div class="col-md-6">
+                {{ form_row(form.validUntil) }}
+            </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <div class="form-section-title">Activation & note interne</div>
+        <div class="row">
+            <div class="col-md-4" style="display:flex;align-items:center;padding-top:28px;">
+                {{ form_row(form.isActive) }}
+            </div>
+            <div class="col-md-8">
+                {{ form_row(form.description) }}
+            </div>
+        </div>
+
+        <div style="margin-top:28px;">
+            <button type="submit" class="btn-admin-submit">
+                <i class="fas fa-save mr-1"></i> Enregistrer les modifications
+            </button>
+            <a href="{{ path('admin_promos') }}" class="btn-admin-back">
+                <i class="fas fa-arrow-left mr-1"></i> Annuler
+            </a>
+        </div>
+
+    {{ form_end(form) }}
+</div>
+{% endblock %}

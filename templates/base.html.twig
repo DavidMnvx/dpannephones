@@ -24,8 +24,95 @@
         
         
         {% block stylesheets %}
-          <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+          <link rel="stylesheet" href="{{ asset('styles/app.css') }}?v={{ 'now'|date('YmdHi') }}">
         {% endblock %}
+
+        {# ── JSON-LD : LocalBusiness (global sur toutes les pages pour le SEO) ── #}
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "name": "D'Panne Phones",
+          "image": "{{ absolute_url(asset('images/logo_dpannephones/Logo_dpannephones.png')) }}",
+          "url": "{{ absolute_url('/') }}",
+          "telephone": "+33783748311",
+          "email": "contact@dpannephones.com",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "17 Boulevard du Comte de Provence",
+            "addressLocality": "Pélissanne",
+            "postalCode": "13330",
+            "addressCountry": "FR"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 43.629783,
+            "longitude": 5.154775
+          },
+          "openingHoursSpecification": [
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "09:30", "closes": "18:30" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:30", "closes": "17:00" }
+          ],
+          "priceRange": "€€"
+        }
+        </script>
+
+        {# ── JSON-LD surchargeable par page (aggregateRating, Product, etc.) ── #}
+        {% block jsonld %}{% endblock %}
+
+        {# ═══════════════════════════════════════════════════
+           Tarteaucitron — Gestionnaire de consentement RGPD
+           ═══════════════════════════════════════════════════
+           Gère le consentement pour :
+             - Google Analytics 4 (tracking trafic)
+             - Autres services tiers (Stripe : tech, exempté du consentement)
+
+           L'utilisateur doit explicitement accepter avant que GA4 charge.
+           Si pas de GOOGLE_ANALYTICS_ID configuré, Tarteaucitron n'affiche rien.
+           ─────────────────────────────────────────────────── #}
+        {% if google_analytics_id and app.environment == 'prod' %}
+        <script src="https://cdn.jsdelivr.net/gh/AmauriC/tarteaucitron.js@V1.17.0/tarteaucitron.min.js"></script>
+        <script>
+            tarteaucitron.init({
+                "privacyUrl": "{{ path('legal_confidentialite') }}",
+                "bodyPosition": "bottom",
+                "hashtag": "#tarteaucitron",
+                "cookieName": "tarteaucitron",
+                "orientation": "middle",
+                "groupServices": false,
+                "showDetailsOnClick": true,
+                "serviceDefaultState": "wait",
+                "showAlertSmall": false,
+                "cookieslist": false,
+                "closePopup": false,
+                "showIcon": true,
+                "iconPosition": "BottomRight",
+                "adblocker": false,
+                "DenyAllCta" : true,
+                "AcceptAllCta" : true,
+                "highPrivacy": true,
+                "handleBrowserDNTRequest": false,
+                "removeCredit": false,
+                "moreInfoLink": true,
+                "useExternalCss": false,
+                "useExternalJs": false,
+                "readmoreLink": "{{ path('legal_confidentialite') }}",
+                "mandatory": true,
+                "mandatoryCta": true
+            });
+
+            // Google Analytics 4 — chargé après consentement uniquement
+            tarteaucitron.user.gtagUa = '{{ google_analytics_id }}';
+            tarteaucitron.user.gtagMore = function () {
+                gtag('config', '{{ google_analytics_id }}', {
+                    'anonymize_ip': true,
+                    'allow_google_signals': false,
+                    'allow_ad_personalization_signals': false
+                });
+            };
+            (tarteaucitron.job = tarteaucitron.job || []).push('gtag');
+        </script>
+        {% endif %}
     </head>
 
     <body>
@@ -53,21 +140,54 @@
                     <a class="nav-link" href="/contact">Contact</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="/avis">Avis</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/partenaires">Partenaires</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="/about">Qui sommes-nous ?</a>
-                </li>               
+                </li>
             </ul>
 
             <ul class="navbar-nav ml-auto mr-5">
-            <li class="nav-item">
-                    <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="/admin">Admin</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="/register">Inscription</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link btn btn-outline-primary" id="regisconn" href="/login">Connexion</a>
-                </li>
-                
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="/admin">Admin</a>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_USER') %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link btn btn-outline-primary mr-2 dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user-circle mr-1"></i>
+                            {{ app.user.prenom ?? app.user.email }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-account-dropdown" aria-labelledby="accountDropdown">
+                            <div class="dropdown-account-header">
+                                <strong>{{ app.user.prenom }} {{ app.user.nom }}</strong>
+                                <small>{{ app.user.email }}</small>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ path('account_index') }}">
+                                <i class="fas fa-user mr-2"></i>Mon Compte
+                            </a>
+                            <a class="dropdown-item" href="{{ path('cart_index') }}">
+                                <i class="fas fa-shopping-cart mr-2"></i>Mon Panier
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item dropdown-item--logout" href="{{ path('app_logout') }}">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                            </a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="{{ path('app_register') }}">Inscription</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary" id="regisconn" href="{{ path('app_login') }}">Connexion</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
@@ -104,23 +224,41 @@
               <span class="fa-li"><i class="fas"></i></span><span class="ms-2">Téléphone:  07 83 74 83 11</span>
             </li>
           </ul>
+
+          {# ═══ Icônes réseaux sociaux (version compacte pour footer) ═══ #}
+          {{ include('_partials/social_follow.html.twig', {'compact': true}) }}
+        </div>
+        <div class="col-lg-1 col-md-6 mb-4 mb-md-0">
+          <h5 class="text mb-4">Informations</h5>
+          <ul class="footer-legal-links">
+            <li><a href="{{ path('legal_cgv') }}"><i class="fas fa-file-contract mr-1"></i>CGV</a></li>
+            <li><a href="{{ path('legal_mentions') }}"><i class="fas fa-info-circle mr-1"></i>Mentions légales</a></li>
+            <li><a href="{{ path('legal_confidentialite') }}"><i class="fas fa-user-shield mr-1"></i>Confidentialité</a></li>
+            {% if google_analytics_id and app.environment == 'prod' %}
+            <li><a href="#tarteaucitron" onclick="event.preventDefault(); if(typeof tarteaucitron !== 'undefined'){tarteaucitron.userInterface.openPanel();} else {alert('Panneau de cookies non disponible.');}"><i class="fas fa-cookie-bite mr-1"></i>Gérer les cookies</a></li>
+            {% endif %}
+          </ul>
         </div>
         <div class="col-lg-3 col-md-5 mb-4 mb-md-0">
-          <h5 class="text mb-4">Horraire d'ouvertures</h5>
+          <h5 class="text mb-4">Horaires d'ouverture</h5>
 
-          <table class="table text-center text-white">
+          <table class="table text-center" style="color:#fff;">
             <tbody class="fw-normal">
               <tr>
-                <td>Lun - Ven:</td>
-                <td>9h - 12h</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Lun - Ven :</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">9h – 12h</td>
               </tr>
               <tr>
-                <td></td>
-                <td>14h - 18h</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);"></td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">14h – 18h</td>
               </tr>
               <tr>
-                <td>Samedi:</td>
-                <td>9h - 12h</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Samedi :</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">9h – 12h</td>
+              </tr>
+              <tr>
+                <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Dimanche :</td>
+                <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Fermé</td>
               </tr>
             </tbody>
           </table>
@@ -128,11 +266,34 @@
       </div>
     </div>
 
+    <!-- Modes de paiement -->
+    <div class="footer-payment-strip">
+        <i class="fas fa-lock"></i>
+        <span>Paiement sécurisé</span>
+        <i class="fab fa-cc-visa"       title="Visa"></i>
+        <i class="fab fa-cc-mastercard" title="Mastercard"></i>
+        <span class="footer-pms-badge" title="Carte Bancaire">CB</span>
+        <i class="fab fa-cc-amex"       title="American Express"></i>
+        <i class="fab fa-apple-pay"     title="Apple Pay"></i>
+        <span class="footer-pms-badge footer-pms-gpay" title="Google Pay">G Pay</span>
+        <i class="fab fa-stripe-s"      title="Stripe"></i>
+    </div>
+
     <!-- Copyright -->
 
-    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-      © 2024 Copyright:
-      <a class="text-white" href="https://mdbootstrap.com/">NosWeb</a>
+    <div class="footer-copyright">
+      <span>© {{ "now"|date("Y") }} D'panne Phones — Tous droits réservés</span>
+      <span class="footer-legal-inline">
+        <a href="{{ path('legal_cgv') }}">CGV</a>
+        <span>·</span>
+        <a href="{{ path('legal_mentions') }}">Mentions légales</a>
+        <span>·</span>
+        <a href="{{ path('legal_confidentialite') }}">Confidentialité</a>
+        {% if google_analytics_id and app.environment == 'prod' %}
+        <span>·</span>
+        <a href="#tarteaucitron" onclick="event.preventDefault(); if(typeof tarteaucitron !== 'undefined'){tarteaucitron.userInterface.openPanel();}">Cookies</a>
+        {% endif %}
+      </span>
     </div>
 
     <!-- Copyright -->

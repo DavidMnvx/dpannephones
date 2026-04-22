@@ -1,0 +1,47 @@
+{# ══════════════════════════════════════════════════════════
+   Partial : "Suivez-nous sur les réseaux sociaux"
+   Inclut automatiquement tous les SocialLink actifs.
+   Usage :
+     {{ include('_partials/social_follow.html.twig') }}
+     {{ include('_partials/social_follow.html.twig', {'compact': true}) }}
+═══════════════════════════════════════════════════════════ #}
+{% set links = social_links() %}
+{% if links|length > 0 %}
+    {% if compact is defined and compact %}
+        {# Version compacte — juste les icônes, pour le footer #}
+        <div class="social-follow-compact">
+            {% for l in links %}
+                <a href="{{ l.url }}" target="_blank" rel="noopener noreferrer"
+                   class="social-follow-icon-compact"
+                   style="--brand:{{ l.color }};"
+                   title="{{ l.displayLabel }} — suivez-nous">
+                    <i class="{{ l.icon }}"></i>
+                    <span class="sr-only">{{ l.displayLabel }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        {# Version complète — bloc avec titre pour contact / qui-sommes-nous #}
+        <section class="social-follow-section reveal">
+            <div class="social-follow-title">
+                <i class="fas fa-share-alt mr-2"></i>
+                Suivez-nous sur les réseaux sociaux
+            </div>
+            <p class="social-follow-subtitle">
+                Actus, promos, coulisses de l'atelier — rejoignez notre communauté !
+            </p>
+            <div class="social-follow-grid">
+                {% for l in links %}
+                    <a href="{{ l.url }}" target="_blank" rel="noopener noreferrer"
+                       class="social-follow-card"
+                       style="--brand:{{ l.color }};">
+                        <span class="social-follow-card-icon">
+                            <i class="{{ l.icon }}"></i>
+                        </span>
+                        <span class="social-follow-card-label">{{ l.displayLabel }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+{% endif %}

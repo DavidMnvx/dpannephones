@@ -1,0 +1,89 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'clients' %}
+{% block title %}Clients — Admin D'Panne Phones{% endblock %}
+
+{% block admin_content %}
+<div class="admin-commandes-page">
+
+  <div class="admin-page-header">
+    <div>
+      <a href="{{ path('admin_index') }}" class="admin-back-link"><i class="fas fa-arrow-left mr-1"></i>Tableau de bord</a>
+      <h1 class="admin-page-title"><i class="fas fa-users mr-2"></i>Clients inscrits</h1>
+    </div>
+    <div class="admin-page-header-stats">
+      <span class="admin-header-stat"><strong>{{ users|length }}</strong> comptes enregistrés</span>
+    </div>
+  </div>
+
+  {% if users is empty %}
+    <div class="admin-empty-state">
+      <i class="fas fa-users"></i>
+      <p>Aucun client inscrit pour le moment.</p>
+    </div>
+  {% else %}
+  <div class="admin-table-wrap">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Client</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Ville</th>
+          <th class="text-center">Commandes</th>
+          <th class="text-right">Total dépensé</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr class="admin-table-row">
+          <td class="cmd-id">{{ user.id }}</td>
+          <td>
+            <div class="admin-client-mini">
+              <div class="admin-client-avatar admin-client-avatar--sm">{{ user.prenom|first|upper }}{{ user.nom|first|upper }}</div>
+              <strong>{{ user.prenom }} {{ user.nom }}</strong>
+            </div>
+          </td>
+          <td><a href="mailto:{{ user.email }}" class="admin-link">{{ user.email }}</a></td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.ville }}</td>
+          <td class="text-center">
+            <span class="badge-count">{{ stats[user.id].nbCommandes ?? 0 }}</span>
+          </td>
+          <td class="text-right">
+            <strong>{{ (stats[user.id].totalDepense ?? 0)|number_format(2, ',', ' ') }} €</strong>
+          </td>
+          <td>
+            {% if user.isVerified %}
+              <span class="badge-statut badge-statut--payee"><i class="fas fa-check mr-1"></i>Vérifié</span>
+            {% else %}
+              <span class="badge-statut badge-statut--pending"><i class="fas fa-clock mr-1"></i>En attente</span>
+            {% endif %}
+          </td>
+          <td style="white-space:nowrap;">
+            <a href="{{ path('admin_client_show', {id: user.id}) }}" class="btn-admin-action btn-admin-action--view">
+              <i class="fas fa-eye mr-1"></i>Voir
+            </a>
+            <a href="{{ path('admin_client_edit', {id: user.id}) }}" class="btn-admin-action btn-admin-action--edit">
+              <i class="fas fa-edit mr-1"></i>Modifier
+            </a>
+            <form method="post" action="{{ path('admin_client_delete', {id: user.id}) }}"
+                  style="display:inline;" id="del-{{ user.id }}">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete_client_' ~ user.id) }}">
+              <button type="button" class="btn-admin-action btn-admin-action--delete"
+                      onclick="if(confirm('Supprimer {{ user.prenom }} {{ user.nom }} ?')) document.getElementById('del-{{ user.id }}').submit();">
+                <i class="fas fa-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

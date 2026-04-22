@@ -1,96 +1,204 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Contact{% endblock %}
+{% block title %}Contact — D'Panne Phones{% endblock %}
+
 {% block body %}
 
-
-
-{# Baniere #}
-
-<div id="carouselExampleIndicators2" class="carousel slide" data-ride="carousel" data-interval="4000">
-    
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset('images/baner/contact.avif') }}" alt="First slide">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_contact', 'images/baner/contact.avif')) }}" alt="Contact">
             <div class="carousel-caption">
-                <h5 id="besoinRens" >Besoin d'un renseignement ?</h5>
-
+                <h5 id="uneRep">Contactez-nous</h5>
             </div>
         </div>
     </div>
 </div>
 
-{# Baniere #}
+<div class="contact-page-wrap">
 
-{# Formulaire de contact #}
+    {# Titre section #}
+    <div class="contact-page-header">
+        <h1 class="contact-page-title">Une question ? Écrivez-nous</h1>
+        <p class="contact-page-sub">Notre équipe vous répondra dans les plus brefs délais, généralement sous 24h.</p>
+    </div>
 
-<div class="d-flex justify-content-center mt-5 mb-5">
-    <h1 id="besoinDr" >Contactez nous ?</h1>
+    <div class="contact-layout">
+
+        {# ════════════════════════════════
+           COLONNE GAUCHE — Infos pratiques
+           ════════════════════════════════ #}
+        <aside class="contact-info-col">
+
+            <div class="contact-info-card">
+                <h3 class="contact-info-title">
+                    <i class="fas fa-store mr-2"></i>D'Panne Phones
+                </h3>
+                <p class="contact-info-baseline">Réparation & Vente — Pélissanne</p>
+
+                <div class="contact-info-items">
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <strong>Adresse</strong>
+                            <span>Pélissanne, 13330<br>Bouches-du-Rhône</span>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <strong>Téléphone</strong>
+                            <a href="tel:+33783748311" class="contact-info-link">07 83 74 83 11</a>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <strong>Email</strong>
+                            <a href="mailto:contact@dpannephones.fr" class="contact-info-link">contact@dpannephones.fr</a>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
+                        <div>
+                            <strong>Horaires</strong>
+                            <span>Lun–Ven : 9h – 19h<br>Sam : 10h – 17h<br>Dim : Fermé</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-info-tags">
+                    <span class="contact-tag"><i class="fas fa-tools mr-1"></i>Réparation express</span>
+                    <span class="contact-tag"><i class="fas fa-mobile-alt mr-1"></i>Vente reconditionnée</span>
+                    <span class="contact-tag"><i class="fas fa-shield-alt mr-1"></i>Garantie 6 mois</span>
+                    <span class="contact-tag"><i class="fas fa-star mr-1"></i>Depuis 2017</span>
+                </div>
+            </div>
+
+            {# Temps de réponse #}
+            <div class="contact-response-card">
+                <i class="fas fa-bolt contact-response-icon"></i>
+                <div>
+                    <strong>Réponse rapide</strong>
+                    <span>Généralement sous 24h en semaine.<br>Pour un dépannage urgent, appelez-nous directement.</span>
+                </div>
+            </div>
+
+        </aside>
+
+        {# ════════════════════════════════
+           COLONNE DROITE — Formulaire
+           ════════════════════════════════ #}
+        <div class="contact-form-col">
+            <div class="contact-form-card">
+
+                <h2 class="contact-form-title">Envoyer un message</h2>
+
+                {# Flash messages #}
+                {% set hasSuccess = false %}
+                {% for msg in app.flashes('success') %}
+                    {% set hasSuccess = true %}
+                    <div class="contact-alert contact-alert--success">
+                        <i class="fas fa-check-circle mr-2"></i>{{ msg }}
+                    </div>
+                {% endfor %}
+                {% for msg in app.flashes('error') %}
+                    <div class="contact-alert contact-alert--error">
+                        <i class="fas fa-exclamation-circle mr-2"></i>{{ msg }}
+                    </div>
+                {% endfor %}
+
+                {# Note spam (affichée après envoi réussi) #}
+                {% if hasSuccess %}
+                    <div class="spam-notice">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Notre réponse pourrait arriver dans vos spams</strong>
+                            <span>Pensez à vérifier votre courrier indésirable et à ajouter <em>contact@dpannephones.com</em> à vos contacts.</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {{ form_start(form, {'attr': {'class': 'contact-form', 'novalidate': 'novalidate'}}) }}
+
+                <div class="contact-form-row">
+                    <div class="contact-form-group">
+                        <label class="contact-label"><i class="fas fa-user mr-1"></i>Prénom <span class="contact-required">*</span></label>
+                        {{ form_widget(form.firstName, {'attr': {'class': 'contact-input', 'placeholder': 'Votre prénom'}}) }}
+                        {{ form_errors(form.firstName) }}
+                    </div>
+                    <div class="contact-form-group">
+                        <label class="contact-label"><i class="fas fa-user mr-1"></i>Nom <span class="contact-required">*</span></label>
+                        {{ form_widget(form.lastName, {'attr': {'class': 'contact-input', 'placeholder': 'Votre nom'}}) }}
+                        {{ form_errors(form.lastName) }}
+                    </div>
+                </div>
+
+                <div class="contact-form-row">
+                    <div class="contact-form-group">
+                        <label class="contact-label"><i class="fas fa-envelope mr-1"></i>Email <span class="contact-required">*</span></label>
+                        {{ form_widget(form.email, {'attr': {'class': 'contact-input', 'placeholder': 'votre@email.fr'}}) }}
+                        {{ form_errors(form.email) }}
+                    </div>
+                    <div class="contact-form-group">
+                        <label class="contact-label"><i class="fas fa-phone mr-1"></i>Téléphone</label>
+                        {{ form_widget(form.phone, {'attr': {'class': 'contact-input', 'placeholder': '06 XX XX XX XX'}}) }}
+                        {{ form_errors(form.phone) }}
+                    </div>
+                </div>
+
+                <div class="contact-form-group">
+                    <label class="contact-label"><i class="fas fa-comment mr-1"></i>Message <span class="contact-required">*</span></label>
+                    {{ form_widget(form.message, {'attr': {'class': 'contact-input contact-textarea', 'rows': '6', 'placeholder': 'Décrivez votre demande (réparation, question produit, SAV…)'}}) }}
+                    {{ form_errors(form.message) }}
+                </div>
+
+                <div class="contact-form-footer">
+                    <p class="contact-rgpd">
+                        <i class="fas fa-lock mr-1"></i>
+                        Vos données sont utilisées uniquement pour répondre à votre demande. Conformément au RGPD, vous disposez d'un droit d'accès et de suppression.
+                    </p>
+                    {{ form_widget(form.submit, {'label': '  Envoyer le message', 'attr': {'class': 'contact-submit-btn'}}) }}
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+    </div>
+
+    {# Carte Google Maps — iframe embed (pas de clé API requise, toujours disponible) #}
+    <div class="contact-map-section">
+        <h2 class="contact-map-title"><i class="fas fa-map-marked-alt mr-2"></i>Où nous trouver ?</h2>
+
+        <div class="contact-map-wrap">
+            <iframe
+                src="https://maps.google.com/maps?q=43.629783,5.154775&z=18&output=embed&hl=fr"
+                width="100%"
+                height="400"
+                style="border:0;border-radius:12px;display:block;"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="no-referrer-when-downgrade"
+                title="D'Panne Phones — 17 Boulevard du Comte de Provence, Pélissanne"></iframe>
+
+            <div class="contact-map-links">
+                <a href="https://www.google.com/maps/search/?api=1&query=D%27Panne+Phones+P%C3%A9lissanne&query_place_id=ChIJQ8joB7_5yRIRHpgyRx9z26o"
+                   target="_blank" rel="noopener noreferrer" class="contact-map-btn">
+                    <i class="fas fa-directions mr-1"></i> Itinéraire
+                </a>
+                <a href="https://www.google.com/maps/place/?q=place_id:ChIJQ8joB7_5yRIRHpgyRx9z26o"
+                   target="_blank" rel="noopener noreferrer" class="contact-map-btn contact-map-btn--ghost">
+                    <i class="fab fa-google mr-1"></i> Voir sur Google Maps
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# ═══ Suivez-nous sur les réseaux sociaux ═══ #}
+    {{ include('_partials/social_follow.html.twig') }}
+
 </div>
 
-    <div class="container" style="max-width: 70%;">
-        {{ form_start(form) }}
-        
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                {{ form_row(form.firstName, {'label': 'Prénom', 'attr': {'class': 'form-control'}}) }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form_row(form.lastName, {'label': 'Nom', 'attr': {'class': 'form-control'}}) }}
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-6">
-                {{ form_row(form.email, {'label': 'Email', 'attr': {'class': 'form-control'}}) }}
-            </div>
-            <div class="form-group col-md-6">
-                {{ form_row(form.phone, {'label': 'Téléphone', 'attr': {'class': 'form-control'}}) }}
-            </div>
-        </div>
-
-        <div class="form-group">
-            {{ form_row(form.message, {'label': 'Message', 'attr': {'class': 'form-control', 'rows': '5'}}) }}
-        </div>
-
-        <div class="form-group">
-            {{ form_row(form.submit, {'label': 'Envoyer', 'attr': {'class': 'btn btn-primary'}}) }}
-        </div>
-
-        {{ form_end(form) }}
-    </div>
-
-{# Formulaire de contact #}
-
-
-{# Google Map #}
-
-        <div class="d-flex justify-content-center mb-5">
-            <h2>Ou nous trouver ?</h2>
-        </div>
-    <div class="d-flex justify-content-center mb-5" style="">
-        <div id="map" style="height: 400px; width: 90%;" ></div>
-    </div>
-
-
-    <script>
-        function initMap() {
-            var location = { lat: 43.629783630371094, lng: 5.154775142669678 };
-            var map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 18,
-                center: location
-            });
-            var marker = new google.maps.Marker({
-                position: location,
-                map: map
-            });
-        }
-    </script>
-
-{# Google Map #}
-
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAnG_CITTtF3lqwzusma8CtuygsiQbTyds&callback=initMap" async defer></script>
 {% endblock %}
-
-

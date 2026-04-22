@@ -4,7 +4,19 @@
 
 {% block body %}
 
-<div class="container mt-5 mb-5">
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_cart', 'images/baner/Boutique.png')) }}" alt="Panier">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Mon Panier</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4 mb-5">
 
     <div class="cart-page-title"><i class="fas fa-shopping-cart mr-2" style="color:rgb(9,71,113)"></i> Mon Panier</div>
     <p style="font-size:14px;color:#6c757d;margin-bottom:28px;">
@@ -60,9 +72,23 @@
                                     </td>
                                     <td class="cart-price">{{ cartItem.article.price }} €</td>
                                     <td>
-                                        <span style="background:#f0f6fc;color:rgb(9,71,113);font-weight:700;padding:4px 12px;border-radius:6px;">
-                                            {{ cartItem.quantity }}
-                                        </span>
+                                        <div class="cart-qty-ctrl">
+                                            <a href="{{ path('cart_decrement', {id: cartItem.article.id}) }}"
+                                               class="qty-btn qty-btn--minus"
+                                               title="{{ cartItem.quantity == 1 ? 'Retirer l\'article' : 'Diminuer' }}">
+                                                {% if cartItem.quantity == 1 %}
+                                                    <i class="fas fa-trash-alt" style="font-size:11px;"></i>
+                                                {% else %}
+                                                    <i class="fas fa-minus"></i>
+                                                {% endif %}
+                                            </a>
+                                            <span class="qty-value">{{ cartItem.quantity }}</span>
+                                            <a href="{{ path('cart_increment', {id: cartItem.article.id}) }}"
+                                               class="qty-btn qty-btn--plus"
+                                               title="Ajouter un de plus">
+                                                <i class="fas fa-plus"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                     <td class="cart-price">{{ (cartItem.article.price * cartItem.quantity)|number_format(2, '.', ' ') }} €</td>
                                     <td>
@@ -79,19 +105,118 @@
 
             <div class="col-lg-4">
                 <div class="cart-summary">
-                    <h5 style="font-size:15px;font-weight:700;color:#1b2e45;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #f0f2f5;">
-                        Récapitulatif
-                    </h5>
-                    {% for cartItem in cart %}
-                        <div class="cart-summary-row">
-                            <span>{{ cartItem.article.name }} x{{ cartItem.quantity }}</span>
-                            <span>{{ (cartItem.article.price * cartItem.quantity)|number_format(2, '.', ' ') }} €</span>
-                        </div>
-                    {% endfor %}
-                    <div class="cart-total-row">
-                        <span class="cart-total-label">Total TTC</span>
-                        <span class="cart-total-amount">{{ total|number_format(2, '.', ' ') }} €</span>
+
+                    {# ── En-tête ticket ── #}
+                    <div class="receipt-header">
+                        <i class="fas fa-receipt mr-2" style="color:rgb(9,71,113);"></i>
+                        Récapitulatif de commande
                     </div>
+
+                    {# ── Lignes articles ── #}
+                    <div class="receipt-items">
+                        {% for cartItem in cart %}
+                            {% set lineTotal = cartItem.article.price * cartItem.quantity %}
+                            <div class="receipt-item">
+                                <div class="receipt-item-name">
+                                    {{ cartItem.article.name }}
+                                    {% if cartItem.options and cartItem.options.model is defined %}
+                                        <small class="receipt-item-option">{{ cartItem.options.model }}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="receipt-item-right">
+                                    <span class="receipt-item-qty">× {{ cartItem.quantity }}</span>
+                                    <span class="receipt-item-price">{{ lineTotal|number_format(2, ',', ' ') }} €</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {# ── Calculs TVA ── #}
+                    {% set subtotalHT = subtotal / 1.20 %}
+                    {% set subtotalTVA = subtotal - subtotalHT %}
+
+                    <div class="receipt-divider"></div>
+
+                    <div class="receipt-tax-row">
+                        <span>Sous-total HT</span>
+                        <span>{{ subtotalHT|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                    <div class="receipt-tax-row">
+                        <span>TVA (20 %)</span>
+                        <span>{{ subtotalTVA|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                    <div class="receipt-tax-row">
+                        <span>Sous-total TTC</span>
+                        <span>{{ subtotal|number_format(2, ',', ' ') }} €</span>
+                    </div>
+
+                    {# ── Ligne remise code promo ── #}
+                    {% if promoCode is defined and promoCode %}
+                        <div class="receipt-tax-row receipt-tax-row--promo">
+                            <span>
+                                <i class="fas fa-ticket-alt mr-1" style="color:#16a34a;"></i>
+                                Code <strong>{{ promoCode.code }}</strong>
+                                <form method="post" action="{{ path('cart_remove_promo') }}" style="display:inline;margin-left:6px;">
+                                    <button type="submit" style="background:none;border:none;color:#9ca3af;font-size:11px;cursor:pointer;padding:0;text-decoration:underline;">
+                                        retirer
+                                    </button>
+                                </form>
+                            </span>
+                            <span style="color:#16a34a;font-weight:700;">
+                                −{{ promoDiscount|number_format(2, ',', ' ') }} €
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    {# ── Ligne livraison ── #}
+                    <div class="receipt-tax-row receipt-tax-row--shipping">
+                        <span>
+                            <i class="fas fa-truck mr-1" style="color:rgb(9,71,113);"></i>
+                            Livraison
+                            {% if selectedMode and availableShipping[selectedMode] is defined %}
+                                <small style="color:#6b7280;font-size:11px;">· {{ availableShipping[selectedMode].label }}</small>
+                            {% endif %}
+                        </span>
+                        <span>
+                            {% if shippingCost > 0 %}
+                                {{ shippingCost|number_format(2, ',', ' ') }} €
+                            {% else %}
+                                <span style="color:#16a34a;font-weight:700;">Gratuit</span>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="receipt-divider receipt-divider--thick"></div>
+
+                    <div class="receipt-total-row">
+                        <span class="receipt-total-label">Total TTC</span>
+                        <span class="receipt-total-amount">{{ total|number_format(2, ',', ' ') }} €</span>
+                    </div>
+
+                    <div class="receipt-legal">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        TVA 20 % incluse — Prix affichés TTC
+                    </div>
+
+                    {# ══ Code promo ══ #}
+                    {% if promoCode is not defined or not promoCode %}
+                        <form method="post" action="{{ path('cart_apply_promo') }}" class="promo-form">
+                            <label class="promo-form-label">
+                                <i class="fas fa-ticket-alt mr-1" style="color:#16a34a;"></i>
+                                Code promo
+                            </label>
+                            <div class="promo-form-row">
+                                <input type="text" name="promo_code" class="promo-input"
+                                       placeholder="Ex: BIENVENUE10"
+                                       autocomplete="off"
+                                       style="text-transform:uppercase;">
+                                <button type="submit" class="promo-apply-btn">
+                                    Appliquer
+                                </button>
+                            </div>
+                        </form>
+                    {% endif %}
+
                     <a href="{{ path('payment_checkout') }}" class="btn-checkout btn-checkout--stripe">
                         <i class="fab fa-stripe-s mr-2"></i>
                         Payer par carte — {{ total|number_format(2, ',', ' ') }} €
@@ -99,6 +224,58 @@
                     <a href="{{ path('boutique_index') }}" class="btn-continue">
                         <i class="fas fa-arrow-left mr-1"></i> Continuer mes achats
                     </a>
+
+                    {# ══ Choix du mode de livraison (form actif) ══ #}
+                    <form method="post" action="{{ path('cart_set_shipping') }}" id="shipping-form" class="shipping-select-box">
+                        <div class="shipping-select-title">
+                            <i class="fas fa-truck mr-1"></i> Choisir la livraison
+                        </div>
+
+                        {# Bandeau info — article volumineux dans le panier #}
+                        {% if hasBulky %}
+                            <div class="shipping-bulky-notice">
+                                <i class="fas fa-info-circle"></i>
+                                <div>
+                                    <strong>Votre commande contient {{ bulkyLabel }}</strong>
+                                    <span>Tous les articles seront regroupés dans un même colis sécurisé — les options de livraison sont donc adaptées à ce format.</span>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% for code, opt in availableShipping %}
+                            <label class="shipping-option {{ selectedMode == code ? 'shipping-option--active' : '' }}"
+                                   for="ship-{{ code }}">
+                                <input type="radio"
+                                       name="shipping_mode"
+                                       id="ship-{{ code }}"
+                                       value="{{ code }}"
+                                       {{ selectedMode == code ? 'checked' : '' }}
+                                       onchange="document.getElementById('shipping-form').submit()">
+                                <span class="shipping-option-icon" style="color:{{ opt.color }};">
+                                    <i class="{{ opt.icon }}"></i>
+                                </span>
+                                <span class="shipping-option-info">
+                                    <strong class="shipping-option-label">{{ opt.label }}</strong>
+                                    <small class="shipping-option-delay">{{ opt.delay }}</small>
+                                </span>
+                                <span class="shipping-option-price">
+                                    {% if opt.price > 0 %}
+                                        {{ opt.price|number_format(2, ',', ' ') }} €
+                                    {% else %}
+                                        <span class="shipping-free">Gratuit</span>
+                                    {% endif %}
+                                </span>
+                            </label>
+                        {% endfor %}
+
+                        {# Message générique si options limitées sans article volumineux #}
+                        {% if not hasBulky and availableShipping|length < 5 %}
+                            <p class="shipping-note">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Les options affichées sont adaptées aux articles de votre panier.
+                            </p>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
         </div>
