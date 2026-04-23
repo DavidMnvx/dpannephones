@@ -5,6 +5,8 @@ namespace App\Twig;
 use App\Repository\ReviewRepository;
 use App\Repository\SiteImageRepository;
 use App\Repository\SocialLinkRepository;
+use App\Service\AppSettingService;
+use App\Service\StaticReviewsProvider;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -13,17 +15,23 @@ use Twig\TwigFunction;
  *  - `admin_pending_reviews_count()` : compteur avis en attente (badge sidebar admin)
  *  - `site_image('slug')` : chemin web d'une image modifiable depuis l'admin
  *  - `social_links()` : liste des réseaux sociaux actifs (avec icône + couleur)
+ *  - `page_enabled('boutique')` : true/false selon le toggle AppSetting `page_boutique_enabled`
+ *  - `google_rating()` : note moyenne Google (float|null)
+ *  - `google_reviews_count()` : nombre total d'avis Google (int|null)
  */
 class AdminExtension extends AbstractExtension
 {
     private ?int $pendingCount = null;
     private array $imageCache = [];
     private ?array $socialLinksCache = null;
+    private array $pageEnabledCache = [];
 
     public function __construct(
         private ReviewRepository $reviewRepo,
         private SiteImageRepository $siteImageRepo,
         private SocialLinkRepository $socialLinkRepo,
+        private AppSettingService $settings,
+        private StaticReviewsProvider $reviewsProvider,
     ) {}
 
     public function getFunctions(): array
@@ -32,7 +40,32 @@ class AdminExtension extends AbstractExtension
             new TwigFunction('admin_pending_reviews_count', [$this, 'getPendingReviewsCount']),
             new TwigFunction('site_image', [$this, 'getSiteImage']),
             new TwigFunction('social_links', [$this, 'getSocialLinks']),
+            new TwigFunction('page_enabled', [$this, 'isPageEnabled']),
+            new TwigFunction('google_rating', [$this, 'getGoogleRating']),
+            new TwigFunction('google_reviews_count', [$this, 'getGoogleReviewsCount']),
         ];
+    }
+
+    /**
+     * Vérifie si une page publique est activée (toggle admin /admin/parametres).
+     * Par défaut TRUE (on n'interdit une page que si elle est explicitement désactivée).
+     */
+    public function isPageEnabled(string $page): bool
+    {
+        if (!isset($this->pageEnabledCache[$page])) {
+            $this->pageEnabledCache[$page] = $this->settings->getBool("page_{$page}_enabled", true);
+        }
+        return $this->pageEnabledCache[$page];
+    }
+
+    public function getGoogleRating(): ?float
+    {
+        return $this->reviewsProvider->getOverallRating();
+    }
+
+    public function getGoogleReviewsCount(): ?int
+    {
+        return $this->reviewsProvider->getTotalRatings();
     }
 
     /**

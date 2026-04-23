@@ -90,12 +90,15 @@
                                 {% if s.type == 'bool' %}
                                     <label class="setting-toggle setting-toggle--small">
                                         <input type="checkbox"
+                                               class="setting-toggle-input"
                                                id="setting-{{ s.key }}"
                                                name="settings[{{ s.key }}]"
                                                value="1"
                                                {% if s.typedValue %}checked{% endif %}>
                                         <span class="setting-toggle-slider"></span>
-                                        <span style="margin-left:8px;font-size:13px;">{{ s.typedValue ? 'Activé' : 'Désactivé' }}</span>
+                                        <span class="setting-toggle-state-label" style="margin-left:8px;font-size:13px;font-weight:600;">
+                                            {{ s.typedValue ? 'Activé' : 'Désactivé' }}
+                                        </span>
                                     </label>
 
                                 {% elseif s.type == 'int' %}
@@ -160,7 +163,7 @@
 
 <script>
 (function() {
-    // Toggle enable/disable des champs d'une catégorie selon le bouton principal
+    // 1. Toggle principal : grise/dégrise les sous-champs
     document.querySelectorAll('.setting-toggle-input[data-toggles-category]').forEach(function(toggle) {
         var category = toggle.getAttribute('data-toggles-category');
         var fields = document.querySelector('[data-category-fields="' + category + '"]');
@@ -173,6 +176,22 @@
                 fields.classList.add('settings-fields--disabled');
             }
         });
+    });
+
+    // 2. Sub-toggles : mise à jour en direct du label "Activé / Désactivé"
+    document.querySelectorAll('.setting-toggle--small .setting-toggle-input').forEach(function(input) {
+        input.addEventListener('change', function() {
+            var label = input.closest('.setting-toggle').querySelector('.setting-toggle-state-label');
+            if (label) {
+                label.textContent = input.checked ? 'Activé' : 'Désactivé';
+                label.style.color = input.checked ? '#16a34a' : '#6b7280';
+            }
+        });
+        // Couleur initiale
+        var initLabel = input.closest('.setting-toggle').querySelector('.setting-toggle-state-label');
+        if (initLabel) {
+            initLabel.style.color = input.checked ? '#16a34a' : '#6b7280';
+        }
     });
 })();
 </script>

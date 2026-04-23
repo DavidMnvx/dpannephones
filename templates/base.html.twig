@@ -116,81 +116,313 @@
     </head>
 
     <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light ">
-        <a class="navbar-brand " href="/"><img src="{{asset ('images/logo_dpannephones/Logo_engrenage.png') }}" alt="Logo" height="65" ></a>
-        <a class="navbar-brand " href="/"><img src="{{asset ('images/logo_dpannephones/Logo_dpannephones.png') }}" alt="Logo" height="35" ></a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse " id="navbarNavDropdown">
-            <ul class="navbar-nav mx-auto">
-             <li class="nav-item mr-5">
-                    <a class="nav-link phone-btn" id="regisconn" href="tel:+33783748311">07 83 74 83 11</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Accueil <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/reparations">Réparation</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/boutique">La Boutique</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/contact">Contact</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/avis">Avis</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/partenaires">Partenaires</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/about">Qui sommes-nous ?</a>
-                </li>
-            </ul>
+        {# ── Calcul de la page active pour la surbrillance navbar ── #}
+        {% set currentPath = app.request.pathInfo ?? '/' %}
+        {% set isHome         = (currentPath == '/') %}
+        {% set isReparations  = (currentPath starts with '/reparations') or (currentPath starts with '/ordinateur') or (currentPath starts with '/marques') or (currentPath starts with '/modeles') %}
+        {% set isBoutique     = (currentPath starts with '/boutique') %}
+        {% set isContact      = (currentPath starts with '/contact') %}
+        {% set isPartenaires  = (currentPath starts with '/partenaires') %}
+        {% set isAbout        = (currentPath starts with '/about') %}
+        {% set isAccount      = (currentPath starts with '/compte') or (currentPath starts with '/login') or (currentPath starts with '/register') or (currentPath starts with '/account') %}
 
-            <ul class="navbar-nav ml-auto mr-5">
-                {% if is_granted('ROLE_ADMIN') %}
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="/admin">Admin</a>
-                    </li>
-                {% endif %}
-                {% if is_granted('ROLE_USER') %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link btn btn-outline-primary mr-2 dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user-circle mr-1"></i>
-                            {{ app.user.prenom ?? app.user.email }}
+        <nav class="navbar navbar-expand-lg navbar-light bg-light ">
+            <a class="navbar-brand " href="{{ path('home') }}"><img src="{{asset ('images/logo_dpannephones/Logo_engrenage.png') }}" alt="Logo" height="65" ></a>
+            <a class="navbar-brand " href="{{ path('home') }}"><img src="{{asset ('images/logo_dpannephones/Logo_dpannephones.png') }}" alt="Logo" height="35" ></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse " id="navbarNavDropdown">
+                {# ═════ Liens principaux — centrés ═════ #}
+                <ul class="navbar-nav mx-auto">
+                    {# Accueil = icône maison (pas de texte) #}
+                    <li class="nav-item {{ isHome ? 'active' : '' }}">
+                        <a class="nav-link nav-link--home" href="{{ path('home') }}" title="Accueil" aria-label="Accueil">
+                            <i class="fas fa-home"></i>
+                            <span class="sr-only">Accueil</span>
                         </a>
-                        <div class="dropdown-menu dropdown-menu-right navbar-account-dropdown" aria-labelledby="accountDropdown">
-                            <div class="dropdown-account-header">
-                                <strong>{{ app.user.prenom }} {{ app.user.nom }}</strong>
-                                <small>{{ app.user.email }}</small>
+                    </li>
+
+                    {# Réparation — masqué si page désactivée dans le CRUD #}
+                    {% if page_enabled('reparations') %}
+                    <li class="nav-item {{ isReparations ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('reparations_home') }}">Réparation</a>
+                    </li>
+                    {% endif %}
+
+                    {# Boutique — masqué si désactivée #}
+                    {% if page_enabled('boutique') %}
+                    <li class="nav-item {{ isBoutique ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('boutique_index') }}">La Boutique</a>
+                    </li>
+                    {% endif %}
+
+                    {# Contact — masqué si désactivée #}
+                    {% if page_enabled('contact') %}
+                    <li class="nav-item {{ isContact ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('contact') }}">Contact</a>
+                    </li>
+                    {% endif %}
+
+                    {# Partenaires — masqué si désactivée #}
+                    {% if page_enabled('partenaires') %}
+                    <li class="nav-item {{ isPartenaires ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('partenaires_index') }}">Partenaires</a>
+                    </li>
+                    {% endif %}
+
+                    {# Qui sommes-nous — masqué si désactivée #}
+                    {% if page_enabled('about') %}
+                    <li class="nav-item {{ isAbout ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('app_about') }}">Qui sommes-nous ?</a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                {# ═════ À droite : Admin, Compte, Téléphone ═════ #}
+                <ul class="navbar-nav ml-auto mr-3 navbar-nav--right">
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="/admin">Admin</a>
+                        </li>
+                    {% endif %}
+                    {% if is_granted('ROLE_USER') %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link btn btn-outline-primary mr-2 dropdown-toggle" href="#" id="accountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user-circle mr-1"></i>
+                                {{ app.user.prenom ?? app.user.email }}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right navbar-account-dropdown" aria-labelledby="accountDropdown">
+                                <div class="dropdown-account-header">
+                                    <strong>{{ app.user.prenom }} {{ app.user.nom }}</strong>
+                                    <small>{{ app.user.email }}</small>
+                                </div>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ path('account_index') }}">
+                                    <i class="fas fa-user mr-2"></i>Mon Compte
+                                </a>
+                                <a class="dropdown-item" href="{{ path('cart_index') }}">
+                                    <i class="fas fa-shopping-cart mr-2"></i>Mon Panier
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item dropdown-item--logout" href="{{ path('app_logout') }}">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                                </a>
                             </div>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ path('account_index') }}">
-                                <i class="fas fa-user mr-2"></i>Mon Compte
+                        </li>
+                    {% else %}
+                        {# Remplace Inscription + Connexion par un seul lien "Mon compte" #}
+                        <li class="nav-item {{ isAccount ? 'active' : '' }}">
+                            <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="{{ path('app_login') }}">
+                                <i class="fas fa-user-circle mr-1"></i>Mon compte
                             </a>
-                            <a class="dropdown-item" href="{{ path('cart_index') }}">
-                                <i class="fas fa-shopping-cart mr-2"></i>Mon Panier
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item dropdown-item--logout" href="{{ path('app_logout') }}">
-                                <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
-                            </a>
-                        </div>
+                        </li>
+                    {% endif %}
+
+                    {# Téléphone — toujours tout à droite #}
+                    <li class="nav-item nav-item--phone">
+                        <a class="nav-link phone-btn" href="tel:+33783748311">
+                            <i class="fas fa-phone-alt mr-1"></i>07 83 74 83 11
+                        </a>
                     </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-outline-primary mr-2" id="regisconn" href="{{ path('app_register') }}">Inscription</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link btn btn-outline-primary" id="regisconn" href="{{ path('app_login') }}">Connexion</a>
-                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        {# ═════ Widget flottant Google Rating (point 2) ═════ #}
+        {# Masqué sur la page /avis pour éviter la redondance #}
+        {% set _googleRating = google_rating() %}
+        {% set _googleCount = google_reviews_count() %}
+        {% set _isReviewsPage = (currentPath starts with '/avis') or (currentPath starts with '/reviews') %}
+        {% if _googleRating and not _isReviewsPage %}
+        <a href="{{ path('reviews_index') }}"
+           class="google-rating-float"
+           id="google-rating-float"
+           title="Glissez pour déplacer • Cliquez pour voir les avis">
+            {# CTA visible uniquement en mode "rangé" — apparaît à gauche du G #}
+            <span class="google-rating-float-cta">
+                <i class="fas fa-chevron-left"></i>
+                <span>Voir les avis</span>
+            </span>
+
+            <span class="google-rating-float-icon"><i class="fab fa-google"></i></span>
+
+            <span class="google-rating-float-main">
+                <span class="google-rating-float-score">{{ _googleRating }}</span>
+                <span class="google-rating-float-stars">
+                    {% for i in 1..5 %}
+                        <i class="{{ i <= _googleRating|round ? 'fas' : 'far' }} fa-star"></i>
+                    {% endfor %}
+                </span>
+                {% if _googleCount %}
+                <span class="google-rating-float-count">{{ _googleCount }} avis</span>
                 {% endif %}
-            </ul>
-        </div>
-    </nav>
+            </span>
+        </a>
+        <script>
+        (function() {
+            var widget = document.getElementById('google-rating-float');
+            if (!widget) return;
+
+            var isDragging = false;
+            var dragThreshold = 5; // px — distance minimale pour considérer un drag
+            var startX = 0, startY = 0;
+            var startLeft = 0, startTop = 0;
+            var moved = false;
+            var STORAGE_KEY = 'dpanne_google_rating_pos';
+
+            // 1. Restaurer la position sauvegardée depuis localStorage
+            try {
+                var saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+                if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
+                    applyPosition(saved.x, saved.y);
+                }
+            } catch(e) {}
+
+            function applyPosition(x, y) {
+                // Contraintes : rester dans le viewport
+                var maxX = window.innerWidth - widget.offsetWidth - 8;
+                var maxY = window.innerHeight - widget.offsetHeight - 8;
+                x = Math.max(8, Math.min(x, maxX));
+                y = Math.max(8, Math.min(y, maxY));
+
+                widget.style.left = x + 'px';
+                widget.style.top = y + 'px';
+                widget.style.right = 'auto';
+                widget.style.bottom = 'auto';
+            }
+
+            function getPointerPos(e) {
+                if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                return { x: e.clientX, y: e.clientY };
+            }
+
+            function onStart(e) {
+                var pos = getPointerPos(e);
+                var rect = widget.getBoundingClientRect();
+                startX = pos.x;
+                startY = pos.y;
+                startLeft = rect.left;
+                startTop  = rect.top;
+                moved = false;
+
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onEnd);
+                document.addEventListener('touchmove', onMove, { passive: false });
+                document.addEventListener('touchend', onEnd);
+            }
+
+            function onMove(e) {
+                var pos = getPointerPos(e);
+                var dx = pos.x - startX;
+                var dy = pos.y - startY;
+
+                if (!moved && (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold)) {
+                    moved = true;
+                    isDragging = true;
+                    widget.classList.add('is-dragging');
+                }
+
+                if (isDragging) {
+                    e.preventDefault();
+                    applyPosition(startLeft + dx, startTop + dy);
+                }
+            }
+
+            function onEnd() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onEnd);
+
+                if (isDragging) {
+                    widget.classList.remove('is-dragging');
+                    // Sauvegarder la nouvelle position
+                    var rect = widget.getBoundingClientRect();
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+                    } catch(e) {}
+                    isDragging = false;
+                }
+            }
+
+            // Attacher les événements
+            widget.addEventListener('mousedown', onStart);
+            widget.addEventListener('touchstart', onStart, { passive: true });
+
+            // Empêcher le click après un drag
+            widget.addEventListener('click', function(e) {
+                if (moved) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    moved = false;
+                }
+            });
+
+            // Ré-appliquer la contrainte si la fenêtre est redimensionnée
+            window.addEventListener('resize', function() {
+                if (widget.style.left) {
+                    var rect = widget.getBoundingClientRect();
+                    applyPosition(rect.left, rect.top);
+                }
+            });
+
+            // ─────────────────────────────────────────────────
+            //  AUTO-COLLAPSE : se range sur la droite après 5s
+            //  Ne laisse visible que le "G" de Google
+            //  Se re-déplie au hover / touch
+            // ─────────────────────────────────────────────────
+            var COLLAPSE_DELAY = 5000; // 5 secondes
+            var collapseTimer = null;
+            var isHoveredOrTouched = false;
+
+            function scheduleCollapse() {
+                clearTimeout(collapseTimer);
+                collapseTimer = setTimeout(function() {
+                    // Ne pas collapser pendant le drag ou hover
+                    if (widget.classList.contains('is-dragging')) return;
+                    if (isHoveredOrTouched) return;
+                    widget.classList.add('is-collapsed');
+                }, COLLAPSE_DELAY);
+            }
+
+            function expand() {
+                widget.classList.remove('is-collapsed');
+                clearTimeout(collapseTimer);
+            }
+
+            // Démarrage : lancer le timer initial après l'animation d'entrée
+            setTimeout(scheduleCollapse, 1200);
+
+            // Hover : déplier + suspendre le timer
+            widget.addEventListener('mouseenter', function() {
+                isHoveredOrTouched = true;
+                expand();
+            });
+            widget.addEventListener('mouseleave', function() {
+                isHoveredOrTouched = false;
+                scheduleCollapse();
+            });
+
+            // Touch (mobile) : tap pour déplier, re-collapse après délai
+            widget.addEventListener('touchstart', function() {
+                isHoveredOrTouched = true;
+                expand();
+                // On laisse 3s après touch avant de recollapser
+                setTimeout(function() {
+                    isHoveredOrTouched = false;
+                    scheduleCollapse();
+                }, 3000);
+            }, { passive: true });
+
+            // Ne pas collapser si on est en cours de drag
+            widget.addEventListener('mousedown', function() {
+                clearTimeout(collapseTimer);
+            });
+        })();
+        </script>
+        {% endif %}
 
          {% block body %}{% endblock %}
 
@@ -199,36 +431,46 @@
   <footer class="text-white text-center text-lg-start ">
     <!-- Grid container -->
     <div class="container p-4">
-      <!--Grid row-->
-      <div class="row mt-4">
-        <!--Grid column-->
-        <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
+      <!-- Grid row — 4 colonnes ÉGALES sur desktop -->
+      <div class="row mt-4 footer-main-row">
+
+        <!-- Col 1 — Qui sommes-nous -->
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <h5 class="text mb-4">Qui sommes-nous ?</h5>
           <p>
-            D'panne Phones vous accueil depuis 2017, spécialisé dans la réparation de tous types de smartphones, tablettes et ordinateurs.
+            D'panne Phones vous accueille depuis 2017, spécialisé dans la réparation de tous types de smartphones, tablettes et ordinateurs.
           </p>
           <p>
-            Nous vous proposons également un large choix téléphones, ordinateur et accessoires, pour vos appareils électroniques.
+            Nous vous proposons également un large choix de téléphones, ordinateurs et accessoires pour vos appareils électroniques.
           </p>
         </div>
-        <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
-          <h5 class="text mb-4 pb-1">Contactez nous !</h5>
+
+        <!-- Col 2 — Contactez-nous + réseaux sociaux centrés -->
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h5 class="text mb-4 pb-1">Contactez-nous !</h5>
           <ul class="fa-ul" style="margin-left: 1.65em;">
             <li class="mb-3">
-              <span class="fa-li"><i class="fas"></i></span><span class="ms-2">Avenue Pasteur CENTRE COMMERCIAL LE GALION PARKING ALDI, 13330 Pélissanne, France</span>
+              <span class="fa-li"><i class="fas fa-map-marker-alt"></i></span>
+              <span class="ms-2">Avenue Pasteur CENTRE COMMERCIAL LE GALION PARKING ALDI, 13330 Pélissanne, France</span>
             </li>
             <li class="mb-3">
-              <span class="fa-li"><i class="fas"></i></span><span class="ms-2">contact@example.com</span>
+              <span class="fa-li"><i class="fas fa-envelope"></i></span>
+              <span class="ms-2">contact@dpannephones.com</span>
             </li>
             <li class="mb-3">
-              <span class="fa-li"><i class="fas"></i></span><span class="ms-2">Téléphone:  07 83 74 83 11</span>
+              <span class="fa-li"><i class="fas fa-phone-alt"></i></span>
+              <span class="ms-2">07 83 74 83 11</span>
             </li>
           </ul>
 
-          {# ═══ Icônes réseaux sociaux (version compacte pour footer) ═══ #}
-          {{ include('_partials/social_follow.html.twig', {'compact': true}) }}
+          {# ═══ Icônes réseaux sociaux — centrées sous le téléphone ═══ #}
+          <div class="footer-social-wrap">
+            {{ include('_partials/social_follow.html.twig', {'compact': true}) }}
+          </div>
         </div>
-        <div class="col-lg-1 col-md-6 mb-4 mb-md-0">
+
+        <!-- Col 3 — Informations légales -->
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <h5 class="text mb-4">Informations</h5>
           <ul class="footer-legal-links">
             <li><a href="{{ path('legal_cgv') }}"><i class="fas fa-file-contract mr-1"></i>CGV</a></li>
@@ -239,13 +481,14 @@
             {% endif %}
           </ul>
         </div>
-        <div class="col-lg-3 col-md-5 mb-4 mb-md-0">
-          <h5 class="text mb-4">Horaires d'ouverture</h5>
 
+        <!-- Col 4 — Horaires -->
+        <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h5 class="text mb-4">Horaires d'ouverture</h5>
           <table class="table text-center" style="color:#fff;">
             <tbody class="fw-normal">
               <tr>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Lun - Ven :</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Lun - Ven</td>
                 <td style="color:#fff;border-color:rgba(255,255,255,0.15);">9h – 12h</td>
               </tr>
               <tr>
@@ -253,11 +496,11 @@
                 <td style="color:#fff;border-color:rgba(255,255,255,0.15);">14h – 18h</td>
               </tr>
               <tr>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Samedi :</td>
+                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Samedi</td>
                 <td style="color:#fff;border-color:rgba(255,255,255,0.15);">9h – 12h</td>
               </tr>
               <tr>
-                <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Dimanche :</td>
+                <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Dimanche</td>
                 <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Fermé</td>
               </tr>
             </tbody>
@@ -306,8 +549,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <script src="{{ asset('assets/app.js') }}"></script>
-    <script>
+{{ importmap('app') }}    <script>
         // Scroll reveal global
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {

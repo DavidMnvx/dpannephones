@@ -545,4 +545,67 @@
 
 {% endif %}{# fin bloc avis clients #}
 
+{# ═══════════════════════════════════════════════
+   AUTO-CAROUSEL AVIS MOBILE — Script discret
+   Sur mobile (≤ 768px), on duplique les cards pour un défilement
+   infini fluide. Sur desktop, grille normale (pas d'animation).
+═══════════════════════════════════════════════ #}
+<script>
+(function() {
+    /**
+     * Transforme une grille en carrousel auto-scrolling sur mobile.
+     * Duplique les cards pour un loop seamless.
+     */
+    function setupMobileCarousel(selector, activeClass, cloneAttr) {
+        var isMobile = window.innerWidth <= 768;
+        var containers = document.querySelectorAll(selector);
+
+        containers.forEach(function(container) {
+            // Reset si on passe mobile → desktop
+            if (!isMobile) {
+                if (container.classList.contains(activeClass)) {
+                    container.classList.remove(activeClass);
+                    container.querySelectorAll('[' + cloneAttr + ']').forEach(function(c) { c.remove(); });
+                }
+                return;
+            }
+
+            // Déjà configuré ? skip
+            if (container.classList.contains(activeClass)) return;
+
+            var cards = Array.from(container.children);
+            if (cards.length < 2) return;
+
+            cards.forEach(function(card) {
+                var clone = card.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                clone.setAttribute(cloneAttr, 'true');
+                container.appendChild(clone);
+            });
+
+            container.classList.add(activeClass);
+        });
+    }
+
+    function setupAllCarousels() {
+        setupMobileCarousel('.review-container',      'review-auto-scroll',         'data-review-clone');
+        setupMobileCarousel('.home-articles-grid',    'home-articles-auto-scroll',  'data-article-clone');
+    }
+
+    // Setup au chargement
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupAllCarousels);
+    } else {
+        setupAllCarousels();
+    }
+
+    // Re-setup au resize (debounced)
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(setupAllCarousels, 250);
+    });
+})();
+</script>
+
 {% endblock %}

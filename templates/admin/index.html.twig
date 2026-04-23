@@ -48,6 +48,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_promos') }}">
+                        <i class="fas fa-ticket-alt" style="color:#16a34a;"></i> Codes promo
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{{ path('admin_clients') }}">
                         <i class="fas fa-users"></i> Clients
                     </a>
@@ -55,6 +60,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ path('admin_partenaires') }}">
                         <i class="fas fa-handshake"></i> Partenaires
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('admin_social_links') }}">
+                        <i class="fas fa-share-alt" style="color:#3b82f6;"></i> Réseaux sociaux
                     </a>
                 </li>
                 <li class="nav-item">
@@ -74,6 +84,11 @@
                         {% if pendingCount > 0 %}
                             <span class="sidebar-notif-badge" title="{{ pendingCount }} avis en attente de modération">{{ pendingCount }}</span>
                         {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+                    <a class="nav-link" href="{{ path('admin_settings') }}">
+                        <i class="fas fa-cog"></i> Paramètres
                     </a>
                 </li>
             </ul>
