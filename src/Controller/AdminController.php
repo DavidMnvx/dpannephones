@@ -121,6 +121,19 @@ class AdminController extends AbstractController
         }
 
         if ($reparationForm->isSubmitted() && $reparationForm->isValid()) {
+            // Si l'admin laisse l'ordre à 0 (valeur par défaut), on l'assigne automatiquement
+            // à la fin de la liste pour le modèle concerné (max + 10)
+            if ($reparation->getSortOrder() === 0 && $reparation->getModel()) {
+                $maxOrder = (int) $entityManager->createQueryBuilder()
+                    ->select('COALESCE(MAX(r.sortOrder), 0)')
+                    ->from(Reparation::class, 'r')
+                    ->where('r.model = :model')
+                    ->setParameter('model', $reparation->getModel())
+                    ->getQuery()
+                    ->getSingleScalarResult();
+                $reparation->setSortOrder($maxOrder + 10);
+            }
+
             $entityManager->persist($reparation);
             $entityManager->flush();
 
@@ -337,6 +350,68 @@ public function clearReparationMemory(Request $request): Response
 {
     $request->getSession()->remove('admin_last_reparation_model_id');
     $this->addFlash('info', 'Mémoire du dernier modèle effacée. Tu peux maintenant choisir un autre modèle.');
+    return $this->redirectToRoute('admin_index', ['_fragment' => 'reparations']);
+}
+
+/**
+ * Renumérote automatiquement toutes les réparations à sortOrder = 0 :
+ * pour chaque modèle concerné, on les place à la fin (max + 10, +20…).
+ * Les réparations déjà numérotées ne sont pas touchées.
+ */
+#[Route('/admin/reparation/fix-zero-orders', name: 'admin_reparation_fix_zeros', methods: ['POST'])]
+public function fixZeroOrders(Request $request, EntityManagerInterface $em): Response
+{
+    if (!$this->isCsrfTokenValid('fix_zero_orders', $request->request->get('_token'))) {
+        $this->addFlash('error', 'Jeton CSRF invalide.');
+        return $this->redirectToRoute('admin_index', ['_fragment' => 'reparations']);
+    }
+
+    $repRepo = $em->getRepository(Reparation::class);
+
+    // Toutes les réparations avec sortOrder = 0
+    $zeroReps = $repRepo->createQueryBuilder('r')
+        ->where('r.sortOrder = 0')
+        ->getQuery()
+        ->getResult();
+
+    if (empty($zeroReps)) {
+        $this->addFlash('info', 'Aucune réparation à réparer (toutes ont déjà un ordre > 0).');
+        return $this->redirectToRoute('admin_index', ['_fragment' => 'reparations']);
+    }
+
+    // Grouper par modèle pour leur attribuer un sort_order continu
+    $byModel = [];
+    foreach ($zeroReps as $rep) {
+        if (!$rep->getModel()) continue;
+        $modelId = $rep->getModel()->getId();
+        $byModel[$modelId][] = $rep;
+    }
+
+    $fixed = 0;
+    foreach ($byModel as $modelId => $reps) {
+        // Récupérer le max actuel pour ce modèle (parmi les non-zéro)
+        $maxOrder = (int) $em->createQueryBuilder()
+            ->select('COALESCE(MAX(r.sortOrder), 0)')
+            ->from(Reparation::class, 'r')
+            ->where('r.model = :model')
+            ->andWhere('r.sortOrder > 0')
+            ->setParameter('model', $reps[0]->getModel())
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Assigner max+10, max+20, max+30…
+        foreach ($reps as $i => $rep) {
+            $rep->setSortOrder($maxOrder + (($i + 1) * 10));
+            $fixed++;
+        }
+    }
+
+    $em->flush();
+    $this->addFlash('success', sprintf(
+        '✅ %d réparation%s renumérotée%s automatiquement (placées à la fin de chaque modèle).',
+        $fixed, $fixed > 1 ? 's' : '', $fixed > 1 ? 's' : ''
+    ));
+
     return $this->redirectToRoute('admin_index', ['_fragment' => 'reparations']);
 }
 

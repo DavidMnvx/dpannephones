@@ -54,10 +54,10 @@ class ReparationType extends AbstractType
             ])
             ->add('sortOrder', IntegerType::class, [
                 'label' => 'Ordre d\'affichage',
-                'help'  => 'Plus petit = affiché en premier. Laisse 0 si tu n\'as pas de préférence.',
+                'help'  => 'Laisse 0 (ou vide) pour placer à la fin automatiquement. Sinon, plus petit = affiché en premier.',
                 'required' => false,
                 'empty_data' => '0',
-                'attr' => ['min' => 0, 'max' => 9999],
+                'attr' => ['min' => 0, 'max' => 9999, 'placeholder' => '0 = auto'],
             ])
             ->add('hasPhone', CheckboxType::class, [
                 'label'    => 'Disponible pour téléphone',
