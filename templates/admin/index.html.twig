@@ -678,7 +678,7 @@
                         {{ form_end(reparationForm) }}
                     </div>
 
-                    {# ─── LISTE GROUPÉE PAR MODÈLE ─── #}
+                    {# ─── LISTE GROUPÉE PAR MODÈLE (onglets marque + accordéon + pagination) ─── #}
                     <div class="admin-card">
                         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
                             <h3 style="margin:0;"><i class="fas fa-list"></i> Liste des Réparations ({{ reparations|length }})</h3>
@@ -689,12 +689,58 @@
                             </a>
                         </div>
 
+                        {# ─── Onglets par marque ─── #}
+                        {% if marquesRep|length > 0 %}
+                            <div class="reparations-marque-tabs" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;padding:10px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+                                <a href="?marque_rep=0&page_rep=1#reparations"
+                                   class="rep-tab {% if selectedMarqueRep == 0 %}active{% endif %}"
+                                   style="padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:2px solid {% if selectedMarqueRep == 0 %}rgb(9,71,113);background:rgb(9,71,113);color:#fff;{% else %}#e2e8f0;background:#fff;color:#475569;{% endif %}transition:all .2s;">
+                                    <i class="fas fa-th-large mr-1"></i> Toutes
+                                    <span style="background:rgba(255,255,255,.25);padding:1px 7px;border-radius:10px;font-size:11px;margin-left:4px;{% if selectedMarqueRep != 0 %}background:#e2e8f0;color:#64748b;{% endif %}">{{ reparations|length }}</span>
+                                </a>
+                                {% for mq in marquesRep %}
+                                    <a href="?marque_rep={{ mq.id }}&page_rep=1#reparations"
+                                       class="rep-tab {% if selectedMarqueRep == mq.id %}active{% endif %}"
+                                       style="padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:2px solid {% if selectedMarqueRep == mq.id %}rgb(9,71,113);background:rgb(9,71,113);color:#fff;{% else %}#e2e8f0;background:#fff;color:#475569;{% endif %}transition:all .2s;">
+                                        {{ mq.name }}
+                                        <span style="background:{% if selectedMarqueRep == mq.id %}rgba(255,255,255,.25);color:#fff;{% else %}#e2e8f0;color:#64748b;{% endif %}padding:1px 7px;border-radius:10px;font-size:11px;margin-left:4px;">{{ mq.count }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+
+                            {# Boutons "Tout déplier / replier" #}
+                            {% if reparationsByModel|length > 0 %}
+                                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                                    <div style="font-size:13px;color:#64748b;">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        {{ totalGroupsRep }} modèle{{ totalGroupsRep > 1 ? 's' : '' }} —
+                                        affichage <strong>{{ ((currentPageRep - 1) * 15) + 1 }}–{{ min(currentPageRep * 15, totalGroupsRep) }}</strong>
+                                    </div>
+                                    <div style="display:flex;gap:8px;">
+                                        <button type="button" id="repExpandAll" class="btn btn-sm btn-outline-secondary" style="padding:5px 11px;font-size:12px;">
+                                            <i class="fas fa-chevron-down mr-1"></i> Tout déplier
+                                        </button>
+                                        <button type="button" id="repCollapseAll" class="btn btn-sm btn-outline-secondary" style="padding:5px 11px;font-size:12px;">
+                                            <i class="fas fa-chevron-up mr-1"></i> Tout replier
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+
                         {% if reparationsByModel is empty %}
-                            <p class="text-center text-muted" style="padding:30px 0;">Aucune réparation enregistrée.</p>
+                            <p class="text-center text-muted" style="padding:30px 0;">
+                                {% if selectedMarqueRep > 0 %}
+                                    Aucune réparation pour cette marque.
+                                {% else %}
+                                    Aucune réparation enregistrée.
+                                {% endif %}
+                            </p>
                         {% else %}
                             {% for group in reparationsByModel %}
-                                <div class="reparations-group" style="margin-bottom:24px;">
-                                    <div class="reparations-group-header" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;margin-bottom:10px;">
+                                <div class="reparations-group" data-rep-group="{{ group.model.id }}" style="margin-bottom:10px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+                                    <button type="button" class="reparations-group-toggle" aria-expanded="false"
+                                            style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:0;cursor:pointer;text-align:left;">
                                         {% if group.model.image %}
                                             <img src="{{ asset('uploads/images/' ~ group.model.image) }}" alt="{{ group.model.name }}" style="width:36px;height:36px;border-radius:8px;object-fit:contain;background:#fff;padding:3px;">
                                         {% else %}
@@ -709,45 +755,125 @@
                                                 {{ group.items|length }} réparation{{ group.items|length > 1 ? 's' : '' }}
                                             </div>
                                         </div>
-                                    </div>
+                                        <i class="fas fa-chevron-down chevron-icon" style="color:rgb(9,71,113);transition:transform .25s;"></i>
+                                    </button>
 
-                                    <table class="table table-sm" style="margin-bottom:0;">
-                                        <thead style="background:#f8fafc;">
-                                            <tr>
-                                                <th style="width:50px;font-size:11px;color:#64748b;">Ordre</th>
-                                                <th style="font-size:11px;color:#64748b;">Nom</th>
-                                                <th style="font-size:11px;color:#64748b;">Description</th>
-                                                <th style="width:100px;font-size:11px;color:#64748b;">Prix</th>
-                                                <th style="width:60px;font-size:11px;color:#64748b;">Phone</th>
-                                                <th style="width:60px;font-size:11px;color:#64748b;">Tablet</th>
-                                                <th style="width:160px;font-size:11px;color:#64748b;">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for r in group.items %}
+                                    <div class="reparations-group-body" style="display:none;padding:0;">
+                                        <table class="table table-sm" style="margin-bottom:0;">
+                                            <thead style="background:#f8fafc;">
                                                 <tr>
-                                                    <td style="font-weight:600;color:#475569;">{{ r.sortOrder }}</td>
-                                                    <td><strong>{{ r.name }}</strong></td>
-                                                    <td style="font-size:12.5px;color:#64748b;">{{ r.description ?: '—' }}</td>
-                                                    <td><strong style="color:rgb(9,71,113);">{{ r.prix|number_format(2, ',', ' ') }} €</strong></td>
-                                                    <td>{{ r.hasPhone ? '✅' : '—' }}</td>
-                                                    <td>{{ r.hasTablet ? '✅' : '—' }}</td>
-                                                    <td>
-                                                        <a href="{{ path('admin_reparation_edit', {'id': r.id}) }}" class="btn btn-sm btn-warning">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <a href="{{ path('admin_reparation_delete', {'id': r.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette réparation ?')">
-                                                            <i class="fas fa-trash"></i>
-                                                        </a>
-                                                    </td>
+                                                    <th style="width:50px;font-size:11px;color:#64748b;">Ordre</th>
+                                                    <th style="font-size:11px;color:#64748b;">Nom</th>
+                                                    <th style="font-size:11px;color:#64748b;">Description</th>
+                                                    <th style="width:100px;font-size:11px;color:#64748b;">Prix</th>
+                                                    <th style="width:60px;font-size:11px;color:#64748b;">Phone</th>
+                                                    <th style="width:60px;font-size:11px;color:#64748b;">Tablet</th>
+                                                    <th style="width:160px;font-size:11px;color:#64748b;">Actions</th>
                                                 </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {% for r in group.items %}
+                                                    <tr>
+                                                        <td style="font-weight:600;color:#475569;">{{ r.sortOrder }}</td>
+                                                        <td><strong>{{ r.name }}</strong></td>
+                                                        <td style="font-size:12.5px;color:#64748b;">{{ r.description ?: '—' }}</td>
+                                                        <td><strong style="color:rgb(9,71,113);">{{ r.prix|number_format(2, ',', ' ') }} €</strong></td>
+                                                        <td>{{ r.hasPhone ? '✅' : '—' }}</td>
+                                                        <td>{{ r.hasTablet ? '✅' : '—' }}</td>
+                                                        <td>
+                                                            <a href="{{ path('admin_reparation_edit', {'id': r.id}) }}" class="btn btn-sm btn-warning">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="{{ path('admin_reparation_delete', {'id': r.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette réparation ?')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             {% endfor %}
+
+                            {# ─── Pagination ─── #}
+                            {% if totalPagesRep > 1 %}
+                                <div class="reparations-pagination" style="display:flex;justify-content:center;align-items:center;gap:6px;margin-top:24px;flex-wrap:wrap;">
+                                    {% set qsBase = '?marque_rep=' ~ selectedMarqueRep ~ '&page_rep=' %}
+
+                                    {% if currentPageRep > 1 %}
+                                        <a href="{{ qsBase ~ (currentPageRep - 1) }}#reparations" class="btn btn-sm" style="padding:7px 13px;border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+                                            <i class="fas fa-chevron-left mr-1"></i> Précédent
+                                        </a>
+                                    {% else %}
+                                        <span class="btn btn-sm" style="padding:7px 13px;border:1px solid #e2e8f0;background:#f1f5f9;color:#cbd5e1;border-radius:8px;font-size:13px;font-weight:600;cursor:not-allowed;">
+                                            <i class="fas fa-chevron-left mr-1"></i> Précédent
+                                        </span>
+                                    {% endif %}
+
+                                    {% for p in 1..totalPagesRep %}
+                                        {% if p == currentPageRep %}
+                                            <span class="btn btn-sm" style="padding:7px 13px;background:rgb(9,71,113);color:#fff;border-radius:8px;font-size:13px;font-weight:700;min-width:36px;text-align:center;">{{ p }}</span>
+                                        {% else %}
+                                            <a href="{{ qsBase ~ p }}#reparations" class="btn btn-sm" style="padding:7px 13px;border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:8px;font-size:13px;font-weight:600;min-width:36px;text-align:center;text-decoration:none;">{{ p }}</a>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if currentPageRep < totalPagesRep %}
+                                        <a href="{{ qsBase ~ (currentPageRep + 1) }}#reparations" class="btn btn-sm" style="padding:7px 13px;border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
+                                            Suivant <i class="fas fa-chevron-right ml-1"></i>
+                                        </a>
+                                    {% else %}
+                                        <span class="btn btn-sm" style="padding:7px 13px;border:1px solid #e2e8f0;background:#f1f5f9;color:#cbd5e1;border-radius:8px;font-size:13px;font-weight:600;cursor:not-allowed;">
+                                            Suivant <i class="fas fa-chevron-right ml-1"></i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         {% endif %}
                     </div>
+
+                    <script>
+                    (function() {
+                        // ─── Accordéon : ouverture/fermeture des modèles ───
+                        document.querySelectorAll('.reparations-group-toggle').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                var body = btn.parentElement.querySelector('.reparations-group-body');
+                                var chevron = btn.querySelector('.chevron-icon');
+                                var isOpen = body.style.display === 'block';
+                                body.style.display = isOpen ? 'none' : 'block';
+                                btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+                                if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+                            });
+                        });
+
+                        // ─── Tout déplier ───
+                        var expandAll = document.getElementById('repExpandAll');
+                        if (expandAll) {
+                            expandAll.addEventListener('click', function() {
+                                document.querySelectorAll('.reparations-group-body').forEach(function(b) { b.style.display = 'block'; });
+                                document.querySelectorAll('.reparations-group-toggle').forEach(function(b) {
+                                    b.setAttribute('aria-expanded', 'true');
+                                    var c = b.querySelector('.chevron-icon');
+                                    if (c) c.style.transform = 'rotate(180deg)';
+                                });
+                            });
+                        }
+
+                        // ─── Tout replier ───
+                        var collapseAll = document.getElementById('repCollapseAll');
+                        if (collapseAll) {
+                            collapseAll.addEventListener('click', function() {
+                                document.querySelectorAll('.reparations-group-body').forEach(function(b) { b.style.display = 'none'; });
+                                document.querySelectorAll('.reparations-group-toggle').forEach(function(b) {
+                                    b.setAttribute('aria-expanded', 'false');
+                                    var c = b.querySelector('.chevron-icon');
+                                    if (c) c.style.transform = '';
+                                });
+                            });
+                        }
+                    })();
+                    </script>
                 </div>
 
             </div>

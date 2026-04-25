@@ -143,8 +143,48 @@ class AdminController extends AbstractController
         $marques     = $entityManager->getRepository(Marque::class)->findAll();
         $models      = $entityManager->getRepository(Model::class)->findAll();
         $reparations = $entityManager->getRepository(Reparation::class)->findAllOrdered();
-        $reparationsByModel = $entityManager->getRepository(Reparation::class)->findGroupedByModel();
+        $reparationsByModelAll = $entityManager->getRepository(Reparation::class)->findGroupedByModel();
         $articles    = $entityManager->getRepository(Article::class)->findAll();
+
+        // ─── Onglets par marque + pagination pour la liste réparations ───
+        // 1) Compter le nombre de réparations par marque (sur la liste complète)
+        $marquesRep = [];
+        foreach ($reparationsByModelAll as $group) {
+            $marqueObj  = $group['model']->getMarque();
+            $marqueId   = $marqueObj ? $marqueObj->getId() : 0;
+            $marqueName = $marqueObj ? $marqueObj->getName() : 'Sans marque';
+            if (!isset($marquesRep[$marqueId])) {
+                $marquesRep[$marqueId] = ['id' => $marqueId, 'name' => $marqueName, 'count' => 0, 'models' => 0];
+            }
+            $marquesRep[$marqueId]['count']  += count($group['items']);
+            $marquesRep[$marqueId]['models'] += 1;
+        }
+        $marquesRep = array_values($marquesRep);
+        usort($marquesRep, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+
+        // 2) Filtre par marque (?marque_rep=X)
+        $selectedMarqueRep = $request->query->getInt('marque_rep', 0);
+        $reparationsByModelFiltered = $reparationsByModelAll;
+        if ($selectedMarqueRep > 0) {
+            $reparationsByModelFiltered = array_filter(
+                $reparationsByModelAll,
+                function ($g) use ($selectedMarqueRep) {
+                    $m = $g['model']->getMarque();
+                    return $m && $m->getId() === $selectedMarqueRep;
+                }
+            );
+        }
+
+        // 3) Pagination : 15 modèles / page
+        $perPageRep    = 15;
+        $totalGroups   = count($reparationsByModelFiltered);
+        $totalPagesRep = max(1, (int) ceil($totalGroups / $perPageRep));
+        $currentPageRep = max(1, min($totalPagesRep, $request->query->getInt('page_rep', 1)));
+        $reparationsByModel = array_slice(
+            array_values($reparationsByModelFiltered),
+            ($currentPageRep - 1) * $perPageRep,
+            $perPageRep
+        );
 
         $annee         = (int) date('Y');
         $ventesParMois = $commandeRepo->getVentesParMois($annee);
@@ -190,6 +230,11 @@ class AdminController extends AbstractController
             'models'        => $models,
             'reparations'   => $reparations,
             'reparationsByModel' => $reparationsByModel,
+            'marquesRep'         => $marquesRep,
+            'selectedMarqueRep'  => $selectedMarqueRep,
+            'currentPageRep'     => $currentPageRep,
+            'totalPagesRep'      => $totalPagesRep,
+            'totalGroupsRep'     => $totalGroups,
             'articles'      => $articles,
             'ventesParMois' => $ventesParMois,
             'totalAnnee'    => $totalAnnee,
