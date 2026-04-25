@@ -29,6 +29,12 @@ class Reparation
     #[ORM\Column(length:10)]
     private ?bool $hasTablet = false;
 
+    /**
+     * Ordre d'affichage dans la liste publique (plus petit = en premier).
+     * Permet à l'admin de réorganiser facilement les réparations.
+     */
+    #[ORM\Column]
+    private int $sortOrder = 0;
 
     #[ORM\ManyToOne(targetEntity: Model::class, inversedBy: 'reparations')]
     #[ORM\JoinColumn(nullable: false)]
@@ -108,6 +114,17 @@ class Reparation
     {
         $this->model = $model;
 
+        return $this;
+    }
+
+    public function getSortOrder(): int
+    {
+        return $this->sortOrder;
+    }
+
+    public function setSortOrder(int $sortOrder): self
+    {
+        $this->sortOrder = $sortOrder;
         return $this;
     }
 }

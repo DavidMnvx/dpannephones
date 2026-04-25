@@ -1,0 +1,225 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'reparations' %}
+{% block title %}Réordonner les réparations — Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> ›
+    <a href="{{ path('admin_index', {_fragment: 'reparations'}) }}">Réparations</a> ›
+    Réordonner
+</div>
+
+<div class="admin-page-title">🔃 Réordonner les réparations par modèle</div>
+<div class="admin-page-subtitle" style="margin-bottom:24px;">
+    Choisis un modèle, puis ajuste l'ordre d'affichage de chaque réparation.
+    L'ordre choisi est utilisé sur la page publique du parcours réparation.
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+{# ─── Sélecteur de modèle ─── #}
+<div class="admin-card">
+    <h3><i class="fas fa-mobile-alt"></i> Choisir un modèle</h3>
+    <form method="get" action="{{ path('admin_reparation_reorder') }}" id="modelSelectForm">
+        <div class="row">
+            <div class="col-md-8">
+                <label for="modelSelect" class="form-label" style="font-weight:600;">Modèle :</label>
+                <select name="model_id" id="modelSelect" class="form-control"
+                        onchange="document.getElementById('modelSelectForm').submit()"
+                        style="font-size:14px;padding:10px;">
+                    <option value="">— Choisir un modèle —</option>
+                    {% set currentMarque = '' %}
+                    {% for row in modelsWithReps %}
+                        {% set m = row[0] %}
+                        {% set nbReps = row.nbReps %}
+                        {% set marqueName = m.marque ? m.marque.name : 'Sans marque' %}
+
+                        {% if marqueName != currentMarque %}
+                            {% if currentMarque != '' %}</optgroup>{% endif %}
+                            <optgroup label="{{ marqueName }}">
+                            {% set currentMarque = marqueName %}
+                        {% endif %}
+
+                        <option value="{{ m.id }}" {% if selectedModel and selectedModel.id == m.id %}selected{% endif %}>
+                            {{ m.name }} ({{ nbReps }} réparation{{ nbReps > 1 ? 's' : '' }})
+                        </option>
+                    {% endfor %}
+                    {% if currentMarque != '' %}</optgroup>{% endif %}
+                </select>
+                <small class="text-muted" style="display:block;margin-top:6px;">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Les modèles avec au moins une réparation enregistrée sont listés.
+                </small>
+            </div>
+        </div>
+    </form>
+</div>
+
+{# ─── Liste des réparations du modèle sélectionné ─── #}
+{% if selectedModel %}
+    <div class="admin-card">
+        <h3>
+            <i class="fas fa-list"></i>
+            Réparations pour
+            <strong style="color:rgb(9,71,113);">
+                {% if selectedModel.marque %}{{ selectedModel.marque.name }} —{% endif %}
+                {{ selectedModel.name }}
+            </strong>
+            <span style="font-size:13px;color:#64748b;font-weight:normal;">
+                ({{ reparations|length }} au total)
+            </span>
+        </h3>
+
+        {% if reparations is empty %}
+            <p class="text-center text-muted" style="padding:30px 0;">
+                Aucune réparation pour ce modèle.
+            </p>
+        {% else %}
+            <p style="font-size:13px;color:#64748b;margin-bottom:20px;">
+                <i class="fas fa-lightbulb mr-1" style="color:#f59e0b;"></i>
+                Modifie le numéro <strong>"Ordre"</strong> de chaque ligne (plus petit = affiché en premier).
+                Tu peux aussi utiliser les boutons <kbd>↑</kbd> <kbd>↓</kbd> pour bouger une ligne d'un cran.
+            </p>
+
+            <form method="post" action="{{ path('admin_reparation_reorder') }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('reorder_reparations') }}">
+                <input type="hidden" name="model_id" value="{{ selectedModel.id }}">
+
+                <table class="table" id="reparationsOrderTable">
+                    <thead style="background:#f8fafc;">
+                        <tr>
+                            <th style="width:90px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Ordre</th>
+                            <th style="font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;">Réparation</th>
+                            <th style="width:120px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;text-align:right;">Prix</th>
+                            <th style="width:100px;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;text-align:center;">Bouger</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reparations %}
+                            <tr data-rep-id="{{ r.id }}">
+                                <td>
+                                    <input type="number"
+                                           name="order[{{ r.id }}]"
+                                           value="{{ r.sortOrder }}"
+                                           min="0" max="9999"
+                                           class="form-control reorder-input"
+                                           style="width:80px;text-align:center;font-weight:700;">
+                                </td>
+                                <td>
+                                    <strong>{{ r.name }}</strong>
+                                    {% if r.description %}
+                                        <div style="font-size:12px;color:#94a3b8;margin-top:2px;">{{ r.description|slice(0, 80) }}{% if r.description|length > 80 %}…{% endif %}</div>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align:right;font-weight:700;color:rgb(9,71,113);">
+                                    {{ r.prix|number_format(2, ',', ' ') }} €
+                                </td>
+                                <td style="text-align:center;">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary reorder-btn-up"
+                                            title="Monter d'un cran" style="padding:4px 9px;">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary reorder-btn-down"
+                                            title="Descendre d'un cran" style="padding:4px 9px;">
+                                        <i class="fas fa-arrow-down"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                    <button type="submit" class="btn-admin-submit">
+                        <i class="fas fa-save mr-1"></i> Enregistrer le nouvel ordre
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="autoNumberBtn"
+                            style="padding:10px 16px;font-weight:600;">
+                        <i class="fas fa-list-ol mr-1"></i> Renuméroter 10, 20, 30…
+                    </button>
+                    <a href="{{ path('admin_index', {_fragment: 'reparations'}) }}" class="btn-admin-back">
+                        <i class="fas fa-arrow-left mr-1"></i> Retour
+                    </a>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="admin-card" style="text-align:center;padding:50px 30px;">
+        <i class="fas fa-arrow-up" style="font-size:32px;color:#cbd5e1;margin-bottom:16px;"></i>
+        <h3 style="font-size:16px;color:#6b7280;margin-bottom:6px;">Aucun modèle sélectionné</h3>
+        <p style="color:#9ca3af;font-size:13px;margin:0;">Choisis un modèle dans le sélecteur ci-dessus pour commencer.</p>
+    </div>
+{% endif %}
+
+<script>
+(function() {
+    var table = document.getElementById('reparationsOrderTable');
+    if (!table) return;
+
+    /**
+     * Échange l'ordre de 2 lignes (utilisé par les boutons ↑↓).
+     */
+    function swapValues(a, b) {
+        var tmp = a.value;
+        a.value = b.value;
+        b.value = tmp;
+    }
+
+    // Boutons "↑" — échange avec la ligne précédente
+    table.querySelectorAll('.reorder-btn-up').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var row = btn.closest('tr');
+            var prev = row.previousElementSibling;
+            if (!prev) return;
+            var inputCurrent = row.querySelector('.reorder-input');
+            var inputPrev = prev.querySelector('.reorder-input');
+            swapValues(inputCurrent, inputPrev);
+            prev.parentNode.insertBefore(row, prev);
+            row.style.background = '#fef3c7';
+            setTimeout(function() { row.style.background = ''; }, 600);
+        });
+    });
+
+    // Boutons "↓" — échange avec la ligne suivante
+    table.querySelectorAll('.reorder-btn-down').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var row = btn.closest('tr');
+            var next = row.nextElementSibling;
+            if (!next) return;
+            var inputCurrent = row.querySelector('.reorder-input');
+            var inputNext = next.querySelector('.reorder-input');
+            swapValues(inputCurrent, inputNext);
+            next.parentNode.insertBefore(next, row);
+            row.style.background = '#fef3c7';
+            setTimeout(function() { row.style.background = ''; }, 600);
+        });
+    });
+
+    // Bouton "Renuméroter 10, 20, 30…" — réinitialise les ordres avec un pas de 10
+    var autoBtn = document.getElementById('autoNumberBtn');
+    if (autoBtn) {
+        autoBtn.addEventListener('click', function() {
+            if (!confirm('Renuméroter toutes les réparations selon l\'ordre actuel des lignes ? (10, 20, 30, 40…)')) return;
+            var inputs = table.querySelectorAll('.reorder-input');
+            inputs.forEach(function(input, i) {
+                input.value = (i + 1) * 10;
+                input.style.background = '#dcfce7';
+                setTimeout(function() { input.style.background = ''; }, 800);
+            });
+        });
+    }
+})();
+</script>
+{% endblock %}

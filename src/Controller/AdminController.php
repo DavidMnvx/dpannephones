@@ -48,6 +48,16 @@ class AdminController extends AbstractController
         $model = new Model();
         $reparation = new Reparation();
 
+        // Pré-remplir le modèle depuis la session si on vient de créer une réparation
+        // (permet de chaîner les saisies pour le même modèle sans le re-sélectionner)
+        $lastModelId = $request->getSession()->get('admin_last_reparation_model_id');
+        if ($lastModelId) {
+            $lastModel = $entityManager->getRepository(Model::class)->find($lastModelId);
+            if ($lastModel) {
+                $reparation->setModel($lastModel);
+            }
+        }
+
         $marqueForm = $this->createForm(MarqueType::class, $marque);
         $modelForm = $this->createForm(ModelType::class, $model);
         $reparationForm = $this->createForm(ReparationType::class, $reparation);
@@ -113,14 +123,27 @@ class AdminController extends AbstractController
         if ($reparationForm->isSubmitted() && $reparationForm->isValid()) {
             $entityManager->persist($reparation);
             $entityManager->flush();
-            $this->addFlash('success', 'Réparation ajoutée avec succès!');
 
-            return $this->redirectToRoute('admin_index');
+            $modelName = $reparation->getModel() ? $reparation->getModel()->getName() : '';
+            $this->addFlash('success', sprintf(
+                '✅ Réparation "%s" ajoutée pour %s. Tu peux en saisir une autre 👇',
+                $reparation->getName(),
+                $modelName
+            ));
+
+            // Mémoriser le modèle pour pré-remplir au prochain affichage
+            if ($reparation->getModel()) {
+                $request->getSession()->set('admin_last_reparation_model_id', $reparation->getModel()->getId());
+            }
+
+            // Rester sur la même page (ancre #reparations) pour pouvoir en saisir une autre
+            return $this->redirectToRoute('admin_index', ['_fragment' => 'reparations']);
         }
 
         $marques     = $entityManager->getRepository(Marque::class)->findAll();
         $models      = $entityManager->getRepository(Model::class)->findAll();
-        $reparations = $entityManager->getRepository(Reparation::class)->findAll();
+        $reparations = $entityManager->getRepository(Reparation::class)->findAllOrdered();
+        $reparationsByModel = $entityManager->getRepository(Reparation::class)->findGroupedByModel();
         $articles    = $entityManager->getRepository(Article::class)->findAll();
 
         $annee         = (int) date('Y');
@@ -166,6 +189,7 @@ class AdminController extends AbstractController
             'marques'       => $marques,
             'models'        => $models,
             'reparations'   => $reparations,
+            'reparationsByModel' => $reparationsByModel,
             'articles'      => $articles,
             'ventesParMois' => $ventesParMois,
             'totalAnnee'    => $totalAnnee,
@@ -261,6 +285,83 @@ public function deleteModele(Model $model, EntityManagerInterface $entityManager
     $this->addFlash('success', 'Modèle supprimé avec succès!');
 
     return $this->redirectToRoute('admin_index');
+}
+
+#[Route('/admin/reparation/clear-memory', name: 'admin_reparation_clear_memory')]
+public function clearReparationMemory(Request $request): Response
+{
+    $request->getSession()->remove('admin_last_reparation_model_id');
+    $this->addFlash('info', 'Mémoire du dernier modèle effacée. Tu peux maintenant choisir un autre modèle.');
+    return $this->redirectToRoute('admin_index', ['_fragment' => 'reparations']);
+}
+
+/**
+ * Page dédiée pour réordonner les réparations d'un modèle donné.
+ * URL : /admin/reparations/reordonner?model_id=X
+ */
+#[Route('/admin/reparations/reordonner', name: 'admin_reparation_reorder', methods: ['GET', 'POST'])]
+public function reorderReparations(Request $request, EntityManagerInterface $em): Response
+{
+    // Liste des modèles qui ont au moins une réparation (pour peupler le sélecteur)
+    $modelsWithReps = $em->createQueryBuilder()
+        ->select('m', 'mq', 'COUNT(r.id) as nbReps')
+        ->from(Model::class, 'm')
+        ->leftJoin('m.marque', 'mq')
+        ->innerJoin('m.reparations', 'r')
+        ->groupBy('m.id')
+        ->orderBy('mq.name', 'ASC')
+        ->addOrderBy('m.name', 'ASC')
+        ->getQuery()
+        ->getResult();
+
+    $modelId = $request->query->get('model_id') ?? $request->request->get('model_id');
+    $selectedModel = null;
+    $reparations = [];
+
+    if ($modelId) {
+        $selectedModel = $em->getRepository(Model::class)->find($modelId);
+        if ($selectedModel) {
+            $reparations = $em->getRepository(Reparation::class)->findBy(
+                ['model' => $selectedModel],
+                ['sortOrder' => 'ASC', 'name' => 'ASC']
+            );
+        }
+    }
+
+    // Traitement du formulaire de sauvegarde de l'ordre
+    if ($request->isMethod('POST') && $selectedModel) {
+        if (!$this->isCsrfTokenValid('reorder_reparations', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token CSRF invalide.');
+            return $this->redirectToRoute('admin_reparation_reorder', ['model_id' => $modelId]);
+        }
+
+        $orders = $request->request->all('order') ?: [];
+        $updated = 0;
+
+        foreach ($orders as $repId => $order) {
+            $rep = $em->getRepository(Reparation::class)->find((int) $repId);
+            if ($rep && $rep->getModel()?->getId() === $selectedModel->getId()) {
+                $rep->setSortOrder((int) $order);
+                $updated++;
+            }
+        }
+
+        $em->flush();
+        $this->addFlash('success', sprintf(
+            '✅ Ordre mis à jour pour %d réparation%s du modèle "%s".',
+            $updated,
+            $updated > 1 ? 's' : '',
+            $selectedModel->getName()
+        ));
+
+        return $this->redirectToRoute('admin_reparation_reorder', ['model_id' => $modelId]);
+    }
+
+    return $this->render('admin/reparation/reorder.html.twig', [
+        'modelsWithReps' => $modelsWithReps,
+        'selectedModel'  => $selectedModel,
+        'reparations'    => $reparations,
+    ]);
 }
 
 #[Route('/admin/reparation/edit/{id}', name: 'admin_reparation_edit')]

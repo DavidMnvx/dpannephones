@@ -629,56 +629,124 @@
                 </div>
 
                 {# Réparations #}
-                <div id="reparations-content" class="content-section" style="display: none;">
+                <div id="reparations-content" class="content-section" style="display: none;" data-anchor="reparations">
+
+                    {# ─── FORMULAIRE D'AJOUT ─── #}
                     <div class="admin-card">
                         <h3><i class="fas fa-tools"></i> Ajouter une Réparation</h3>
-                        {{ form_start(reparationForm, {'attr': {'class': 'admin-form'}}) }}
+                        <p style="color:#64748b;font-size:13px;margin-bottom:18px;">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Saisis le modèle, le nom et le prix. Astuce : après ajout, le modèle reste pré-sélectionné pour saisir la suivante plus vite.
+                        </p>
+
+                        {{ form_start(reparationForm, {'attr': {'class': 'admin-form', 'id': 'reparationForm'}}) }}
                             <div class="form-section-title">Identification</div>
                             <div class="row">
-                                <div class="col-md-5">{{ form_row(reparationForm.name) }}</div>
-                                <div class="col-md-4">{{ form_row(reparationForm.model) }}</div>
-                                <div class="col-md-3">{{ form_row(reparationForm.prix) }}</div>
+                                <div class="col-md-6">{{ form_row(reparationForm.model) }}</div>
+                                <div class="col-md-4">{{ form_row(reparationForm.name) }}</div>
+                                <div class="col-md-2">{{ form_row(reparationForm.prix) }}</div>
                             </div>
+
                             <hr class="form-divider">
-                            <div class="form-section-title">Description</div>
+
+                            <div class="form-section-title">Options</div>
+                            <div class="row">
+                                <div class="col-md-3">{{ form_row(reparationForm.sortOrder) }}</div>
+                                <div class="col-md-3" style="display:flex;align-items:center;padding-top:28px;">
+                                    {{ form_row(reparationForm.hasPhone) }}
+                                </div>
+                                <div class="col-md-3" style="display:flex;align-items:center;padding-top:28px;">
+                                    {{ form_row(reparationForm.hasTablet) }}
+                                </div>
+                            </div>
+
+                            <hr class="form-divider">
+
+                            <div class="form-section-title">Description (optionnelle)</div>
                             {{ form_row(reparationForm.description) }}
-                            <div style="margin-top:24px;">
+
+                            <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;">
                                 <button type="submit" class="btn-admin-submit">
                                     <i class="fas fa-plus mr-1"></i> Ajouter la réparation
                                 </button>
+                                {# Bouton qui efface la mémoire du dernier modèle (utile pour changer) #}
+                                <a href="{{ path('admin_reparation_clear_memory') }}" class="btn btn-outline-secondary"
+                                   style="padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:1px solid #cbd5e1;color:#475569;">
+                                    <i class="fas fa-eraser mr-1"></i> Changer de modèle
+                                </a>
                             </div>
                         {{ form_end(reparationForm) }}
                     </div>
 
+                    {# ─── LISTE GROUPÉE PAR MODÈLE ─── #}
                     <div class="admin-card">
-                        <h3><i class="fas fa-list"></i> Liste des Réparations ({{ reparations|length }})</h3>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Modèle</th>
-                                    <th>Description</th>
-                                    <th>Prix</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for reparation in reparations %}
-                                    <tr>
-                                        <td><strong>{{ reparation.name }}</strong></td>
-                                        <td>{{ reparation.model.name }}</td>
-                                        <td>{{ reparation.description }}</td>
-                                        <td><strong>{{ reparation.prix }} €</strong></td>
-                                        <td>
-                                            <a href="{{ path('admin_reparation_edit', {'id': reparation.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
-                                            <a href="{{ path('admin_reparation_delete', {'id': reparation.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette réparation ?')">Supprimer</a>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr><td colspan="5" class="text-center text-muted">Aucune réparation enregistrée.</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                            <h3 style="margin:0;"><i class="fas fa-list"></i> Liste des Réparations ({{ reparations|length }})</h3>
+                            <a href="{{ path('admin_reparation_reorder') }}"
+                               class="btn btn-outline-primary"
+                               style="padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:2px solid rgb(9,71,113);color:rgb(9,71,113);">
+                                <i class="fas fa-sort mr-1"></i> Réordonner par modèle
+                            </a>
+                        </div>
+
+                        {% if reparationsByModel is empty %}
+                            <p class="text-center text-muted" style="padding:30px 0;">Aucune réparation enregistrée.</p>
+                        {% else %}
+                            {% for group in reparationsByModel %}
+                                <div class="reparations-group" style="margin-bottom:24px;">
+                                    <div class="reparations-group-header" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;margin-bottom:10px;">
+                                        {% if group.model.image %}
+                                            <img src="{{ asset('uploads/images/' ~ group.model.image) }}" alt="{{ group.model.name }}" style="width:36px;height:36px;border-radius:8px;object-fit:contain;background:#fff;padding:3px;">
+                                        {% else %}
+                                            <i class="fas fa-mobile-alt" style="font-size:18px;color:rgb(9,71,113);width:36px;text-align:center;"></i>
+                                        {% endif %}
+                                        <div style="flex:1;">
+                                            <strong style="font-size:14.5px;color:#0f172a;">
+                                                {% if group.model.marque %}{{ group.model.marque.name }} —{% endif %}
+                                                {{ group.model.name }}
+                                            </strong>
+                                            <div style="font-size:11.5px;color:#64748b;">
+                                                {{ group.items|length }} réparation{{ group.items|length > 1 ? 's' : '' }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <table class="table table-sm" style="margin-bottom:0;">
+                                        <thead style="background:#f8fafc;">
+                                            <tr>
+                                                <th style="width:50px;font-size:11px;color:#64748b;">Ordre</th>
+                                                <th style="font-size:11px;color:#64748b;">Nom</th>
+                                                <th style="font-size:11px;color:#64748b;">Description</th>
+                                                <th style="width:100px;font-size:11px;color:#64748b;">Prix</th>
+                                                <th style="width:60px;font-size:11px;color:#64748b;">Phone</th>
+                                                <th style="width:60px;font-size:11px;color:#64748b;">Tablet</th>
+                                                <th style="width:160px;font-size:11px;color:#64748b;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for r in group.items %}
+                                                <tr>
+                                                    <td style="font-weight:600;color:#475569;">{{ r.sortOrder }}</td>
+                                                    <td><strong>{{ r.name }}</strong></td>
+                                                    <td style="font-size:12.5px;color:#64748b;">{{ r.description ?: '—' }}</td>
+                                                    <td><strong style="color:rgb(9,71,113);">{{ r.prix|number_format(2, ',', ' ') }} €</strong></td>
+                                                    <td>{{ r.hasPhone ? '✅' : '—' }}</td>
+                                                    <td>{{ r.hasTablet ? '✅' : '—' }}</td>
+                                                    <td>
+                                                        <a href="{{ path('admin_reparation_edit', {'id': r.id}) }}" class="btn btn-sm btn-warning">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="{{ path('admin_reparation_delete', {'id': r.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette réparation ?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
 
@@ -694,7 +762,19 @@
     function showContent(content) {
         document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
         document.getElementById(content + '-content').style.display = 'block';
+        // Met à jour l'URL avec l'ancre, utile pour reload + reprise
+        if (history.replaceState) {
+            history.replaceState(null, '', '#' + content);
+        }
     }
+
+    // Au chargement : si l'URL a #reparations, #marques, #modeles → ouvrir cet onglet
+    document.addEventListener('DOMContentLoaded', function() {
+        var hash = window.location.hash.replace('#', '');
+        if (hash && document.getElementById(hash + '-content')) {
+            showContent(hash);
+        }
+    });
 
     function filterModeles(marque, tabEl) {
         document.querySelectorAll('#modeles-tabs .filter-tab').forEach(t => t.classList.remove('active'));

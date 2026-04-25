@@ -372,18 +372,39 @@
             //  AUTO-COLLAPSE : se range sur la droite après 5s
             //  Ne laisse visible que le "G" de Google
             //  Se re-déplie au hover / touch
+            //
+            //  L'état "rangé" est persisté dans sessionStorage :
+            //  une fois collapsé, il reste rangé sur tout le parcours
+            //  utilisateur (changements de page, navigation interne).
             // ─────────────────────────────────────────────────
-            var COLLAPSE_DELAY = 5000; // 5 secondes
+            var COLLAPSE_DELAY = 5000; // 5 secondes au premier affichage
+            var COLLAPSE_KEY = 'dpanne_google_widget_collapsed';
             var collapseTimer = null;
             var isHoveredOrTouched = false;
+
+            // ── Au chargement : restaurer l'état "collapsed" si déjà vu cette session
+            try {
+                if (sessionStorage.getItem(COLLAPSE_KEY) === '1') {
+                    // Applique l'état "rangé" sans animation d'entrée
+                    widget.style.animation = 'none';
+                    widget.classList.add('is-collapsed');
+                    // Pas de tooltip "ping" puisqu'on a déjà vu la pastille
+                    var ctaEl = widget.querySelector('.google-rating-float-cta');
+                    if (ctaEl) { ctaEl.style.animation = 'none'; }
+                }
+            } catch(e) { /* sessionStorage indisponible (navigation privée stricte) */ }
+
+            function persistCollapsed() {
+                try { sessionStorage.setItem(COLLAPSE_KEY, '1'); } catch(e) {}
+            }
 
             function scheduleCollapse() {
                 clearTimeout(collapseTimer);
                 collapseTimer = setTimeout(function() {
-                    // Ne pas collapser pendant le drag ou hover
                     if (widget.classList.contains('is-dragging')) return;
                     if (isHoveredOrTouched) return;
                     widget.classList.add('is-collapsed');
+                    persistCollapsed();
                 }, COLLAPSE_DELAY);
             }
 
@@ -392,8 +413,10 @@
                 clearTimeout(collapseTimer);
             }
 
-            // Démarrage : lancer le timer initial après l'animation d'entrée
-            setTimeout(scheduleCollapse, 1200);
+            // Démarrage : lancer le timer initial uniquement si pas déjà collapsé
+            if (!widget.classList.contains('is-collapsed')) {
+                setTimeout(scheduleCollapse, 1200);
+            }
 
             // Hover : déplier + suspendre le timer
             widget.addEventListener('mouseenter', function() {
@@ -402,17 +425,24 @@
             });
             widget.addEventListener('mouseleave', function() {
                 isHoveredOrTouched = false;
-                scheduleCollapse();
+                // Au mouseleave, on re-rang (avec délai court car l'user sait déjà)
+                clearTimeout(collapseTimer);
+                collapseTimer = setTimeout(function() {
+                    if (widget.classList.contains('is-dragging')) return;
+                    if (isHoveredOrTouched) return;
+                    widget.classList.add('is-collapsed');
+                    persistCollapsed();
+                }, 1500);
             });
 
             // Touch (mobile) : tap pour déplier, re-collapse après délai
             widget.addEventListener('touchstart', function() {
                 isHoveredOrTouched = true;
                 expand();
-                // On laisse 3s après touch avant de recollapser
                 setTimeout(function() {
                     isHoveredOrTouched = false;
-                    scheduleCollapse();
+                    widget.classList.add('is-collapsed');
+                    persistCollapsed();
                 }, 3000);
             }, { passive: true });
 
