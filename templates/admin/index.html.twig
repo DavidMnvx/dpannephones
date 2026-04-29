@@ -540,8 +540,9 @@
                         {{ form_start(modelForm, {'attr': {'enctype': 'multipart/form-data', 'class': 'admin-form'}}) }}
                             <div class="form-section-title">Identité</div>
                             <div class="row">
-                                <div class="col-md-5">{{ form_row(modelForm.name) }}</div>
-                                <div class="col-md-4">{{ form_row(modelForm.marque) }}</div>
+                                <div class="col-md-3">{{ form_row(modelForm.name) }}</div>
+                                <div class="col-md-3">{{ form_row(modelForm.marque) }}</div>
+                                <div class="col-md-3">{{ form_row(modelForm.famille) }}</div>
                                 <div class="col-md-3">{{ form_row(modelForm.image) }}</div>
                             </div>
                             <hr class="form-divider">
