@@ -42,7 +42,7 @@
                         <div class="contact-info-icon"><i class="fas fa-map-marker-alt"></i></div>
                         <div>
                             <strong>Adresse</strong>
-                            <span>Pélissanne, 13330<br>Bouches-du-Rhône</span>
+                            <span>Avenue Pasteur — Centre Commercial Le Galion (Parking Aldi)<br>13330 Pélissanne</span>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -56,7 +56,7 @@
                         <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
                         <div>
                             <strong>Email</strong>
-                            <a href="mailto:contact@dpannephones.fr" class="contact-info-link">contact@dpannephones.fr</a>
+                            <a href="mailto:contact@dpannephones.com" class="contact-info-link">contact@dpannephones.fr</a>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -120,17 +120,29 @@
                     </div>
                 {% endif %}
 
-                {{ form_start(form, {'attr': {'class': 'contact-form', 'novalidate': 'novalidate'}}) }}
+                {{ form_start(form, {'attr': {'class': 'contact-form'}}) }}
 
                 <div class="contact-form-row">
                     <div class="contact-form-group">
                         <label class="contact-label"><i class="fas fa-user mr-1"></i>Prénom <span class="contact-required">*</span></label>
-                        {{ form_widget(form.firstName, {'attr': {'class': 'contact-input', 'placeholder': 'Votre prénom'}}) }}
+                        {{ form_widget(form.firstName, {'attr': {
+                            'class': 'contact-input',
+                            'placeholder': 'Votre prénom',
+                            'autocomplete': 'given-name',
+                            'maxlength': 60,
+                            'required': 'required'
+                        }}) }}
                         {{ form_errors(form.firstName) }}
                     </div>
                     <div class="contact-form-group">
                         <label class="contact-label"><i class="fas fa-user mr-1"></i>Nom <span class="contact-required">*</span></label>
-                        {{ form_widget(form.lastName, {'attr': {'class': 'contact-input', 'placeholder': 'Votre nom'}}) }}
+                        {{ form_widget(form.lastName, {'attr': {
+                            'class': 'contact-input',
+                            'placeholder': 'Votre nom',
+                            'autocomplete': 'family-name',
+                            'maxlength': 60,
+                            'required': 'required'
+                        }}) }}
                         {{ form_errors(form.lastName) }}
                     </div>
                 </div>
@@ -138,19 +150,37 @@
                 <div class="contact-form-row">
                     <div class="contact-form-group">
                         <label class="contact-label"><i class="fas fa-envelope mr-1"></i>Email <span class="contact-required">*</span></label>
-                        {{ form_widget(form.email, {'attr': {'class': 'contact-input', 'placeholder': 'votre@email.fr'}}) }}
+                        {{ form_widget(form.email, {'attr': {
+                            'class': 'contact-input',
+                            'placeholder': 'votre@email.fr',
+                            'autocomplete': 'email',
+                            'maxlength': 180,
+                            'required': 'required'
+                        }}) }}
                         {{ form_errors(form.email) }}
                     </div>
                     <div class="contact-form-group">
-                        <label class="contact-label"><i class="fas fa-phone mr-1"></i>Téléphone</label>
-                        {{ form_widget(form.phone, {'attr': {'class': 'contact-input', 'placeholder': '06 XX XX XX XX'}}) }}
+                        <label class="contact-label"><i class="fas fa-phone mr-1"></i>Téléphone <span class="contact-optional">(facultatif)</span></label>
+                        {{ form_widget(form.phone, {'attr': {
+                            'class': 'contact-input',
+                            'placeholder': '06 XX XX XX XX',
+                            'autocomplete': 'tel',
+                            'maxlength': 25
+                        }}) }}
                         {{ form_errors(form.phone) }}
                     </div>
                 </div>
 
                 <div class="contact-form-group">
                     <label class="contact-label"><i class="fas fa-comment mr-1"></i>Message <span class="contact-required">*</span></label>
-                    {{ form_widget(form.message, {'attr': {'class': 'contact-input contact-textarea', 'rows': '6', 'placeholder': 'Décrivez votre demande (réparation, question produit, SAV…)'}}) }}
+                    {{ form_widget(form.message, {'attr': {
+                        'class': 'contact-input contact-textarea',
+                        'rows': '6',
+                        'placeholder': 'Décrivez votre demande (réparation, question produit, SAV…) — minimum 10 caractères.',
+                        'minlength': 10,
+                        'maxlength': 4000,
+                        'required': 'required'
+                    }}) }}
                     {{ form_errors(form.message) }}
                 </div>
 
@@ -174,14 +204,14 @@
 
         <div class="contact-map-wrap">
             <iframe
-                src="https://maps.google.com/maps?q=43.629783,5.154775&z=18&output=embed&hl=fr"
+                src="https://maps.google.com/maps?q=D%27Panne+Phones+Avenue+Pasteur+13330+P%C3%A9lissanne&z=17&output=embed&hl=fr"
                 width="100%"
                 height="400"
                 style="border:0;border-radius:12px;display:block;"
                 loading="lazy"
                 allowfullscreen
                 referrerpolicy="no-referrer-when-downgrade"
-                title="D'Panne Phones — 17 Boulevard du Comte de Provence, Pélissanne"></iframe>
+                title="D'Panne Phones — Avenue Pasteur, Centre Commercial Le Galion, 13330 Pélissanne"></iframe>
 
             <div class="contact-map-links">
                 <a href="https://www.google.com/maps/search/?api=1&query=D%27Panne+Phones+P%C3%A9lissanne&query_place_id=ChIJQ8joB7_5yRIRHpgyRx9z26o"

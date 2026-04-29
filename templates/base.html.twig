@@ -39,7 +39,7 @@
           "email": "contact@dpannephones.com",
           "address": {
             "@type": "PostalAddress",
-            "streetAddress": "17 Boulevard du Comte de Provence",
+            "streetAddress": "Avenue Pasteur — Centre Commercial Le Galion (Parking Aldi)",
             "addressLocality": "Pélissanne",
             "postalCode": "13330",
             "addressCountry": "FR"
@@ -230,8 +230,9 @@
             </div>
         </nav>
 
-        {# ═════ Widget flottant Google Rating (point 2) ═════ #}
-        {# Masqué sur la page /avis pour éviter la redondance #}
+        {# ═════ Widget flottant Google Rating ═════ #}
+        {# Pastille fixe en bas à droite avec CTA explicite "Voir les avis" #}
+        {# Masquée sur la page /avis pour éviter la redondance #}
         {% set _googleRating = google_rating() %}
         {% set _googleCount = google_reviews_count() %}
         {% set _isReviewsPage = (currentPath starts with '/avis') or (currentPath starts with '/reviews') %}
@@ -239,219 +240,26 @@
         <a href="{{ path('reviews_index') }}"
            class="google-rating-float"
            id="google-rating-float"
-           title="Glissez pour déplacer • Cliquez pour voir les avis">
-            {# CTA visible uniquement en mode "rangé" — apparaît à gauche du G #}
-            <span class="google-rating-float-cta">
-                <i class="fas fa-chevron-left"></i>
-                <span>Voir les avis</span>
-            </span>
-
-            <span class="google-rating-float-icon"><i class="fab fa-google"></i></span>
+           aria-label="Voir tous les avis Google">
+            <span class="google-rating-float-icon" aria-hidden="true"><i class="fab fa-google"></i></span>
 
             <span class="google-rating-float-main">
                 <span class="google-rating-float-score">{{ _googleRating }}</span>
-                <span class="google-rating-float-stars">
+                <span class="google-rating-float-stars" aria-hidden="true">
                     {% for i in 1..5 %}
                         <i class="{{ i <= _googleRating|round ? 'fas' : 'far' }} fa-star"></i>
                     {% endfor %}
                 </span>
                 {% if _googleCount %}
-                <span class="google-rating-float-count">{{ _googleCount }} avis</span>
+                <span class="google-rating-float-count">{{ _googleCount }} avis Google</span>
                 {% endif %}
             </span>
+
+            <span class="google-rating-float-cta-bottom">
+                Voir les avis <i class="fas fa-arrow-right" aria-hidden="true"></i>
+            </span>
         </a>
-        <script>
-        (function() {
-            var widget = document.getElementById('google-rating-float');
-            if (!widget) return;
-
-            var isDragging = false;
-            var dragThreshold = 5; // px — distance minimale pour considérer un drag
-            var startX = 0, startY = 0;
-            var startLeft = 0, startTop = 0;
-            var moved = false;
-            var STORAGE_KEY = 'dpanne_google_rating_pos';
-
-            // 1. Restaurer la position sauvegardée depuis localStorage
-            try {
-                var saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-                if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
-                    applyPosition(saved.x, saved.y);
-                }
-            } catch(e) {}
-
-            function applyPosition(x, y) {
-                // Contraintes : rester dans le viewport
-                var maxX = window.innerWidth - widget.offsetWidth - 8;
-                var maxY = window.innerHeight - widget.offsetHeight - 8;
-                x = Math.max(8, Math.min(x, maxX));
-                y = Math.max(8, Math.min(y, maxY));
-
-                widget.style.left = x + 'px';
-                widget.style.top = y + 'px';
-                widget.style.right = 'auto';
-                widget.style.bottom = 'auto';
-            }
-
-            function getPointerPos(e) {
-                if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                return { x: e.clientX, y: e.clientY };
-            }
-
-            function onStart(e) {
-                var pos = getPointerPos(e);
-                var rect = widget.getBoundingClientRect();
-                startX = pos.x;
-                startY = pos.y;
-                startLeft = rect.left;
-                startTop  = rect.top;
-                moved = false;
-
-                document.addEventListener('mousemove', onMove);
-                document.addEventListener('mouseup', onEnd);
-                document.addEventListener('touchmove', onMove, { passive: false });
-                document.addEventListener('touchend', onEnd);
-            }
-
-            function onMove(e) {
-                var pos = getPointerPos(e);
-                var dx = pos.x - startX;
-                var dy = pos.y - startY;
-
-                if (!moved && (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold)) {
-                    moved = true;
-                    isDragging = true;
-                    widget.classList.add('is-dragging');
-                }
-
-                if (isDragging) {
-                    e.preventDefault();
-                    applyPosition(startLeft + dx, startTop + dy);
-                }
-            }
-
-            function onEnd() {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onEnd);
-                document.removeEventListener('touchmove', onMove);
-                document.removeEventListener('touchend', onEnd);
-
-                if (isDragging) {
-                    widget.classList.remove('is-dragging');
-                    // Sauvegarder la nouvelle position
-                    var rect = widget.getBoundingClientRect();
-                    try {
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
-                    } catch(e) {}
-                    isDragging = false;
-                }
-            }
-
-            // Attacher les événements
-            widget.addEventListener('mousedown', onStart);
-            widget.addEventListener('touchstart', onStart, { passive: true });
-
-            // Empêcher le click après un drag
-            widget.addEventListener('click', function(e) {
-                if (moved) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    moved = false;
-                }
-            });
-
-            // Ré-appliquer la contrainte si la fenêtre est redimensionnée
-            window.addEventListener('resize', function() {
-                if (widget.style.left) {
-                    var rect = widget.getBoundingClientRect();
-                    applyPosition(rect.left, rect.top);
-                }
-            });
-
-            // ─────────────────────────────────────────────────
-            //  AUTO-COLLAPSE : se range sur la droite après 5s
-            //  Ne laisse visible que le "G" de Google
-            //  Se re-déplie au hover / touch
-            //
-            //  L'état "rangé" est persisté dans sessionStorage :
-            //  une fois collapsé, il reste rangé sur tout le parcours
-            //  utilisateur (changements de page, navigation interne).
-            // ─────────────────────────────────────────────────
-            var COLLAPSE_DELAY = 5000; // 5 secondes au premier affichage
-            var COLLAPSE_KEY = 'dpanne_google_widget_collapsed';
-            var collapseTimer = null;
-            var isHoveredOrTouched = false;
-
-            // ── Au chargement : restaurer l'état "collapsed" si déjà vu cette session
-            try {
-                if (sessionStorage.getItem(COLLAPSE_KEY) === '1') {
-                    // Applique l'état "rangé" sans animation d'entrée
-                    widget.style.animation = 'none';
-                    widget.classList.add('is-collapsed');
-                    // Pas de tooltip "ping" puisqu'on a déjà vu la pastille
-                    var ctaEl = widget.querySelector('.google-rating-float-cta');
-                    if (ctaEl) { ctaEl.style.animation = 'none'; }
-                }
-            } catch(e) { /* sessionStorage indisponible (navigation privée stricte) */ }
-
-            function persistCollapsed() {
-                try { sessionStorage.setItem(COLLAPSE_KEY, '1'); } catch(e) {}
-            }
-
-            function scheduleCollapse() {
-                clearTimeout(collapseTimer);
-                collapseTimer = setTimeout(function() {
-                    if (widget.classList.contains('is-dragging')) return;
-                    if (isHoveredOrTouched) return;
-                    widget.classList.add('is-collapsed');
-                    persistCollapsed();
-                }, COLLAPSE_DELAY);
-            }
-
-            function expand() {
-                widget.classList.remove('is-collapsed');
-                clearTimeout(collapseTimer);
-            }
-
-            // Démarrage : lancer le timer initial uniquement si pas déjà collapsé
-            if (!widget.classList.contains('is-collapsed')) {
-                setTimeout(scheduleCollapse, 1200);
-            }
-
-            // Hover : déplier + suspendre le timer
-            widget.addEventListener('mouseenter', function() {
-                isHoveredOrTouched = true;
-                expand();
-            });
-            widget.addEventListener('mouseleave', function() {
-                isHoveredOrTouched = false;
-                // Au mouseleave, on re-rang (avec délai court car l'user sait déjà)
-                clearTimeout(collapseTimer);
-                collapseTimer = setTimeout(function() {
-                    if (widget.classList.contains('is-dragging')) return;
-                    if (isHoveredOrTouched) return;
-                    widget.classList.add('is-collapsed');
-                    persistCollapsed();
-                }, 1500);
-            });
-
-            // Touch (mobile) : tap pour déplier, re-collapse après délai
-            widget.addEventListener('touchstart', function() {
-                isHoveredOrTouched = true;
-                expand();
-                setTimeout(function() {
-                    isHoveredOrTouched = false;
-                    widget.classList.add('is-collapsed');
-                    persistCollapsed();
-                }, 3000);
-            }, { passive: true });
-
-            // Ne pas collapser si on est en cours de drag
-            widget.addEventListener('mousedown', function() {
-                clearTimeout(collapseTimer);
-            });
-        })();
-        </script>
+        {# Plus de JS : la pastille est désormais statique, fixe en bas à droite. #}
         {% endif %}
 
          {% block body %}{% endblock %}
@@ -478,19 +286,10 @@
         <!-- Col 2 — Contactez-nous + réseaux sociaux centrés -->
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <h5 class="text mb-4 pb-1">Contactez-nous !</h5>
-          <ul class="fa-ul" style="margin-left: 1.65em;">
-            <li class="mb-3">
-              <span class="fa-li"><i class="fas fa-map-marker-alt"></i></span>
-              <span class="ms-2">Avenue Pasteur CENTRE COMMERCIAL LE GALION PARKING ALDI, 13330 Pélissanne, France</span>
-            </li>
-            <li class="mb-3">
-              <span class="fa-li"><i class="fas fa-envelope"></i></span>
-              <span class="ms-2">contact@dpannephones.com</span>
-            </li>
-            <li class="mb-3">
-              <span class="fa-li"><i class="fas fa-phone-alt"></i></span>
-              <span class="ms-2">07 83 74 83 11</span>
-            </li>
+          <ul class="footer-contact-list">
+            <li class="mb-3">Avenue Pasteur — Centre Commercial Le Galion (Parking Aldi), 13330 Pélissanne</li>
+            <li class="mb-3"><a href="mailto:contact@dpannephones.com" class="footer-contact-link">contact@dpannephones.com</a></li>
+            <li class="mb-3"><a href="tel:+33783748311" class="footer-contact-link">07 83 74 83 11</a></li>
           </ul>
 
           {# ═══ Icônes réseaux sociaux — centrées sous le téléphone ═══ #}

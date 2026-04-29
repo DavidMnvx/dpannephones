@@ -47,18 +47,8 @@ body {
     color: rgb(9, 71, 113) !important;
 }
 
-.navbar .phone-btn {
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    color: #333333;
-}
-
-.navbar .phone-btn:hover {
-    color: rgb(9, 71, 113);
-}
+/* Anciennes règles supprimées : surchargées par .nav-item--phone .phone-btn (v1.1)
+   pour éviter le conflit qui rendait le texte bleu sur bleu au hover. */
 
 /* Taille de police navbar */
 .navbar .nav-link {
@@ -8462,6 +8452,13 @@ footer .table tbody tr:last-child:hover td {
     color: #ef4444;
 }
 
+.contact-optional {
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 500;
+    font-style: italic;
+}
+
 .contact-input {
     padding: 11px 14px;
     border: 1.5px solid #d0d7de;
@@ -8538,6 +8535,9 @@ footer .table tbody tr:last-child:hover td {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: #fff;
+    padding-bottom: 18px;
+    margin-bottom: 30px;
 }
 
 
@@ -12269,8 +12269,9 @@ footer .table tbody tr:last-child:hover td {
 ═══════════════════════════════════════════════════ */
 .contact-map-links {
     display: flex;
-    gap: 10px;
-    margin-top: 14px;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 0 16px;
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -15498,15 +15499,25 @@ footer .table tbody tr:last-child:hover td {
    ══════════════════════════════════════════════════════════════════ */
 
 /* ─── Navbar : lien Accueil = icône maison ────────────────── */
+/* Garde le même padding/line-height que les autres .nav-link Bootstrap pour
+   un alignement vertical impeccable avec "Réparation", "La Boutique", etc. */
 .nav-link--home {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    min-width: 40px;
-    font-size: 17px;
+    font-size: 18px;
+    line-height: inherit;
+    text-align: center;
+    min-width: 38px;
 }
-.nav-link--home i { color: rgb(9, 71, 113); }
-.nav-link--home:hover i { color: #f59e0b; transform: scale(1.1); transition: all 0.2s; }
+.nav-link--home i {
+    color: rgb(9, 71, 113);
+    vertical-align: middle;
+    position: relative;
+    top: -1px;          /* compensation visuelle de l'icône dans la baseline */
+    transition: color 0.2s, transform 0.2s;
+}
+.nav-link--home:hover i {
+    color: #f59e0b;
+    transform: scale(1.1);
+}
 
 /* ─── Navbar : lien "active" plus visible (surbrillance) ─── */
 .navbar-nav .nav-item.active .nav-link {
@@ -15553,285 +15564,155 @@ footer .table tbody tr:last-child:hover td {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Widget flottant Google Rating — design "badge de confiance"
-   Style premium inspiré des certifications (Trustpilot / Verified)
+   Widget flottant Google Rating — version "fixe" (toujours visible)
+   Pastille statique en bas à droite avec un CTA "Voir les avis"
+   bien visible — plus de drag, plus de rétractation auto.
    ═══════════════════════════════════════════════════════════ */
 .google-rating-float {
     position: fixed;
-    bottom: 90px; /* pas trop collée au bas pour être bien visible */
-    right: 28px;
+    bottom: 24px;
+    right: 24px;
     z-index: 999;
-    display: inline-flex;
-    align-items: center;
-    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 220px;
     background: #ffffff;
-    border-radius: 12px;
+    border-radius: 14px;
     overflow: hidden;
     box-shadow:
-        0 10px 30px rgba(15, 23, 42, 0.12),
-        0 2px 6px rgba(15, 23, 42, 0.06),
-        0 0 0 1px rgba(15, 23, 42, 0.04);
+        0 12px 32px rgba(15, 23, 42, 0.16),
+        0 2px 6px rgba(15, 23, 42, 0.08),
+        0 0 0 1px rgba(15, 23, 42, 0.05);
     text-decoration: none;
     color: #0f172a;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
-    cursor: grab;
-    user-select: none;
-    -webkit-user-select: none;
-    animation: google-rating-slide-in 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.6s backwards;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.3s ease;
+    animation: google-rating-pop-in 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.5s backwards;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.25s ease;
 }
 
 .google-rating-float:hover {
     transform: translateY(-3px);
     box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.18),
-        0 4px 10px rgba(15, 23, 42, 0.08),
-        0 0 0 1px rgba(15, 23, 42, 0.06);
+        0 20px 44px rgba(15, 23, 42, 0.22),
+        0 4px 10px rgba(15, 23, 42, 0.10),
+        0 0 0 1px rgba(9, 71, 113, 0.20);
     text-decoration: none;
     color: #0f172a;
 }
 
-.google-rating-float.is-dragging {
-    cursor: grabbing;
-    transform: scale(1.04) rotate(-1.5deg);
-    transition: none;
-    box-shadow:
-        0 20px 50px rgba(15, 23, 42, 0.25),
-        0 6px 16px rgba(15, 23, 42, 0.12);
-    opacity: 0.95;
-}
-
-/* ─── Bulle tooltip "Voir les avis" (apparition automatique au collapse) ─── */
-.google-rating-float-cta {
-    position: absolute;
-    top: 50%;
-    right: calc(100% + 8px);
-    transform: translateY(-50%) scale(0.9);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #0f172a;
-    white-space: nowrap;
-    letter-spacing: 0.01em;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow:
-        0 6px 16px rgba(15, 23, 42, 0.15),
-        0 1px 3px rgba(15, 23, 42, 0.08);
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
-}
-
-/* Petit triangle pointant vers le G */
-.google-rating-float-cta::after {
-    content: "";
-    position: absolute;
-    right: -5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 5px 0 5px 6px;
-    border-color: transparent transparent transparent #ffffff;
-    filter: drop-shadow(2px 0 2px rgba(0,0,0,0.08));
-}
-
-.google-rating-float-cta i {
-    font-size: 9px;
-    color: rgb(9, 71, 113);
-}
-
-/* ─── État "rangé" (collapsed) : seul le G dépasse ─── */
-.google-rating-float.is-collapsed {
-    padding: 0;
-    overflow: hidden;
-    /* Décale pour ne montrer que le G (~40px) */
-    transform: translateX(calc(100% - 40px));
-    animation: none;
-    cursor: pointer;
-    border-radius: 14px 0 0 14px;
-    box-shadow:
-        -4px 4px 16px rgba(15, 23, 42, 0.12),
-        inset 1px 0 0 rgba(15, 23, 42, 0.05);
-}
-
-/* Afficher le tooltip "Voir les avis" pendant 3 secondes après le collapse,
-   puis le faire disparaître automatiquement (animation) */
-.google-rating-float.is-collapsed .google-rating-float-cta {
-    animation: google-cta-ping 4s ease-in-out 0.4s 1 both;
-}
-
-@keyframes google-cta-ping {
-    0%   { opacity: 0; visibility: hidden; transform: translateY(-50%) scale(0.9); }
-    8%   { opacity: 1; visibility: visible; transform: translateY(-50%) scale(1); }
-    78%  { opacity: 1; visibility: visible; transform: translateY(-50%) scale(1); }
-    100% { opacity: 0; visibility: hidden; transform: translateY(-50%) translateX(8px) scale(0.95); }
-}
-
-.google-rating-float.is-collapsed:hover {
-    /* Au hover : réapparait entièrement */
-    transform: translateX(0);
-    overflow: visible;
-    border-radius: 12px;
-    box-shadow:
-        0 18px 40px rgba(15, 23, 42, 0.18),
-        0 4px 10px rgba(15, 23, 42, 0.08);
-}
-
-/* Au hover : masquer le tooltip (c'est redondant) */
-.google-rating-float.is-collapsed:hover .google-rating-float-cta {
-    opacity: 0;
-    visibility: hidden;
-    animation: none;
-}
-
-/* Contenu texte masqué en collapsed */
-.google-rating-float.is-collapsed .google-rating-float-main {
-    opacity: 0;
-    transition: opacity 0.15s;
-}
-.google-rating-float.is-collapsed:hover .google-rating-float-main {
-    opacity: 1;
-}
-
-/* Pastille G en collapsed : background blanc uni + coins arrondis à gauche */
-.google-rating-float.is-collapsed .google-rating-float-icon {
-    border-right: none;
-    background: #ffffff;
-    border-radius: 14px 0 0 14px;
-}
-.google-rating-float.is-collapsed:hover .google-rating-float-icon {
-    background: #f8fafc;
-    border-right: 1px solid rgba(15, 23, 42, 0.06);
-    border-radius: 12px 0 0 12px;
-}
-
-/* Point jaune pulsant au-dessus du G pour signaler qu'il est cliquable */
-.google-rating-float.is-collapsed .google-rating-float-icon::after {
-    content: "";
-    position: absolute;
-    top: 7px;
-    right: 6px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #fbbf24;
-    box-shadow: 0 0 0 2px #fff;
-    animation: google-pulse 2s ease-in-out infinite;
-    z-index: 3;
-}
-.google-rating-float.is-collapsed:hover .google-rating-float-icon::after {
-    display: none;
-}
-
-@keyframes google-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: 0.5; transform: scale(1.3); }
-}
-
-/* ── Pastille Google à gauche (coin coloré distinctif) ── */
+/* ── Logo G coloré tout en haut, centré ── */
 .google-rating-float-icon {
-    flex-shrink: 0;
-    width: 48px;
-    align-self: stretch;
-    background: #f8fafc;
-    border-right: 1px solid rgba(15, 23, 42, 0.06);
-    display: inline-flex;
-    align-items: center;
+    display: flex;
     justify-content: center;
-    font-size: 22px;
+    align-items: center;
+    padding: 14px 0 4px;
+    font-size: 30px;
+    line-height: 1;
 }
-
-/* Le "G" de Google en dégradé multicolore officiel (4 couleurs) */
-.google-rating-float-icon > i {
+.google-rating-float-icon i {
     background: linear-gradient(135deg, #4285F4 0%, #34A853 33%, #FBBC05 66%, #EA4335 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 700;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.06));
 }
 
-/* ── Contenu principal à droite ── */
+/* ── Bloc principal : score, étoiles, nombre d'avis ── */
 .google-rating-float-main {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-    gap: 2px;
-    padding: 10px 16px 10px 14px;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 16px 14px;
     line-height: 1.2;
-    pointer-events: none;
+    text-align: center;
 }
 
-/* Ligne du haut : "Avis Google" en label */
+/* Label "AVIS GOOGLE" au-dessus du score */
 .google-rating-float-main::before {
     content: "Avis Google";
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #64748b;
+    color: #94a3b8;
 }
 
-/* Ligne du milieu : note + étoiles alignées */
 .google-rating-float-score {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 16px;
+    gap: 8px;
+    font-size: 24px;
     font-weight: 800;
     color: #0f172a;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
 }
 
 .google-rating-float-stars {
     display: inline-flex;
-    gap: 1px;
-    font-size: 11px;
+    gap: 2px;
+    font-size: 13px;
     color: #fbbf24;
-    letter-spacing: 0;
-    vertical-align: middle;
+    align-items: center;
 }
-
 .google-rating-float-stars i { margin: 0; }
 
-/* Ligne du bas : nombre d'avis */
 .google-rating-float-count {
-    font-size: 10.5px;
+    font-size: 11.5px;
     color: #64748b;
     font-weight: 500;
 }
 
-/* Animation d'entrée "slide depuis la droite" */
-@keyframes google-rating-slide-in {
-    0%   { transform: translateX(60px); opacity: 0; }
-    100% { transform: translateX(0);     opacity: 1; }
+/* ── CTA "Voir les avis" en bas, pleine largeur, bleu ── */
+.google-rating-float-cta-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 14px;
+    background: rgb(9, 71, 113);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: background 0.2s;
+}
+.google-rating-float-cta-bottom i {
+    font-size: 11px;
+    transition: transform 0.2s;
+}
+.google-rating-float:hover .google-rating-float-cta-bottom {
+    background: #0a5a8a;
+}
+.google-rating-float:hover .google-rating-float-cta-bottom i {
+    transform: translateX(4px);
+}
+
+/* Animation d'entrée "pop" douce */
+@keyframes google-rating-pop-in {
+    0%   { transform: scale(0.85) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0);       opacity: 1; }
 }
 
 /* Responsive mobile */
 @media (max-width: 480px) {
     .google-rating-float {
-        bottom: 72px;
+        bottom: 16px;
         right: 16px;
-        border-radius: 10px;
+        width: 195px;
+        border-radius: 12px;
     }
-    .google-rating-float-icon {
-        width: 40px;
-        font-size: 18px;
-    }
-    .google-rating-float-main {
-        padding: 8px 14px 8px 12px;
-    }
-    .google-rating-float-main::before { font-size: 8.5px; }
-    .google-rating-float-score { font-size: 14px; gap: 5px; }
-    .google-rating-float-stars { font-size: 10px; }
-    .google-rating-float-count { font-size: 9.5px; }
+    .google-rating-float-icon { padding: 12px 0 2px; font-size: 26px; }
+    .google-rating-float-main { padding: 4px 14px 12px; }
+    .google-rating-float-main::before { font-size: 9.5px; }
+    .google-rating-float-score { font-size: 21px; }
+    .google-rating-float-stars { font-size: 12px; }
+    .google-rating-float-count { font-size: 10.5px; }
+    .google-rating-float-cta-bottom { font-size: 12px; padding: 10px 12px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -15852,4 +15733,25 @@ footer .table tbody tr:last-child:hover td {
 .footer-social-wrap .social-follow-compact {
     justify-content: center;
     gap: 12px;
+}
+
+/* Liste "Contactez-nous" du footer — sans icônes, lisible et aérée */
+.footer-contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    line-height: 1.55;
+}
+.footer-contact-list li {
+    color: #fff;
+    font-size: 14px;
+}
+.footer-contact-list .footer-contact-link {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.footer-contact-list .footer-contact-link:hover {
+    color: #fbbf24;
+    text-decoration: underline;
 }
