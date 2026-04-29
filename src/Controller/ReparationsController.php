@@ -50,17 +50,41 @@ class ReparationsController extends AbstractController
         $modeleRepository = $entityManager->getRepository(Model::class);
 
         if ($type === 'phone') {
-            $modeles = $modeleRepository->findBy(['marque' => $marque, 'hasPhone' => true]);
+            $modeles = $modeleRepository->findBy(['marque' => $marque, 'hasPhone' => true], ['name' => 'ASC']);
         } elseif ($type === 'tablet') {
-            $modeles = $modeleRepository->findBy(['marque' => $marque, 'hasTablet' => true]);
+            $modeles = $modeleRepository->findBy(['marque' => $marque, 'hasTablet' => true], ['name' => 'ASC']);
         } else {
-            $modeles = $modeleRepository->findBy(['marque' => $marque]);
+            $modeles = $modeleRepository->findBy(['marque' => $marque], ['name' => 'ASC']);
+        }
+
+        // ─── Regroupement par famille (sous-catégories) ───
+        // Si au moins un modèle a une famille définie, on affiche en sous-onglets.
+        // Sinon, affichage plat (comportement historique).
+        $modelesByFamille = [];
+        $hasFamilles = false;
+        foreach ($modeles as $m) {
+            $f = $m->getFamille();
+            if ($f) {
+                $hasFamilles = true;
+            }
+            $key = $f ?: 'Autres';
+            $modelesByFamille[$key][] = $m;
+        }
+        // Tri alphabétique des familles, "Autres" en dernier
+        if ($hasFamilles) {
+            uksort($modelesByFamille, function ($a, $b) {
+                if ($a === 'Autres') return 1;
+                if ($b === 'Autres') return -1;
+                return strcasecmp($a, $b);
+            });
         }
 
         return $this->render('reparations/choisir_modele.html.twig', [
-            'modeles' => $modeles,
-            'marque' => $marque,
-            'type' => $type,
+            'modeles'          => $modeles,
+            'modelesByFamille' => $modelesByFamille,
+            'hasFamilles'      => $hasFamilles,
+            'marque'           => $marque,
+            'type'             => $type,
         ]);
     }
 

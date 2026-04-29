@@ -12,6 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class ModelType extends AbstractType
 {
@@ -49,6 +50,21 @@ class ModelType extends AbstractType
             ->add('hasTablet', CheckboxType::class, [
                 'label'    => 'Tablette',
                 'required' => false,
+            ])
+            ->add('famille', ChoiceType::class, [
+                'label'       => 'Famille / Sous-catégorie',
+                'required'    => false,
+                'placeholder' => '— Aucune (affichage plat) —',
+                'choices'     => [
+                    'Samsung — Série A'      => 'Série A',
+                    'Samsung — Série S'      => 'Série S',
+                    'Samsung — Galaxy Z'     => 'Galaxy Z',
+                    'Samsung — Galaxy Note'  => 'Galaxy Note',
+                    'Xiaomi — Redmi'         => 'Redmi',
+                    'Xiaomi — Mi'            => 'Mi',
+                    'Xiaomi — Poco'          => 'Poco',
+                ],
+                'help'        => 'Optionnel — sert à grouper les modèles d\'une marque sur la page publique (ex: Samsung Série A vs Série S).',
             ]);
     }
 
