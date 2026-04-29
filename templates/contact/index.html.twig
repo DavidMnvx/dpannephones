@@ -56,7 +56,7 @@
                         <div class="contact-info-icon"><i class="fas fa-envelope"></i></div>
                         <div>
                             <strong>Email</strong>
-                            <a href="mailto:contact@dpannephones.com" class="contact-info-link">contact@dpannephones.fr</a>
+                            <a href="mailto:contact@dpannephones.com" class="contact-info-link">contact@dpannephones.com</a>
                         </div>
                     </div>
                     <div class="contact-info-item">
@@ -200,6 +200,110 @@
         </div>
 
     </div>
+
+    {# ─── Validation live des champs (feedback visuel en temps réel) ─── #}
+    <script>
+        (function () {
+            var form = document.querySelector('.contact-form');
+            if (!form) return;
+
+            // Règles de validation côté client — cohérentes avec les contraintes Symfony
+            // (Contact entity : NotBlank + Length + Regex). La validation serveur reste
+            // l'autorité finale, ceci est juste du feedback UX.
+            var rules = {
+                firstName: {
+                    test: function (v) { return /^[\p{L}\p{M}'\- ]{2,60}$/u.test(v.trim()); },
+                    error: 'Au moins 2 caractères, lettres uniquement.',
+                    success: 'Prénom valide ✓'
+                },
+                lastName: {
+                    test: function (v) { return /^[\p{L}\p{M}'\- ]{2,60}$/u.test(v.trim()); },
+                    error: 'Au moins 2 caractères, lettres uniquement.',
+                    success: 'Nom valide ✓'
+                },
+                email: {
+                    test: function (v) {
+                        v = v.trim();
+                        return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && v.length <= 180;
+                    },
+                    error: 'Adresse email invalide.',
+                    success: 'Email valide ✓'
+                },
+                phone: {
+                    optional: true, // facultatif : vide = OK
+                    test: function (v) {
+                        v = v.trim();
+                        if (v === '') return true;
+                        return /^(?:\+?[0-9][0-9 .\-]{8,20})$/.test(v);
+                    },
+                    error: 'Numéro invalide. Ex : 06 12 34 56 78',
+                    success: 'Numéro valide ✓'
+                },
+                message: {
+                    test: function (v) {
+                        v = v.trim();
+                        return v.length >= 10 && v.length <= 4000;
+                    },
+                    error: function (v) {
+                        v = v.trim();
+                        if (v.length < 10) {
+                            var rest = 10 - v.length;
+                            return 'Encore ' + rest + ' caractère' + (rest > 1 ? 's' : '') + ' minimum.';
+                        }
+                        return 'Maximum 4000 caractères.';
+                    },
+                    success: 'Message OK ✓'
+                }
+            };
+
+            // Récupère un champ par son name "court" (peut être préfixé par contact[email])
+            function findField(shortName) {
+                return form.querySelector('[name$="[' + shortName + ']"], [name="' + shortName + '"]');
+            }
+
+            // Insère/met à jour un message de feedback sous le champ
+            function setMessage(field, text, isSuccess) {
+                var parent = field.parentElement;
+                var msg = parent.querySelector('.contact-field-msg');
+                if (!msg) {
+                    msg = document.createElement('span');
+                    msg.className = 'contact-field-msg';
+                    parent.appendChild(msg);
+                }
+                msg.textContent = text || '';
+                msg.classList.toggle('is-success', !!isSuccess);
+                msg.style.display = text ? 'block' : 'none';
+            }
+
+            function validateField(field, rule) {
+                var v = field.value;
+                // Vide → on retire les états (sauf si on veut signaler "obligatoire")
+                if (v.trim() === '') {
+                    field.classList.remove('is-valid', 'is-invalid');
+                    setMessage(field, '', false);
+                    return;
+                }
+                var ok = rule.test(v);
+                field.classList.toggle('is-valid', ok);
+                field.classList.toggle('is-invalid', !ok);
+
+                if (ok) {
+                    setMessage(field, rule.success || '', true);
+                } else {
+                    var err = typeof rule.error === 'function' ? rule.error(v) : rule.error;
+                    setMessage(field, err, false);
+                }
+            }
+
+            Object.keys(rules).forEach(function (name) {
+                var field = findField(name);
+                if (!field) return;
+                var rule = rules[name];
+                field.addEventListener('input', function () { validateField(field, rule); });
+                field.addEventListener('blur', function () { validateField(field, rule); });
+            });
+        })();
+    </script>
 
     {# Carte Google Maps — iframe embed (pas de clé API requise, toujours disponible) #}
     <div class="contact-map-section">
