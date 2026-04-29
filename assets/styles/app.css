@@ -15535,9 +15535,20 @@ footer .table tbody tr:last-child:hover td {
     align-items: center;
     gap: 8px;
 }
+/* Sélecteur volontairement très spécifique pour battre la règle générique
+   `.navbar-nav .nav-item .nav-link:hover { color: ... !important }` qui sinon
+   force le texte en bleu sombre (invisible sur fond bleu). */
+.navbar-nav .nav-item--phone .nav-link.phone-btn,
+.navbar-nav .nav-item--phone .nav-link.phone-btn:hover,
+.navbar-nav .nav-item--phone .nav-link.phone-btn:focus,
+.navbar-nav .nav-item--phone .nav-link.phone-btn:active {
+    color: #ffffff !important;
+}
+.navbar-nav .nav-item--phone .nav-link.phone-btn i {
+    color: #ffffff !important;
+}
 .nav-item--phone .phone-btn {
     background: linear-gradient(135deg, rgb(9, 71, 113) 0%, #0a5a8a 100%);
-    color: #fff !important;
     border-radius: 24px;
     padding: 8px 16px !important;
     font-weight: 700;
@@ -15548,7 +15559,7 @@ footer .table tbody tr:last-child:hover td {
 .nav-item--phone .phone-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(9,71,113,0.35);
-    color: #fff !important;
+    background: linear-gradient(135deg, #0a5a8a 0%, rgb(9, 71, 113) 100%);
 }
 .nav-item--phone .phone-btn::after { display: none !important; }
 
