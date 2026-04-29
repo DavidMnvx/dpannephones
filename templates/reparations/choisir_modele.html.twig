@@ -34,6 +34,67 @@
         </a>
     </div>
 
+    {# ─── Filtre rapide (recherche live dans la liste) ─── #}
+    {% if modeles|length > 6 %}
+        <div class="rep-filter-box">
+            <i class="fas fa-search rep-filter-icon"></i>
+            <input type="text" id="repModelFilter" class="rep-filter-input"
+                   placeholder="Filtrer dans la liste — ex: S22, Note, A20..."
+                   autocomplete="off" aria-label="Filtrer les modèles">
+            <button type="button" id="repModelFilterClear" class="rep-filter-clear" aria-label="Effacer" hidden>&times;</button>
+        </div>
+        <style>
+            .rep-filter-box {
+                position: relative;
+                margin: 0 0 18px;
+                display: flex;
+                align-items: center;
+            }
+            .rep-filter-icon {
+                position: absolute;
+                left: 16px;
+                color: #94a3b8;
+                font-size: 14px;
+                pointer-events: none;
+            }
+            .rep-filter-input {
+                width: 100%;
+                padding: 12px 44px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 14px;
+                background: #fff;
+                outline: none;
+                transition: all .2s;
+            }
+            .rep-filter-input:focus {
+                border-color: rgb(9, 71, 113);
+                box-shadow: 0 0 0 3px rgba(9, 71, 113, 0.08);
+            }
+            .rep-filter-clear {
+                position: absolute;
+                right: 12px;
+                background: #e2e8f0;
+                border: 0;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 16px;
+                line-height: 1;
+                color: #475569;
+            }
+            .rep-filter-clear:hover { background: #cbd5e1; }
+            .rep-empty-filter {
+                text-align: center;
+                padding: 30px 16px;
+                color: #64748b;
+                font-size: 14px;
+                grid-column: 1 / -1;
+            }
+        </style>
+    {% endif %}
+
     {% if modeles is empty %}
         <div class="rep-empty">
             <i class="fas fa-microchip"></i>
@@ -109,6 +170,75 @@
         </div>
     {% endif %}
 
+    {# ─── JS du filtre rapide (marche pour affichage plat ET avec familles) ─── #}
+    {% if modeles|length > 6 %}
+    <script>
+        (function () {
+            var input    = document.getElementById('repModelFilter');
+            var clearBtn = document.getElementById('repModelFilterClear');
+            if (!input) return;
+
+            // Toutes les cards à filtrer (qu'on soit en mode familles ou plat)
+            var cards = document.querySelectorAll('.rep-model-card');
+            // Conteneur grid pour insérer un message "aucun résultat"
+            var grid  = document.querySelector('.rep-models-grid');
+
+            function applyFilter() {
+                var q     = input.value.trim().toLowerCase();
+                clearBtn.hidden = (q.length === 0);
+
+                // Onglet famille actif (si présent)
+                var activeFamille = null;
+                var activeTab = document.querySelector('.rep-famille-tab.is-active');
+                if (activeTab) activeFamille = activeTab.getAttribute('data-famille');
+
+                var visibleCount = 0;
+                cards.forEach(function (card) {
+                    var name = (card.querySelector('.rep-model-name') || {}).textContent || '';
+                    var matchText = q === '' || name.toLowerCase().indexOf(q) !== -1;
+
+                    var matchFamille = true;
+                    if (activeFamille && activeFamille !== '__all__') {
+                        matchFamille = (card.getAttribute('data-famille') === activeFamille);
+                    }
+
+                    var visible = matchText && matchFamille;
+                    card.style.display = visible ? '' : 'none';
+                    if (visible) visibleCount++;
+                });
+
+                // Message "aucun résultat" dans la grille
+                var existingMsg = grid && grid.querySelector('.rep-empty-filter');
+                if (visibleCount === 0 && q.length > 0) {
+                    if (!existingMsg && grid) {
+                        var div = document.createElement('div');
+                        div.className   = 'rep-empty-filter';
+                        div.innerHTML   = '<i class="fas fa-search mr-1"></i> Aucun modèle ne correspond à <strong>« ' + q.replace(/[<>]/g, '') + ' »</strong>.';
+                        grid.appendChild(div);
+                    }
+                } else if (existingMsg) {
+                    existingMsg.remove();
+                }
+            }
+
+            input.addEventListener('input', applyFilter);
+            clearBtn.addEventListener('click', function () {
+                input.value = '';
+                applyFilter();
+                input.focus();
+            });
+
+            // Quand on clique un onglet famille, on relance le filtre pour combiner les 2 critères
+            document.querySelectorAll('.rep-famille-tab').forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    // léger délai pour laisser l'onglet s'activer d'abord
+                    setTimeout(applyFilter, 0);
+                });
+            });
+        })();
+    </script>
+    {% endif %}
+
     {# ─── Styles & JS pour les onglets de famille ─── #}
     {% if hasFamilles %}
         <style>
@@ -157,20 +287,16 @@
                 background: #e2e8f0;
                 color: #64748b;
             }
-            .rep-model-card.is-hidden {
-                display: none !important;
-            }
         </style>
         <script>
             (function () {
                 var tabs = document.querySelectorAll('.rep-famille-tab');
-                var cards = document.querySelectorAll('.rep-model-card[data-famille]');
 
                 tabs.forEach(function (tab) {
                     tab.addEventListener('click', function () {
-                        var target = tab.getAttribute('data-famille');
-
-                        // Activer l'onglet cliqué
+                        // Activer l'onglet cliqué (visuel) — le filtre des cards
+                        // est géré par le script "filter rapide" plus haut, ou par
+                        // ce script si pas de filtre texte présent.
                         tabs.forEach(function (t) {
                             t.classList.remove('is-active');
                             t.setAttribute('aria-selected', 'false');
@@ -178,14 +304,14 @@
                         tab.classList.add('is-active');
                         tab.setAttribute('aria-selected', 'true');
 
-                        // Filtrer les cards
-                        cards.forEach(function (card) {
-                            if (target === '__all__' || card.getAttribute('data-famille') === target) {
-                                card.classList.remove('is-hidden');
-                            } else {
-                                card.classList.add('is-hidden');
-                            }
-                        });
+                        // Si pas de filtre texte (≤ 6 modèles), on filtre ici directement
+                        if (!document.getElementById('repModelFilter')) {
+                            var target = tab.getAttribute('data-famille');
+                            document.querySelectorAll('.rep-model-card[data-famille]').forEach(function (card) {
+                                var visible = (target === '__all__' || card.getAttribute('data-famille') === target);
+                                card.style.display = visible ? '' : 'none';
+                            });
+                        }
                     });
                 });
             })();

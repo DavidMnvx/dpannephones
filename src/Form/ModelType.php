@@ -27,6 +27,21 @@ class ModelType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'Marque',
             ])
+            ->add('famille', ChoiceType::class, [
+                'label'       => 'Famille / Sous-catégorie',
+                'required'    => false,
+                'placeholder' => '— Aucune (affichage plat) —',
+                'choices'     => [
+                    'Samsung — Série A'      => 'Série A',
+                    'Samsung — Série S'      => 'Série S',
+                    'Samsung — Galaxy Z'     => 'Galaxy Z',
+                    'Samsung — Galaxy Note'  => 'Galaxy Note',
+                    'Xiaomi — Redmi'         => 'Redmi',
+                    'Xiaomi — Mi'            => 'Mi',
+                    'Xiaomi — Poco'          => 'Poco',
+                ],
+                'help'        => 'Optionnel — sert à grouper les modèles d\'une marque sur la page publique (ex: Samsung Série A vs Série S).',
+            ])
             ->add('image', FileType::class, [
                 'label' => 'Image du modèle',
                 'mapped' => false,
@@ -50,21 +65,6 @@ class ModelType extends AbstractType
             ->add('hasTablet', CheckboxType::class, [
                 'label'    => 'Tablette',
                 'required' => false,
-            ])
-            ->add('famille', ChoiceType::class, [
-                'label'       => 'Famille / Sous-catégorie',
-                'required'    => false,
-                'placeholder' => '— Aucune (affichage plat) —',
-                'choices'     => [
-                    'Samsung — Série A'      => 'Série A',
-                    'Samsung — Série S'      => 'Série S',
-                    'Samsung — Galaxy Z'     => 'Galaxy Z',
-                    'Samsung — Galaxy Note'  => 'Galaxy Note',
-                    'Xiaomi — Redmi'         => 'Redmi',
-                    'Xiaomi — Mi'            => 'Mi',
-                    'Xiaomi — Poco'          => 'Poco',
-                ],
-                'help'        => 'Optionnel — sert à grouper les modèles d\'une marque sur la page publique (ex: Samsung Série A vs Série S).',
             ]);
     }
 

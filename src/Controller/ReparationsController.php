@@ -6,6 +6,8 @@ use App\Entity\Model;
 use App\Entity\Reparation;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -86,6 +88,71 @@ class ReparationsController extends AbstractController
             'marque'           => $marque,
             'type'             => $type,
         ]);
+    }
+
+    /**
+     * API d'autocomplete pour la barre de recherche modèles (homepage).
+     * Cherche dans le NOM du modèle ET le NOM de la marque (insensible à la casse).
+     * Retourne max 8 résultats, classés par pertinence.
+     *
+     * Exemple : /api/models/search?q=s22 → [{"name":"Galaxy S22 Ultra", "marque":"Samsung", ...}]
+     */
+    #[Route('/api/models/search', name: 'api_models_search', methods: ['GET'])]
+    public function apiModelsSearch(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $q = trim((string) $request->query->get('q', ''));
+
+        // Garde-fou : minimum 2 caractères pour éviter de scanner toute la base
+        if (mb_strlen($q) < 2) {
+            return new JsonResponse(['results' => []]);
+        }
+
+        $type = (string) $request->query->get('type', 'phone'); // phone | tablet
+
+        $qb = $em->getRepository(Model::class)->createQueryBuilder('m')
+            ->leftJoin('m.marque', 'mq')
+            ->addSelect('mq')
+            ->where('LOWER(m.name) LIKE :q OR LOWER(mq.name) LIKE :q')
+            ->setParameter('q', '%' . mb_strtolower($q) . '%')
+            ->orderBy('m.name', 'ASC')
+            ->setMaxResults(20);
+
+        if ($type === 'phone') {
+            $qb->andWhere('m.hasPhone = :t')->setParameter('t', true);
+        } elseif ($type === 'tablet') {
+            $qb->andWhere('m.hasTablet = :t')->setParameter('t', true);
+        }
+
+        $models = $qb->getQuery()->getResult();
+
+        // Classement par pertinence : exact > débute par > contient
+        $qLower = mb_strtolower($q);
+        usort($models, function ($a, $b) use ($qLower) {
+            $score = function (Model $m) use ($qLower) {
+                $name = mb_strtolower($m->getName() ?? '');
+                if ($name === $qLower) return 0;
+                if (str_starts_with($name, $qLower)) return 1;
+                return 2;
+            };
+            return $score($a) <=> $score($b);
+        });
+
+        $results = [];
+        foreach (array_slice($models, 0, 8) as $m) {
+            $results[] = [
+                'id'      => $m->getId(),
+                'name'    => $m->getName(),
+                'marque'  => $m->getMarque() ? $m->getMarque()->getName() : null,
+                'famille' => $m->getFamille(),
+                'image'   => $m->getImage(),
+                'url'     => $this->generateUrl('liste_reparations', [
+                    'modeleName' => $m->getName(),
+                    'type'       => $m->getHasPhone() ? 'phone' : 'tablet',
+                ]),
+            ];
+        }
+
+        return new JsonResponse(['query' => $q, 'results' => $results]);
     }
 
     #[Route('/reparations/{modeleName}/{type}', name: 'liste_reparations')]
