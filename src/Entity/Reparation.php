@@ -36,8 +36,23 @@ class Reparation
     #[ORM\Column]
     private int $sortOrder = 0;
 
+    /**
+     * Réparation "universelle" / "service commun" : s'applique à tous les modèles.
+     * Exemple : Tiroir SIM, Désoxydation, Transfert de données, Diagnostique.
+     * Quand true, le champ `model` est généralement null.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isUniversal = false;
+
+    /**
+     * Classe d'icône FontAwesome (ex: 'fa-sim-card', 'fa-tint', 'fa-stethoscope').
+     * Utilisé surtout pour les réparations universelles affichées en "services communs".
+     */
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $icon = null;
+
     #[ORM\ManyToOne(targetEntity: Model::class, inversedBy: 'reparations')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Model $model = null;
 
     public function getId(): ?int
@@ -125,6 +140,34 @@ class Reparation
     public function setSortOrder(int $sortOrder): self
     {
         $this->sortOrder = $sortOrder;
+        return $this;
+    }
+
+    public function isUniversal(): bool
+    {
+        return $this->isUniversal;
+    }
+
+    public function getIsUniversal(): bool
+    {
+        return $this->isUniversal;
+    }
+
+    public function setIsUniversal(bool $isUniversal): self
+    {
+        $this->isUniversal = $isUniversal;
+        return $this;
+    }
+
+    public function getIcon(): ?string
+    {
+        return $this->icon;
+    }
+
+    public function setIcon(?string $icon): self
+    {
+        $icon = $icon !== null ? trim($icon) : null;
+        $this->icon = ($icon === '' || $icon === null) ? null : $icon;
         return $this;
     }
 }

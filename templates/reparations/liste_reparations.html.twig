@@ -87,7 +87,8 @@
             </div>
         {% endif %}
 
-        {# ── Services communs ── #}
+        {# ── Services communs (depuis la BDD, éditables via admin CRUD) ── #}
+        {% if reparationsUniverselles is defined and reparationsUniverselles|length > 0 %}
         <div class="rep-section">
             <div class="rep-section-head">
                 <i class="fas fa-tools" style="color:#f59e0b;"></i>
@@ -95,32 +96,28 @@
                 <small>Disponibles pour tous les modèles</small>
             </div>
 
-            {% set predefined_reparations = [
-                {'id': 'sim',       'name': 'Tiroir SIM',           'description': 'Remplacement tiroir SIM — pièce sur commande 24-48h.',           'prix': 10,  'icon': 'fa-sim-card'},
-                {'id': 'desox',     'name': 'Désoxydation',         'description': 'Traitement après contact avec liquide — résultat sous 24-48h.',  'prix': 49,  'icon': 'fa-tint'},
-                {'id': 'transfert', 'name': 'Transfert de données', 'description': 'Migration complète de vos données vers un nouvel appareil.',    'prix': 19,  'icon': 'fa-exchange-alt'},
-                {'id': 'diag',      'name': 'Diagnostique',         'description': 'Analyse complète directement en boutique — sans rendez-vous.',  'prix': 0,   'icon': 'fa-stethoscope'}
-            ] %}
             <div class="rep-list">
-                {% for rep in predefined_reparations %}
-                    <label class="rep-item rep-item--common" for="rep-{{ rep.id }}"
+                {% for rep in reparationsUniverselles %}
+                    <label class="rep-item rep-item--common" for="rep-univ-{{ rep.id }}"
                            style="animation-delay: {{ (loop.index0 * 0.03) }}s;">
                         <input type="checkbox"
-                               id="rep-{{ rep.id }}"
+                               id="rep-univ-{{ rep.id }}"
                                class="rep-item-checkbox reparation-checkbox"
                                data-price="{{ rep.prix }}"
                                data-name="{{ rep.name }}">
                         <div class="rep-item-content">
                             <div class="rep-item-icon">
-                                <i class="fas {{ rep.icon }}"></i>
+                                <i class="fas {{ rep.icon ?: 'fa-tools' }}"></i>
                             </div>
                             <div class="rep-item-main">
                                 <div class="rep-item-name">{{ rep.name }}</div>
-                                <p class="rep-item-desc">{{ rep.description }}</p>
+                                {% if rep.description %}
+                                    <p class="rep-item-desc">{{ rep.description }}</p>
+                                {% endif %}
                             </div>
                             <div class="rep-item-right">
                                 <span class="rep-item-price {{ rep.prix == 0 ? 'rep-item-price--free' : '' }}">
-                                    {{ rep.prix == 0 ? 'Gratuit' : rep.prix ~ ' €' }}
+                                    {{ rep.prix == 0 ? 'Gratuit' : (rep.prix|number_format(0, ',', ' ') ~ ' €') }}
                                 </span>
                                 <div class="rep-item-check">
                                     <i class="fas fa-check"></i>
@@ -131,6 +128,7 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
         {# Aide #}
         <div class="rep-help-box">

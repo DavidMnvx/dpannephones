@@ -167,18 +167,32 @@ class ReparationsController extends AbstractController
 
         $reparationRepository = $entityManager->getRepository(Reparation::class);
 
+        // Réparations spécifiques au modèle, en excluant celles marquées "universelles"
+        // (les universelles n'ont normalement pas de modèle, mais on filtre pour être safe).
+        $qb = $reparationRepository->createQueryBuilder('r')
+            ->where('r.model = :model')
+            ->andWhere('r.isUniversal = :false')
+            ->setParameter('model', $modele)
+            ->setParameter('false', false)
+            ->orderBy('r.sortOrder', 'ASC')
+            ->addOrderBy('r.name', 'ASC');
+
         if ($type === 'phone') {
-            $reparations = $reparationRepository->findBy(['model' => $modele, 'hasPhone' => true]);
+            $qb->andWhere('r.hasPhone = :t')->setParameter('t', true);
         } elseif ($type === 'tablet') {
-            $reparations = $reparationRepository->findBy(['model' => $modele, 'hasTablet' => true]);
-        } else {
-            $reparations = $reparationRepository->findBy(['model' => $modele]);
+            $qb->andWhere('r.hasTablet = :t')->setParameter('t', true);
         }
 
+        $reparations = $qb->getQuery()->getResult();
+
+        // Réparations universelles / services communs (Tiroir SIM, Désoxydation…)
+        $reparationsUniverselles = $reparationRepository->findUniversalReparations($type);
+
         return $this->render('reparations/liste_reparations.html.twig', [
-            'reparations' => $reparations,
-            'modele' => $modele,
-            'type' => $type,
+            'reparations'             => $reparations,
+            'reparationsUniverselles' => $reparationsUniverselles,
+            'modele'                  => $modele,
+            'type'                    => $type,
         ]);
     }
 }

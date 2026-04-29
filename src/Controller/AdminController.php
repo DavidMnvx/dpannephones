@@ -121,31 +121,44 @@ class AdminController extends AbstractController
         }
 
         if ($reparationForm->isSubmitted() && $reparationForm->isValid()) {
+            // Cohérence : si "service commun" coché, on annule le modèle (et inversement)
+            if ($reparation->isUniversal()) {
+                $reparation->setModel(null);
+            }
+
             // Si l'admin laisse l'ordre à 0 (valeur par défaut), on l'assigne automatiquement
-            // à la fin de la liste pour le modèle concerné (max + 10)
-            if ($reparation->getSortOrder() === 0 && $reparation->getModel()) {
-                $maxOrder = (int) $entityManager->createQueryBuilder()
+            // à la fin de la liste : max + 10 dans le bon scope (modèle concerné OU universelles)
+            if ($reparation->getSortOrder() === 0) {
+                $qb = $entityManager->createQueryBuilder()
                     ->select('COALESCE(MAX(r.sortOrder), 0)')
-                    ->from(Reparation::class, 'r')
-                    ->where('r.model = :model')
-                    ->setParameter('model', $reparation->getModel())
-                    ->getQuery()
-                    ->getSingleScalarResult();
+                    ->from(Reparation::class, 'r');
+
+                if ($reparation->isUniversal()) {
+                    $qb->where('r.isUniversal = :true')->setParameter('true', true);
+                } elseif ($reparation->getModel()) {
+                    $qb->where('r.model = :model')->setParameter('model', $reparation->getModel());
+                } else {
+                    $qb->where('r.model IS NULL AND r.isUniversal = :false')->setParameter('false', false);
+                }
+
+                $maxOrder = (int) $qb->getQuery()->getSingleScalarResult();
                 $reparation->setSortOrder($maxOrder + 10);
             }
 
             $entityManager->persist($reparation);
             $entityManager->flush();
 
-            $modelName = $reparation->getModel() ? $reparation->getModel()->getName() : '';
+            $scopeLabel = $reparation->isUniversal()
+                ? 'tous les modèles (service commun)'
+                : ($reparation->getModel() ? $reparation->getModel()->getName() : '—');
             $this->addFlash('success', sprintf(
                 '✅ Réparation "%s" ajoutée pour %s. Tu peux en saisir une autre 👇',
                 $reparation->getName(),
-                $modelName
+                $scopeLabel
             ));
 
-            // Mémoriser le modèle pour pré-remplir au prochain affichage
-            if ($reparation->getModel()) {
+            // Mémoriser le modèle pour pré-remplir au prochain affichage (sauf si universel)
+            if (!$reparation->isUniversal() && $reparation->getModel()) {
                 $request->getSession()->set('admin_last_reparation_model_id', $reparation->getModel()->getId());
             }
 
@@ -157,6 +170,7 @@ class AdminController extends AbstractController
         $models      = $entityManager->getRepository(Model::class)->findAll();
         $reparations = $entityManager->getRepository(Reparation::class)->findAllOrdered();
         $reparationsByModelAll = $entityManager->getRepository(Reparation::class)->findGroupedByModel();
+        $reparationsUniverselles = $entityManager->getRepository(Reparation::class)->findUniversalReparations();
         $articles    = $entityManager->getRepository(Article::class)->findAll();
 
         // ─── Onglets par marque + pagination pour la liste réparations ───
@@ -243,6 +257,7 @@ class AdminController extends AbstractController
             'models'        => $models,
             'reparations'   => $reparations,
             'reparationsByModel' => $reparationsByModel,
+            'reparationsUniverselles' => $reparationsUniverselles,
             'marquesRep'         => $marquesRep,
             'selectedMarqueRep'  => $selectedMarqueRep,
             'currentPageRep'     => $currentPageRep,

@@ -38,6 +38,7 @@ class ReparationRepository extends ServiceEntityRepository
 
     /**
      * Réparations groupées par modèle (clé = id du modèle).
+     * Les réparations universelles (model = null) sont exclues.
      * Pratique pour afficher en admin avec sous-titres par modèle.
      *
      * @return array<int, array{model: Model, items: Reparation[]}>
@@ -49,7 +50,7 @@ class ReparationRepository extends ServiceEntityRepository
 
         foreach ($reparations as $rep) {
             $model = $rep->getModel();
-            if (!$model) continue;
+            if (!$model) continue; // Les universelles sont gérées séparément
 
             $modelId = $model->getId();
             if (!isset($grouped[$modelId])) {
@@ -62,5 +63,28 @@ class ReparationRepository extends ServiceEntityRepository
         }
 
         return $grouped;
+    }
+
+    /**
+     * Réparations universelles / services communs (qui s'appliquent à tous les modèles).
+     * Optionnellement filtrables par type ('phone' ou 'tablet').
+     *
+     * @return Reparation[]
+     */
+    public function findUniversalReparations(?string $type = null): array
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->where('r.isUniversal = :true')
+            ->setParameter('true', true)
+            ->orderBy('r.sortOrder', 'ASC')
+            ->addOrderBy('r.name', 'ASC');
+
+        if ($type === 'phone') {
+            $qb->andWhere('r.hasPhone = :t')->setParameter('t', true);
+        } elseif ($type === 'tablet') {
+            $qb->andWhere('r.hasTablet = :t')->setParameter('t', true);
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

@@ -22,6 +22,11 @@ class ReparationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('isUniversal', CheckboxType::class, [
+                'label'    => 'Service commun (s\'applique à tous les modèles)',
+                'required' => false,
+                'help'     => 'Coche cette case pour les réparations universelles : Tiroir SIM, Désoxydation, Diagnostique, etc. Le modèle devient alors facultatif.',
+            ])
             ->add('model', EntityType::class, [
                 'class' => Model::class,
                 'choice_label' => function (Model $m) {
@@ -37,7 +42,8 @@ class ReparationType extends AbstractType
                         ->addOrderBy('m.name', 'ASC');
                 },
                 'label' => 'Modèle concerné',
-                'placeholder' => '— Choisir un modèle —',
+                'placeholder' => '— Choisir un modèle (laisser vide si service commun) —',
+                'required' => false,
             ])
             ->add('name', TextType::class, [
                 'label' => 'Nom de la réparation',
@@ -51,6 +57,12 @@ class ReparationType extends AbstractType
                 'label' => 'Description (optionnelle)',
                 'required' => false,
                 'attr'  => ['rows' => 2, 'placeholder' => 'Détails techniques, garantie, durée…'],
+            ])
+            ->add('icon', TextType::class, [
+                'label'    => 'Icône (FontAwesome) — optionnel',
+                'required' => false,
+                'help'     => 'Classe FontAwesome sans le préfixe "fas". Ex : fa-sim-card · fa-tint · fa-exchange-alt · fa-stethoscope · fa-mobile-alt · fa-battery-half · fa-microphone',
+                'attr'     => ['placeholder' => 'fa-sim-card'],
             ])
             ->add('sortOrder', IntegerType::class, [
                 'label' => 'Ordre d\'affichage',

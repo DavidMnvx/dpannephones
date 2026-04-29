@@ -641,6 +641,11 @@
                         </p>
 
                         {{ form_start(reparationForm, {'attr': {'class': 'admin-form', 'id': 'reparationForm'}}) }}
+                            {# Toggle "service commun" en haut, bien visible #}
+                            <div class="rep-universal-toggle" style="background:linear-gradient(135deg,#fff7ed,#fed7aa);border:1px solid #fdba74;border-radius:10px;padding:12px 16px;margin-bottom:18px;">
+                                {{ form_row(reparationForm.isUniversal) }}
+                            </div>
+
                             <div class="form-section-title">Identification</div>
                             <div class="row">
                                 <div class="col-md-6">{{ form_row(reparationForm.model) }}</div>
@@ -652,6 +657,7 @@
 
                             <div class="form-section-title">Options</div>
                             <div class="row">
+                                <div class="col-md-3">{{ form_row(reparationForm.icon) }}</div>
                                 <div class="col-md-3">{{ form_row(reparationForm.sortOrder) }}</div>
                                 <div class="col-md-3" style="display:flex;align-items:center;padding-top:28px;">
                                     {{ form_row(reparationForm.hasPhone) }}
@@ -665,6 +671,29 @@
 
                             <div class="form-section-title">Description (optionnelle)</div>
                             {{ form_row(reparationForm.description) }}
+
+                            <script>
+                            // Quand l'admin coche "service commun", on désactive visuellement le sélecteur de modèle
+                            (function() {
+                                var formEl = document.getElementById('reparationForm');
+                                if (!formEl) return;
+                                var universalCb = formEl.querySelector('input[name$="[isUniversal]"]');
+                                var modelSel = formEl.querySelector('select[name$="[model]"]');
+                                if (!universalCb || !modelSel) return;
+                                function sync() {
+                                    if (universalCb.checked) {
+                                        modelSel.value = '';
+                                        modelSel.disabled = true;
+                                        modelSel.style.background = '#f1f5f9';
+                                    } else {
+                                        modelSel.disabled = false;
+                                        modelSel.style.background = '';
+                                    }
+                                }
+                                universalCb.addEventListener('change', sync);
+                                sync();
+                            })();
+                            </script>
 
                             <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;">
                                 <button type="submit" class="btn-admin-submit">
@@ -698,6 +727,67 @@
                                     <i class="fas fa-sort mr-1"></i> Réordonner par modèle
                                 </a>
                             </div>
+                        </div>
+
+                        {# ─── Section "Services communs" (réparations universelles) ─── #}
+                        <div style="margin-bottom:24px;padding:16px;background:linear-gradient(135deg,#fff7ed,#fffbeb);border:1px solid #fdba74;border-radius:12px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                                <i class="fas fa-tools" style="color:#f59e0b;font-size:18px;"></i>
+                                <strong style="font-size:15px;color:#92400e;">Services communs (tous modèles)</strong>
+                                <span style="background:#fed7aa;color:#92400e;padding:2px 9px;border-radius:10px;font-size:11.5px;font-weight:700;">{{ reparationsUniverselles|length }}</span>
+                            </div>
+                            {% if reparationsUniverselles is empty %}
+                                <p style="margin:0;font-size:13px;color:#92400e;">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Aucun service commun. Coche <em>« Service commun »</em> dans le formulaire ci-dessus pour en créer (ex : Tiroir SIM, Désoxydation, Diagnostique…).
+                                </p>
+                            {% else %}
+                                <table class="table table-sm" style="margin-bottom:0;background:#fff;border-radius:8px;overflow:hidden;">
+                                    <thead style="background:#f8fafc;">
+                                        <tr>
+                                            <th style="width:50px;font-size:11px;color:#64748b;">Ordre</th>
+                                            <th style="width:50px;font-size:11px;color:#64748b;">Icône</th>
+                                            <th style="font-size:11px;color:#64748b;">Nom</th>
+                                            <th style="font-size:11px;color:#64748b;">Description</th>
+                                            <th style="width:90px;font-size:11px;color:#64748b;">Prix</th>
+                                            <th style="width:50px;font-size:11px;color:#64748b;">📱</th>
+                                            <th style="width:50px;font-size:11px;color:#64748b;">📋</th>
+                                            <th style="width:140px;font-size:11px;color:#64748b;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for r in reparationsUniverselles %}
+                                            <tr>
+                                                <td style="font-weight:600;color:#475569;">{{ r.sortOrder }}</td>
+                                                <td>
+                                                    {% if r.icon %}
+                                                        <i class="fas {{ r.icon }}" style="color:#f59e0b;font-size:16px;"></i>
+                                                    {% else %}
+                                                        <span style="color:#cbd5e1;">—</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td><strong>{{ r.name }}</strong></td>
+                                                <td style="font-size:12.5px;color:#64748b;">{{ r.description ?: '—' }}</td>
+                                                <td>
+                                                    <strong style="color:rgb(9,71,113);">
+                                                        {% if r.prix > 0 %}{{ r.prix|number_format(2, ',', ' ') }} €{% else %}<span style="color:#16a34a;">Gratuit</span>{% endif %}
+                                                    </strong>
+                                                </td>
+                                                <td style="text-align:center;">{{ r.hasPhone ? '✅' : '—' }}</td>
+                                                <td style="text-align:center;">{{ r.hasTablet ? '✅' : '—' }}</td>
+                                                <td>
+                                                    <a href="{{ path('admin_reparation_edit', {'id': r.id}) }}" class="btn btn-sm btn-warning">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="{{ path('admin_reparation_delete', {'id': r.id}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce service commun ?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endif %}
                         </div>
 
                         {# ─── Onglets par marque ─── #}
