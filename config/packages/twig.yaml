@@ -8,6 +8,10 @@ twig:
         # ou dans les variables d'env du VPS (prod).
         google_analytics_id: '%env(default::GOOGLE_ANALYTICS_ID)%'
 
+        # Cloudflare Turnstile (captcha anti-bot) — site key publique, exposée dans le HTML.
+        # Si vide → le widget n'est pas affiché (mode dégradé : honeypot + rate limiter seuls).
+        turnstile_site_key: '%env(default::TURNSTILE_SITE_KEY)%'
+
 when@test:
     twig:
         strict_variables: true

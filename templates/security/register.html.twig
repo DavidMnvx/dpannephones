@@ -109,6 +109,9 @@
         Un email de confirmation sera envoyé à votre adresse pour activer votre compte.
       </div>
 
+      {# Anti-spam : honeypot + Cloudflare Turnstile #}
+      {{ include('_partials/_anti_spam.html.twig') }}
+
       <button type="submit" class="auth-btn-primary">
         <i class="fas fa-user-plus mr-2"></i>Créer mon compte
       </button>

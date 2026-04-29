@@ -4,13 +4,16 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Service\RegistrationEmailService;
+use App\Service\TurnstileVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
@@ -24,6 +27,9 @@ class SecurityController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $em,
         RegistrationEmailService $registrationEmailService,
+        TurnstileVerifier $turnstile,
+        #[Autowire(service: 'limiter.registration')]
+        RateLimiterFactory $registrationLimiter,
         LoggerInterface $logger
     ): Response {
         if ($this->getUser()) {
@@ -35,6 +41,28 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // ─── 1. Honeypot ───
+            if (!empty(trim((string) $request->request->get('_website')))) {
+                $logger->info('[Register] Honeypot rempli — bot rejeté', ['ip' => $request->getClientIp()]);
+                // Réponse identique au succès pour ne pas guider le bot
+                return $this->redirectToRoute('app_check_email');
+            }
+
+            // ─── 2. Rate limiter : max 3 inscriptions / IP / heure ───
+            $limiter = $registrationLimiter->create($request->getClientIp() ?? 'unknown');
+            $limit = $limiter->consume(1);
+            if (!$limit->isAccepted()) {
+                $this->addFlash('error', '⏱️ Trop de tentatives d\'inscription depuis cette connexion. Réessaie dans 1 heure.');
+                return $this->redirectToRoute('app_register');
+            }
+
+            // ─── 3. Cloudflare Turnstile ───
+            $token = $request->request->get('cf-turnstile-response');
+            if (!$turnstile->verify((string) $token, $request->getClientIp())) {
+                $this->addFlash('error', '❌ La vérification anti-spam a échoué. Recharge la page et réessaie.');
+                return $this->redirectToRoute('app_register');
+            }
+
             $user->setPassword(
                 $passwordHasher->hashPassword($user, $form->get('plainPassword')->getData())
             );

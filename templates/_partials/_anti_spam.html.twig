@@ -1,0 +1,54 @@
+{#
+    Bloc anti-spam réutilisable : honeypot (champ caché) + widget Turnstile.
+
+    À inclure dans n'importe quel formulaire (contact, inscription…).
+    Le contrôleur doit ensuite :
+    1. Vérifier que `_website` est vide → sinon c'est un bot
+    2. Appeler TurnstileVerifier::verify() avec le token `cf-turnstile-response`
+#}
+
+{# ─── HONEYPOT ─── #}
+{#
+   Champ caché en CSS (off-screen) que les bots remplissent automatiquement
+   en voyant un input texte avec un nom plausible. Les humains ne le voient pas.
+   Le `tabindex="-1"` et `autocomplete="off"` renforcent l'invisibilité.
+#}
+<div aria-hidden="true" class="hp-field">
+    <label for="hp_website">Site web (laissez vide)</label>
+    <input type="text"
+           id="hp_website"
+           name="_website"
+           tabindex="-1"
+           autocomplete="off"
+           value=""
+           placeholder=""
+           aria-hidden="true">
+</div>
+
+{# ─── TURNSTILE WIDGET ─── #}
+{% if turnstile_site_key is defined and turnstile_site_key|default('') is not empty %}
+    <div class="cf-turnstile-wrap" style="margin: 16px 0;">
+        <div class="cf-turnstile"
+             data-sitekey="{{ turnstile_site_key }}"
+             data-theme="light"
+             data-language="fr"></div>
+    </div>
+    {# Le script Turnstile (chargé une seule fois si plusieurs forms sur la page) #}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+
+{# ─── CSS du honeypot ─── #}
+<style>
+    /* Honeypot — totalement invisible pour les humains, mais lisible par les bots
+       (qui rempliront le champ → on rejettera la soumission). */
+    .hp-field {
+        position: absolute !important;
+        left: -10000px !important;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+</style>

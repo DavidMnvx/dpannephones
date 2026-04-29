@@ -184,6 +184,9 @@
                     {{ form_errors(form.message) }}
                 </div>
 
+                {# Anti-spam : honeypot + Cloudflare Turnstile #}
+                {{ include('_partials/_anti_spam.html.twig') }}
+
                 <div class="contact-form-footer">
                     <p class="contact-rgpd">
                         <i class="fas fa-lock mr-1"></i>

@@ -16,3 +16,18 @@ framework:
             policy: sliding_window
             limit: 25
             interval: '15 minutes'
+
+        # Soumission du formulaire contact — anti-spam.
+        # Max 3 envois / IP / heure : largement suffisant pour un usage humain
+        # (3 demandes différentes par heure depuis la même connexion).
+        contact_submit:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'
+
+        # Inscription compte client — anti-création massive de faux comptes.
+        # Max 3 inscriptions / IP / heure (foyers partagés respectés).
+        registration:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'
