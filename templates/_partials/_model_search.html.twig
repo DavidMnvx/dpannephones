@@ -1,0 +1,289 @@
+{#
+    Barre de recherche modèle (autocomplete) — réutilisable.
+    Inclus sur la homepage et sur la page /reparations (choix du type).
+    Tape ≥ 2 caractères → fetch /api/models/search → affiche jusqu'à 8 résultats.
+#}
+<div class="model-search-section reveal">
+    <div class="model-search-wrap">
+        <div class="model-search-eyebrow">
+            <i class="fas fa-bolt"></i> Vous savez déjà votre modèle ?
+        </div>
+        <div class="model-search-box">
+            <i class="fas fa-search model-search-icon"></i>
+            <input type="text"
+                   id="modelSearchInput"
+                   class="model-search-input"
+                   placeholder="Tapez votre modèle (ex: iPhone 13, Galaxy S22, Redmi Note…)"
+                   autocomplete="off"
+                   aria-label="Rechercher un modèle">
+            <button type="button" id="modelSearchClear" class="model-search-clear" aria-label="Effacer" hidden>&times;</button>
+        </div>
+        <div id="modelSearchResults" class="model-search-results" hidden role="listbox" aria-label="Résultats de recherche"></div>
+        <div class="model-search-hint">
+            <i class="fas fa-info-circle"></i> Tapez au moins 2 lettres — la recherche prend en compte la marque et le modèle
+        </div>
+    </div>
+</div>
+
+<style>
+    .model-search-section {
+        width: 92%;
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 0 16px;
+    }
+    .model-search-wrap {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 2px solid #bae6fd;
+        border-radius: 18px;
+        padding: 28px 26px 22px;
+        box-shadow: 0 4px 16px rgba(9, 71, 113, 0.08);
+        position: relative;
+    }
+    .model-search-eyebrow {
+        font-size: 13px;
+        font-weight: 700;
+        color: rgb(9, 71, 113);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    .model-search-eyebrow i {
+        color: #f59e0b;
+        margin-right: 4px;
+    }
+    .model-search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .model-search-icon {
+        position: absolute;
+        left: 18px;
+        color: #94a3b8;
+        font-size: 17px;
+        pointer-events: none;
+    }
+    .model-search-input {
+        width: 100%;
+        padding: 16px 50px 16px 50px;
+        border: 2px solid #cbd5e1;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        background: #fff;
+        transition: all .2s;
+        outline: none;
+    }
+    .model-search-input:focus {
+        border-color: rgb(9, 71, 113);
+        box-shadow: 0 0 0 4px rgba(9, 71, 113, 0.1);
+    }
+    .model-search-clear {
+        position: absolute;
+        right: 14px;
+        background: #e2e8f0;
+        border: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 18px;
+        line-height: 1;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .model-search-clear:hover { background: #cbd5e1; }
+    .model-search-results {
+        margin-top: 10px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        max-height: 380px;
+        overflow-y: auto;
+    }
+    .model-search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #0f172a;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background .15s;
+    }
+    .model-search-result-item:last-child { border-bottom: 0; }
+    .model-search-result-item:hover,
+    .model-search-result-item.is-active {
+        background: #f0f9ff;
+        color: rgb(9, 71, 113);
+    }
+    .model-search-result-img {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    .model-search-result-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 4px;
+    }
+    .model-search-result-img i {
+        color: #94a3b8;
+        font-size: 18px;
+    }
+    .model-search-result-info { flex: 1; min-width: 0; }
+    .model-search-result-name {
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .model-search-result-meta {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 2px;
+    }
+    .model-search-result-cta {
+        font-size: 12px;
+        color: rgb(9, 71, 113);
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    .model-search-empty {
+        padding: 22px 16px;
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+    }
+    .model-search-empty strong { color: #0f172a; }
+    .model-search-hint {
+        text-align: center;
+        margin-top: 14px;
+        font-size: 12.5px;
+        color: #64748b;
+    }
+    @media (max-width: 600px) {
+        .model-search-wrap { padding: 22px 16px 18px; border-radius: 14px; }
+        .model-search-input { font-size: 15px; padding: 14px 44px; }
+    }
+</style>
+
+<script>
+    (function () {
+        var input    = document.getElementById('modelSearchInput');
+        var clearBtn = document.getElementById('modelSearchClear');
+        var results  = document.getElementById('modelSearchResults');
+        if (!input) return;
+
+        var debounceTimer = null;
+        var lastQuery     = '';
+        var activeIndex   = -1;
+
+        function clearResults() {
+            results.innerHTML = '';
+            results.hidden    = true;
+            activeIndex       = -1;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+            });
+        }
+
+        function renderResults(items, query) {
+            if (!items.length) {
+                results.innerHTML = '<div class="model-search-empty">Aucun modèle trouvé pour <strong>« ' + escapeHtml(query) + ' »</strong>.<br>Essayez avec moins de caractères.</div>';
+                results.hidden = false;
+                return;
+            }
+            var html = '';
+            items.forEach(function (item, i) {
+                var img = item.image
+                    ? '<img src="/uploads/images/' + escapeHtml(item.image) + '" alt="">'
+                    : '<i class="fas fa-mobile-alt"></i>';
+                var meta = escapeHtml(item.marque || '');
+                if (item.famille) meta += ' · ' + escapeHtml(item.famille);
+                html += '<a href="' + escapeHtml(item.url) + '" class="model-search-result-item" data-idx="' + i + '">' +
+                            '<div class="model-search-result-img">' + img + '</div>' +
+                            '<div class="model-search-result-info">' +
+                                '<div class="model-search-result-name">' + escapeHtml(item.name) + '</div>' +
+                                '<div class="model-search-result-meta">' + meta + '</div>' +
+                            '</div>' +
+                            '<div class="model-search-result-cta">Voir <i class="fas fa-arrow-right"></i></div>' +
+                        '</a>';
+            });
+            results.innerHTML = html;
+            results.hidden    = false;
+            activeIndex       = -1;
+        }
+
+        function search(q) {
+            if (q.length < 2) { clearResults(); return; }
+            if (q === lastQuery) return;
+            lastQuery = q;
+
+            fetch('{{ path('api_models_search') }}?q=' + encodeURIComponent(q))
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (input.value.trim() !== q) return;
+                    renderResults(data.results || [], q);
+                })
+                .catch(function () { clearResults(); });
+        }
+
+        input.addEventListener('input', function () {
+            var q = input.value.trim();
+            clearBtn.hidden = (q.length === 0);
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () { search(q); }, 180);
+        });
+
+        clearBtn.addEventListener('click', function () {
+            input.value = '';
+            clearBtn.hidden = true;
+            clearResults();
+            input.focus();
+        });
+
+        // Navigation clavier ↑ ↓ Enter Esc
+        input.addEventListener('keydown', function (e) {
+            var items = results.querySelectorAll('.model-search-result-item');
+            if (e.key === 'ArrowDown' && items.length) {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+            } else if (e.key === 'ArrowUp' && items.length) {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+            } else if (e.key === 'Enter' && activeIndex >= 0 && items[activeIndex]) {
+                e.preventDefault();
+                window.location.href = items[activeIndex].href;
+                return;
+            } else if (e.key === 'Escape') {
+                clearResults();
+                input.blur();
+                return;
+            } else {
+                return;
+            }
+            items.forEach(function (it, i) { it.classList.toggle('is-active', i === activeIndex); });
+            if (items[activeIndex]) items[activeIndex].scrollIntoView({ block: 'nearest' });
+        });
+
+        // Fermer en cliquant en dehors
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.model-search-section')) clearResults();
+        });
+    })();
+</script>
