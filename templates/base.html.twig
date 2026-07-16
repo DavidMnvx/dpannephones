@@ -316,22 +316,27 @@
           <h5 class="text mb-4">Horaires d'ouverture</h5>
           <table class="table text-center" style="color:#fff;">
             <tbody class="fw-normal">
-              <tr>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Lun - Ven</td>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">9h – 12h</td>
-              </tr>
-              <tr>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);"></td>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">14h – 18h</td>
-              </tr>
-              <tr>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">Samedi</td>
-                <td style="color:#fff;border-color:rgba(255,255,255,0.15);">9h – 12h</td>
-              </tr>
-              <tr>
-                <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Dimanche</td>
-                <td style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15);">Fermé</td>
-              </tr>
+              {% for horaire in horaires_semaine() %}
+                {% set dim = horaire.ferme %}
+                {% set color = dim ? 'rgba(255,255,255,0.5)' : '#fff' %}
+                <tr>
+                  <td style="color:{{ color }};border-color:rgba(255,255,255,0.15);">{{ horaire.jourNom }}</td>
+                  <td style="color:{{ color }};border-color:rgba(255,255,255,0.15);">
+                    {% if dim %}
+                      Fermé
+                    {% else %}
+                      {% set plages = [] %}
+                      {% if horaire.matinOuverture and horaire.matinFermeture %}
+                        {% set plages = plages|merge([horaire.matinOuverture|date('G\\hi')|replace({'h00': 'h'}) ~ ' – ' ~ horaire.matinFermeture|date('G\\hi')|replace({'h00': 'h'})]) %}
+                      {% endif %}
+                      {% if horaire.apresmidiOuverture and horaire.apresmidiFermeture %}
+                        {% set plages = plages|merge([horaire.apresmidiOuverture|date('G\\hi')|replace({'h00': 'h'}) ~ ' – ' ~ horaire.apresmidiFermeture|date('G\\hi')|replace({'h00': 'h'})]) %}
+                      {% endif %}
+                      {{ plages|join('<br>')|raw ?: 'Fermé' }}
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>

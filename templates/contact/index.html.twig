@@ -63,7 +63,24 @@
                         <div class="contact-info-icon"><i class="fas fa-clock"></i></div>
                         <div>
                             <strong>Horaires</strong>
-                            <span>Lun–Ven : 9h – 19h<br>Sam : 10h – 17h<br>Dim : Fermé</span>
+                            <span>
+                                {% for horaire in horaires_semaine() %}
+                                    {{ horaire.jourNom }} :
+                                    {% if horaire.ferme %}
+                                        Fermé
+                                    {% else %}
+                                        {% set plages = [] %}
+                                        {% if horaire.matinOuverture and horaire.matinFermeture %}
+                                            {% set plages = plages|merge([horaire.matinOuverture|date('H:i')|replace({':': 'h'}) ~ '–' ~ horaire.matinFermeture|date('H:i')|replace({':': 'h'})]) %}
+                                        {% endif %}
+                                        {% if horaire.apresmidiOuverture and horaire.apresmidiFermeture %}
+                                            {% set plages = plages|merge([horaire.apresmidiOuverture|date('H:i')|replace({':': 'h'}) ~ '–' ~ horaire.apresmidiFermeture|date('H:i')|replace({':': 'h'})]) %}
+                                        {% endif %}
+                                        {{ plages|join(' / ') ?: 'Fermé' }}
+                                    {% endif %}
+                                    {% if not loop.last %}<br>{% endif %}
+                                {% endfor %}
+                            </span>
                         </div>
                     </div>
                 </div>

@@ -234,21 +234,26 @@
         <div class="accueil-horaires">
             <div class="accueil-horaires-title"><i class="fas fa-clock mr-2"></i>Horaires d'ouverture</div>
             <div class="accueil-horaires-grid">
-                <div class="accueil-horaires-row">
-                    <span class="accueil-horaires-day">Lun — Ven</span>
-                    <span class="accueil-horaires-dot"></span>
-                    <span class="accueil-horaires-time">9h00 – 12h00 &nbsp;|&nbsp; 14h00 – 18h00</span>
-                </div>
-                <div class="accueil-horaires-row">
-                    <span class="accueil-horaires-day">Samedi</span>
-                    <span class="accueil-horaires-dot"></span>
-                    <span class="accueil-horaires-time">9h00 – 12h00</span>
-                </div>
-                <div class="accueil-horaires-row closed">
-                    <span class="accueil-horaires-day">Dimanche</span>
-                    <span class="accueil-horaires-dot"></span>
-                    <span class="accueil-horaires-time">Fermé</span>
-                </div>
+                {% for horaire in horaires_semaine() %}
+                    <div class="accueil-horaires-row{{ horaire.ferme ? ' closed' : '' }}">
+                        <span class="accueil-horaires-day">{{ horaire.jourNom }}</span>
+                        <span class="accueil-horaires-dot"></span>
+                        <span class="accueil-horaires-time">
+                            {% if horaire.ferme %}
+                                Fermé
+                            {% else %}
+                                {% set plages = [] %}
+                                {% if horaire.matinOuverture and horaire.matinFermeture %}
+                                    {% set plages = plages|merge([horaire.matinOuverture|date('H:i')|replace({':': 'h'}) ~ ' – ' ~ horaire.matinFermeture|date('H:i')|replace({':': 'h'})]) %}
+                                {% endif %}
+                                {% if horaire.apresmidiOuverture and horaire.apresmidiFermeture %}
+                                    {% set plages = plages|merge([horaire.apresmidiOuverture|date('H:i')|replace({':': 'h'}) ~ ' – ' ~ horaire.apresmidiFermeture|date('H:i')|replace({':': 'h'})]) %}
+                                {% endif %}
+                                {{ plages|join(' &nbsp;|&nbsp; ')|raw ?: 'Fermé' }}
+                            {% endif %}
+                        </span>
+                    </div>
+                {% endfor %}
             </div>
         </div>
 

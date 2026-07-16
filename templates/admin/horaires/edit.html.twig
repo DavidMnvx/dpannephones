@@ -1,0 +1,56 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'horaires' %}
+
+{% block admin_content %}
+
+<div class="admin-page-title">Horaires d'ouverture</div>
+<div class="admin-page-subtitle" style="margin-bottom:24px;">
+    Ces horaires sont affichés partout sur le site public (footer, page d'accueil, contact, etc.).
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endfor %}
+
+<div class="admin-card">
+    <h3><i class="fas fa-clock"></i> Modifier les horaires</h3>
+
+    {{ form_start(form) }}
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle" style="background:#fff;">
+                <thead>
+                    <tr>
+                        <th>Jour</th>
+                        <th>Matin - ouverture</th>
+                        <th>Matin - fermeture</th>
+                        <th>Après-midi - ouverture</th>
+                        <th>Après-midi - fermeture</th>
+                        <th class="text-center">Fermé</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, horaireForm in form.horaires %}
+                        {% set horaire = horaires[i] %}
+                        <tr>
+                            <td><strong>{{ horaire.jourNom }}</strong></td>
+                            <td>{{ form_widget(horaireForm.matinOuverture) }}</td>
+                            <td>{{ form_widget(horaireForm.matinFermeture) }}</td>
+                            <td>{{ form_widget(horaireForm.apresmidiOuverture) }}</td>
+                            <td>{{ form_widget(horaireForm.apresmidiFermeture) }}</td>
+                            <td class="text-center">{{ form_widget(horaireForm.ferme) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <p class="text-muted" style="font-size:13px;">
+            <i class="fas fa-info-circle"></i>
+            Laisser les champs vides pour ne pas afficher cette plage horaire. Cocher "Fermé" masque toutes les plages du jour.
+        </p>
+
+        {{ form_widget(form.save) }}
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}

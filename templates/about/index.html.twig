@@ -41,7 +41,7 @@
                 Toutes nos réparations sont couvertes par une <span class="highlight">garantie de 6 mois</span> sur les pièces et la main-d'œuvre, hors dommages accidentels.
             </p>
             <p class="qSomNousText">
-                Vous pouvez nous confier votre appareil <span class="highlight">avec ou sans rendez-vous</span>, du lundi au vendredi de 9h à 12h et de 14h à 18h, ainsi que le samedi de 9h à 12h.
+                Vous pouvez nous confier votre appareil <span class="highlight">avec ou sans rendez-vous</span>, {{ horaires_resume() }}.
             </p>
         </div>
 
@@ -109,30 +109,35 @@
                     <div class="boutique-info-card">
                         <h4><i class="fas fa-clock"></i> Horaires d'ouverture</h4>
                         <table class="horaires-table">
-                            <tr>
-                                <td>Lundi – Vendredi <span class="badge-ouvert">Ouvert</span></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Matin</td>
-                                <td>9h00 – 12h00</td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Après-midi</td>
-                                <td>14h00 – 18h00</td>
-                            </tr>
-                            <tr>
-                                <td>Samedi <span class="badge-ouvert">Ouvert</span></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Matin</td>
-                                <td>9h00 – 12h00</td>
-                            </tr>
-                            <tr>
-                                <td>Dimanche</td>
-                                <td style="color:rgba(255,100,100,0.8);">Fermé</td>
-                            </tr>
+                            {% for horaire in horaires_semaine() %}
+                                {% set hasMatin = horaire.matinOuverture and horaire.matinFermeture %}
+                                {% set hasAprem = horaire.apresmidiOuverture and horaire.apresmidiFermeture %}
+                                <tr>
+                                    <td>
+                                        {{ horaire.jourNom }}
+                                        {% if not horaire.ferme and (hasMatin or hasAprem) %}
+                                            <span class="badge-ouvert">Ouvert</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if horaire.ferme or (not hasMatin and not hasAprem) %}
+                                            <span style="color:rgba(255,100,100,0.8);">Fermé</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% if not horaire.ferme and hasMatin %}
+                                    <tr>
+                                        <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Matin</td>
+                                        <td>{{ horaire.matinOuverture|date('H:i')|replace({':': 'h'}) }} – {{ horaire.matinFermeture|date('H:i')|replace({':': 'h'}) }}</td>
+                                    </tr>
+                                {% endif %}
+                                {% if not horaire.ferme and hasAprem %}
+                                    <tr>
+                                        <td style="padding-left:12px;color:rgba(255,255,255,0.65);font-size:13px;">Après-midi</td>
+                                        <td>{{ horaire.apresmidiOuverture|date('H:i')|replace({':': 'h'}) }} – {{ horaire.apresmidiFermeture|date('H:i')|replace({':': 'h'}) }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
                         </table>
                     </div>
 
