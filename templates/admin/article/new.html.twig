@@ -268,9 +268,17 @@
 
         </div>
 
-        {# Image #}
+        {# Image principale #}
         <div style="margin-top:8px;">
             {{ form_row(form.imageFilename) }}
+        </div>
+
+        {# Photos supplémentaires (galerie) #}
+        <div style="margin-top:16px;">
+            {{ form_row(form.photos) }}
+            <small style="color:#6c757d;">
+                Ces photos s'ajoutent à l'image principale et forment la galerie affichée sur la fiche produit.
+            </small>
         </div>
 
         <div style="margin-top:28px;">

@@ -94,12 +94,34 @@
             {# Image principale #}
             {% if article.image %}
                 <div class="article-detail-img-frame">
-                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                    <img id="mainArticleImage" src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                </div>
+            {% elseif article.photos|length > 0 %}
+                <div class="article-detail-img-frame">
+                    <img id="mainArticleImage" src="{{ asset('uploads/images/' ~ article.photos|first.filename) }}" alt="{{ article.name }}">
                 </div>
             {% else %}
                 <div class="article-detail-no-img">
                     <i class="fas fa-image"></i>
                     <span>Pas d'image disponible</span>
+                </div>
+            {% endif %}
+
+            {# Galerie photos supplémentaires #}
+            {% if article.photos|length > 0 %}
+                <div class="article-detail-gallery" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
+                    {% if article.image %}
+                        <img src="{{ asset('uploads/images/' ~ article.image) }}"
+                             alt="{{ article.name }}"
+                             onclick="document.getElementById('mainArticleImage').src=this.src;"
+                             style="width:70px;height:70px;object-fit:cover;border:2px solid #dee2e6;border-radius:6px;cursor:pointer;">
+                    {% endif %}
+                    {% for photo in article.photos %}
+                        <img src="{{ asset('uploads/images/' ~ photo.filename) }}"
+                             alt="{{ article.name }}"
+                             onclick="document.getElementById('mainArticleImage').src=this.src;"
+                             style="width:70px;height:70px;object-fit:cover;border:2px solid #dee2e6;border-radius:6px;cursor:pointer;">
+                    {% endfor %}
                 </div>
             {% endif %}
 

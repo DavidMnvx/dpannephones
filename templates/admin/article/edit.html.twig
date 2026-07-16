@@ -268,11 +268,41 @@
         <div style="margin-top:20px;">
             {% if article.image %}
                 <div style="margin-bottom:14px;">
-                    <div style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:8px;">Image actuelle</div>
+                    <div style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:8px;">Image principale actuelle</div>
                     <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}" class="img-preview">
                 </div>
             {% endif %}
             {{ form_row(form.imageFilename) }}
+        </div>
+
+        {# Photos supplémentaires (galerie) #}
+        <div style="margin-top:20px;">
+            {% if article.photos|length > 0 %}
+                <div style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:8px;">Photos de la galerie</div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+                    {% for photo in article.photos %}
+                        <div style="text-align:center;">
+                            <img src="{{ asset('uploads/images/' ~ photo.filename) }}"
+                                 alt="photo"
+                                 style="width:100px;height:100px;object-fit:cover;border:1px solid #dee2e6;border-radius:6px;display:block;">
+                            <form method="post"
+                                  action="{{ path('admin_article_photo_delete', {'id': photo.id}) }}"
+                                  onsubmit="return confirm('Supprimer cette photo ?');"
+                                  style="margin-top:4px;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-photo-' ~ photo.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger" style="font-size:11px;padding:2px 8px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {{ form_row(form.photos) }}
+            <small style="color:#6c757d;">
+                Ces photos s'ajoutent à l'image principale et forment la galerie affichée sur la fiche produit.
+            </small>
         </div>
 
         <div style="margin-top:28px;">

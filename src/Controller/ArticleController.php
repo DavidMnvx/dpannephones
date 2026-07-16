@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Photo;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Route('/admin/articles')]
 class ArticleController extends AbstractController
@@ -125,6 +127,7 @@ class ArticleController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handleImageUpload($form, $article, $slugger);
+            $this->handlePhotosUpload($form, $article, $slugger);
             $this->extractSpecsFromForm($form, $article);
 
             $em->persist($article);
@@ -154,6 +157,7 @@ class ArticleController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->handleImageUpload($form, $article, $slugger);
+            $this->handlePhotosUpload($form, $article, $slugger);
             $this->extractSpecsFromForm($form, $article);
 
             $em->flush();
@@ -178,6 +182,23 @@ class ArticleController extends AbstractController
         return $this->redirectToRoute('admin_article_index');
     }
 
+    #[Route('/photo/{id}/delete', name: 'admin_article_photo_delete', methods: ['POST'])]
+    public function deletePhoto(Photo $photo, Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('delete-photo-' . $photo->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
+
+        $articleId = $photo->getArticle()?->getId();
+        $em->remove($photo);
+        $em->flush();
+        $this->addFlash('success', 'Photo supprimée.');
+
+        return $articleId
+            ? $this->redirectToRoute('admin_article_edit', ['id' => $articleId])
+            : $this->redirectToRoute('admin_article_index');
+    }
+
     // ─────────────────────────────────────────────────────────────────────
     //  Helpers privés
     // ─────────────────────────────────────────────────────────────────────
@@ -189,14 +210,49 @@ class ArticleController extends AbstractController
             return;
         }
 
-        $safeFilename = $slugger->slug(pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME));
-        $newFilename  = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+        $newFilename = $this->uploadImageFile($imageFile, $slugger);
+        if ($newFilename !== null) {
+            $article->setImage($newFilename);
+        }
+    }
+
+    /**
+     * Photos supplémentaires (galerie). Uploaded files → Photo entities appended to the article.
+     */
+    private function handlePhotosUpload($form, Article $article, SluggerInterface $slugger): void
+    {
+        $files = $form->get('photos')->getData();
+        if (!$files) {
+            return;
+        }
+
+        $position = $article->getPhotos()->count();
+        foreach ($files as $file) {
+            if (!$file instanceof UploadedFile) {
+                continue;
+            }
+            $newFilename = $this->uploadImageFile($file, $slugger);
+            if ($newFilename === null) {
+                $this->addFlash('warning', 'Une photo n\'a pas pu être enregistrée.');
+                continue;
+            }
+            $photo = (new Photo())
+                ->setFilename($newFilename)
+                ->setPosition($position++);
+            $article->addPhoto($photo);
+        }
+    }
+
+    private function uploadImageFile(UploadedFile $file, SluggerInterface $slugger): ?string
+    {
+        $safeFilename = $slugger->slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        $newFilename  = $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
         try {
-            $imageFile->move($this->getParameter('images_directory'), $newFilename);
-            $article->setImage($newFilename);
-        } catch (FileException $e) {
-            // silent
+            $file->move($this->getParameter('images_directory'), $newFilename);
+            return $newFilename;
+        } catch (FileException) {
+            return null;
         }
     }
 
