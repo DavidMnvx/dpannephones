@@ -31,13 +31,15 @@ class ArticleType extends AbstractType
             ])
             ->add('grade', ChoiceType::class, [
                 'label'       => 'Grade',
+                'required'    => false,
                 'choices'     => [
+                    'Neuf'              => 'Neuf',
                     'A+ (Comme neuf)'   => 'A+',
                     'A (Très bon état)' => 'A',
                     'B (Bon état)'      => 'B',
                     'C (État correct)'  => 'C',
                 ],
-                'placeholder' => 'Choisir un grade',
+                'placeholder' => 'Aucun grade',
             ])
             ->add('categorie', ChoiceType::class, [
                 'label'       => 'Catégorie',
@@ -57,7 +59,7 @@ class ArticleType extends AbstractType
                 'required' => false,
             ])
             ->add('imageFilename', FileType::class, [
-                'label'       => "Image de l'article",
+                'label'       => "Image principale de l'article",
                 'mapped'      => false,
                 'required'    => false,
                 'constraints' => [
@@ -66,6 +68,24 @@ class ArticleType extends AbstractType
                         'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp'],
                         'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG ou WEBP).',
                     ])
+                ],
+            ])
+            ->add('photos', FileType::class, [
+                'label'       => 'Photos supplémentaires (plusieurs possibles)',
+                'mapped'      => false,
+                'multiple'    => true,
+                'required'    => false,
+                'attr'        => ['accept' => 'image/*'],
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\All([
+                        'constraints' => [
+                            new File([
+                                'maxSize'          => '4M',
+                                'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp'],
+                                'mimeTypesMessage' => 'Photos : JPEG, PNG ou WebP uniquement (max 4 Mo par fichier).',
+                            ]),
+                        ],
+                    ]),
                 ],
             ])
 

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ArticleRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
@@ -22,7 +24,7 @@ class Article
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\Column(length: 2)]
+    #[ORM\Column(length: 10, nullable: true)]
     private ?string $grade = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -37,6 +39,17 @@ class Article
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $specs = null;
 
+    /**
+     * @var Collection<int, Photo>
+     */
+    #[ORM\OneToMany(targetEntity: Photo::class, mappedBy: 'article', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $photos;
+
+    public function __construct()
+    {
+        $this->photos = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -91,7 +104,7 @@ class Article
         return $this->grade;
     }
 
-    public function setGrade(string $grade): static
+    public function setGrade(?string $grade): static
     {
         $this->grade = $grade;
 
@@ -143,6 +156,33 @@ class Article
     {
         $this->specs = $specs;
 
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Photo>
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    public function addPhoto(Photo $photo): static
+    {
+        if (!$this->photos->contains($photo)) {
+            $this->photos->add($photo);
+            $photo->setArticle($this);
+        }
+        return $this;
+    }
+
+    public function removePhoto(Photo $photo): static
+    {
+        if ($this->photos->removeElement($photo)) {
+            if ($photo->getArticle() === $this) {
+                $photo->setArticle(null);
+            }
+        }
         return $this;
     }
 }
