@@ -18,6 +18,65 @@ class HoraireExtension extends AbstractExtension
         return [
             new TwigFunction('horaires_semaine', [$this, 'getHorairesSemaine']),
             new TwigFunction('horaires_resume', [$this, 'getHorairesResume']),
+            new TwigFunction('horaires_groupes', [$this, 'getHorairesGroupes']),
+        ];
+    }
+
+    /**
+     * Regroupe les jours consécutifs à horaires identiques pour affichage compact.
+     *
+     * Retour : [ ['label' => 'Lun - Ven', 'matin' => '9h – 12h', 'apresmidi' => '14h – 18h', 'ferme' => false], ... ]
+     */
+    public function getHorairesGroupes(): array
+    {
+        $horaires = $this->getHorairesSemaine();
+        if (!$horaires) {
+            return [];
+        }
+
+        $short = [1 => 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        $groups = [];
+        $current = null;
+
+        foreach ($horaires as $h) {
+            $sig = $this->signature($h);
+            if ($current !== null && $current['sig'] === $sig) {
+                $current['end'] = $h;
+            } else {
+                if ($current !== null) {
+                    $groups[] = $this->finalizeGroup($current, $short);
+                }
+                $current = ['start' => $h, 'end' => $h, 'sig' => $sig];
+            }
+        }
+        if ($current !== null) {
+            $groups[] = $this->finalizeGroup($current, $short);
+        }
+
+        return $groups;
+    }
+
+    private function finalizeGroup(array $group, array $short): array
+    {
+        $start = $group['start'];
+        $end   = $group['end'];
+
+        $label = $start === $end
+            ? $short[$start->getJourNumero()]
+            : $short[$start->getJourNumero()] . ' - ' . $short[$end->getJourNumero()];
+
+        $matin = ($start->getMatinOuverture() && $start->getMatinFermeture())
+            ? $this->formatHeure($start->getMatinOuverture()) . ' – ' . $this->formatHeure($start->getMatinFermeture())
+            : null;
+        $apresmidi = ($start->getApresmidiOuverture() && $start->getApresmidiFermeture())
+            ? $this->formatHeure($start->getApresmidiOuverture()) . ' – ' . $this->formatHeure($start->getApresmidiFermeture())
+            : null;
+
+        return [
+            'label'     => $label,
+            'matin'     => $matin,
+            'apresmidi' => $apresmidi,
+            'ferme'     => $start->isFerme() || ($matin === null && $apresmidi === null),
         ];
     }
 
