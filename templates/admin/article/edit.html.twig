@@ -3,6 +3,280 @@
 
 {% block admin_content %}
 
+<style>
+    /* ══════════════════════════════════════════════════════════════
+       ARTICLE FORM — style universel (toutes catégories)
+       ══════════════════════════════════════════════════════════════ */
+
+    .article-form label,
+    .article-form .form-group > label {
+        display: block !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #1a2b4b !important;
+        margin-bottom: 8px !important;
+        letter-spacing: 0.005em;
+    }
+
+    .article-form input[type="text"],
+    .article-form input[type="number"],
+    .article-form input[type="email"],
+    .article-form input[type="url"],
+    .article-form input[type="tel"],
+    .article-form input[type="password"],
+    .article-form input[type="date"],
+    .article-form .form-control,
+    .article-form select,
+    .article-form textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 13px 16px !important;
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+        min-height: 50px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #dde3ea !important;
+        background-color: #ffffff !important;
+        color: #1a2b4b !important;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        max-width: 100% !important;
+    }
+
+    .article-form select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23094771' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 16px center !important;
+        padding-right: 44px !important;
+    }
+
+    .article-form input:hover:not(:focus),
+    .article-form select:hover:not(:focus),
+    .article-form textarea:hover:not(:focus) {
+        border-color: #b8c1cc !important;
+    }
+    .article-form input:focus,
+    .article-form select:focus,
+    .article-form textarea:focus {
+        border-color: #094771 !important;
+        box-shadow: 0 0 0 4px rgba(9,71,113,0.12) !important;
+        outline: none !important;
+    }
+
+    .article-form textarea,
+    .article-form textarea.form-control {
+        min-height: 180px !important;
+        line-height: 1.55 !important;
+        padding: 16px !important;
+        resize: vertical !important;
+    }
+
+    .article-form .form-group {
+        margin-bottom: 22px;
+    }
+
+    .article-form input[type="checkbox"] {
+        width: 20px !important;
+        height: 20px !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        accent-color: #094771;
+        margin-right: 8px !important;
+        cursor: pointer;
+        vertical-align: middle;
+        max-width: 20px !important;
+    }
+
+    .form-section-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: #7d8896;
+        margin: 8px 0 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .form-section-title::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background: linear-gradient(to right, #e5e8ec, transparent);
+    }
+
+    .section-divider {
+        margin: 36px 0 28px !important;
+        border: none;
+        border-top: 1px solid #edf0f3 !important;
+        opacity: 1 !important;
+    }
+
+    .specs-group {
+        padding: 28px 30px !important;
+        margin-bottom: 24px !important;
+        background: #f9fafc !important;
+        border: 1px solid #edf0f3 !important;
+        border-radius: 14px !important;
+    }
+    .specs-group-title {
+        font-size: 15px !important;
+        color: #094771 !important;
+        margin-bottom: 24px !important;
+        padding-bottom: 14px !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    .specs-subtitle {
+        background: transparent !important;
+        border-left: 3px solid #094771 !important;
+        border-radius: 0 !important;
+        padding: 5px 0 5px 12px !important;
+        color: #1a2b4b !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        margin: 22px 0 16px !important;
+    }
+    .specs-subtitle.mt-3 { margin-top: 26px !important; }
+
+    .specs-grid,
+    .specs-grid--2,
+    .specs-grid--3,
+    .specs-grid--4 {
+        gap: 4px 24px !important;
+    }
+    .specs-grid > *,
+    .specs-grid--2 > *,
+    .specs-grid--3 > *,
+    .specs-grid--4 > * {
+        min-width: 0;
+    }
+
+    .btn-admin-submit {
+        padding: 14px 34px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        border-radius: 10px !important;
+        background: #094771 !important;
+        border: none !important;
+        color: white !important;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.05s;
+        letter-spacing: 0.01em;
+    }
+    .btn-admin-submit:hover {
+        background: #063354 !important;
+        transform: translateY(-1px);
+    }
+    .btn-admin-submit:active { transform: translateY(0); }
+
+    /* ─── Accessoires : type picker + sections adaptatives ─── */
+    .acc-type-picker {
+        background: linear-gradient(135deg, #ffffff, #f8fafd);
+        border: 2px solid #094771;
+        border-radius: 12px;
+        padding: 22px 26px;
+        margin-bottom: 20px;
+        box-shadow: 0 3px 10px rgba(9,71,113,0.08);
+    }
+    .acc-type-picker label {
+        color: #094771;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        letter-spacing: 0.01em;
+    }
+    .acc-type-picker .form-group { margin-bottom: 0; }
+    .acc-empty-hint {
+        background: linear-gradient(135deg, #fefce8, #fef3c7);
+        border: 1px dashed #d97706;
+        border-radius: 10px;
+        padding: 20px 24px;
+        color: #92400e;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+    .acc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 24px;
+    }
+    @media (max-width: 768px) {
+        .acc-grid { grid-template-columns: 1fr; }
+    }
+    .acc-field { min-width: 0; }
+    .acc-field .form-group { margin-bottom: 18px; }
+
+    /* ─── Photo picker (unified UX) ─── */
+    #photoPicker .photo-picker-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 10px 18px;
+        border: 2px dashed #094771;
+        border-radius: 8px;
+        background: transparent;
+        color: #094771;
+        font-weight: 600; font-size: 14px;
+        cursor: pointer; transition: background 0.15s;
+    }
+    #photoPicker .photo-picker-btn:hover { background: rgba(9,71,113,0.08); }
+    #photoPicker #article_photos { display: none; }
+    #photoPicker .photo-picker-hint { font-size: 12px; color: #6c757d; margin-top: 8px; }
+    #photoPicker .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px; margin-top: 18px;
+    }
+    #photoPicker .photo-thumb {
+        position: relative; aspect-ratio: 1;
+        border-radius: 8px; overflow: hidden;
+        border: 2px solid #e5e8ec; background: #f5f7fa;
+    }
+    #photoPicker .photo-thumb.is-main {
+        border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.25);
+    }
+    #photoPicker .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    #photoPicker .photo-thumb-overlay {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 6px; opacity: 0; transition: opacity 0.15s;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.05) 30%, rgba(0,0,0,0.05) 70%, rgba(0,0,0,0.5));
+    }
+    #photoPicker .photo-thumb:hover .photo-thumb-overlay,
+    #photoPicker .photo-thumb.is-main .photo-thumb-overlay { opacity: 1; }
+    #photoPicker .photo-thumb-actions { display: flex; justify-content: flex-end; gap: 4px; }
+    #photoPicker .photo-thumb-btn {
+        width: 26px; height: 26px; border-radius: 50%; border: none;
+        background: rgba(255,255,255,0.95); color: #1a2332;
+        cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 0; transition: transform 0.1s;
+    }
+    #photoPicker .photo-thumb-btn:hover { transform: scale(1.08); }
+    #photoPicker .photo-thumb-btn.star.active { background: #f59e0b; color: white; }
+    #photoPicker .photo-thumb-btn.trash:hover { background: #dc2626; color: white; }
+    #photoPicker .photo-thumb-btn i { font-size: 12px; line-height: 1; }
+    #photoPicker .photo-thumb-badge {
+        display: inline-block; align-self: flex-start;
+        background: #f59e0b; color: white;
+        font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+        font-weight: 700; padding: 3px 8px; border-radius: 4px;
+    }
+    #photoPicker .photo-picker-empty {
+        grid-column: 1 / -1; text-align: center; color: #6c757d;
+        padding: 32px 0; border: 2px dashed #e5e8ec; border-radius: 8px;
+        font-size: 13px;
+    }
+    #photoPicker .photo-picker-counter { font-size: 12px; color: #6c757d; margin-top: 12px; }
+    #photoPicker .photo-picker-counter strong { color: #1a2332; }
+    #photoPicker .photo-main-label { color: #f59e0b; font-weight: 600; }
+    #photoPicker .photo-main-label-empty { color: #6c757d; }
+</style>
+
 <div style="margin-bottom:20px;">
     <a href="{{ path('admin_article_index') }}" style="font-size:13px;color:#6c757d;text-decoration:none;">
         <i class="fas fa-arrow-left mr-1"></i> Retour aux articles
@@ -44,10 +318,7 @@
 
         <hr class="section-divider">
 
-        <div class="form-section-title">Description & image</div>
-        {{ form_row(form.description) }}
-
-        {# Specs Section #}
+        {# Specs Section — s'affiche selon la catégorie choisie #}
         <div id="specs-section" style="display:none;">
 
             {# PC Gamer Group — enrichi #}
@@ -166,27 +437,69 @@
                 </div>
             </div>
 
-            {# Accessoires Group — NOUVEAU #}
+            {# Accessoires Group — typé (chargeur, câble, audio, coque, support…) #}
             <div class="specs-group" id="group-accessoires" style="display:none;">
                 <div class="specs-group-title"><i class="fas fa-headphones mr-2"></i>Spécifications accessoire</div>
 
-                <div class="specs-subtitle">📱 Compatibilité & caractéristiques</div>
-                <div class="specs-grid specs-grid--2">
-                    {{ form_row(form.acc_compatibility) }}
-                    {{ form_row(form.acc_connector) }}
-                    {{ form_row(form.acc_material) }}
-                    {{ form_row(form.acc_color) }}
+                <div class="acc-type-picker">
+                    <label for="article_acc_type">
+                        <i class="fas fa-tag mr-1"></i> Quel type d'accessoire ?
+                    </label>
+                    {{ form_widget(form.acc_type) }}
                 </div>
 
-                <div class="specs-subtitle mt-3">⚡ Caractéristiques techniques</div>
-                <div class="specs-grid specs-grid--2">
-                    {{ form_row(form.acc_power) }}
-                    {{ form_row(form.acc_contents) }}
+                <div id="acc-empty-state" class="acc-empty-hint">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Choisis d'abord le type ci-dessus — les caractéristiques adaptées apparaîtront ensuite.
                 </div>
 
-                <div class="specs-subtitle mt-3">🛡️ Garantie</div>
-                <div class="specs-grid">
-                    {{ form_row(form.acc_warranty) }}
+                <div id="acc-fields" style="display:none;">
+
+                    <div class="specs-subtitle">📋 Informations générales</div>
+                    <div class="acc-grid">
+                        <div class="acc-field">{{ form_row(form.acc_brand) }}</div>
+                        <div class="acc-field">{{ form_row(form.acc_compatibility) }}</div>
+                    </div>
+
+                    <div class="specs-subtitle mt-3 acc-cond" data-acc-only="chargeur cable batterie">
+                        ⚡ Caractéristiques électriques
+                    </div>
+                    <div class="acc-grid acc-cond" data-acc-only="chargeur cable batterie">
+                        <div class="acc-field" data-acc-only="chargeur cable batterie">{{ form_row(form.acc_power) }}</div>
+                        <div class="acc-field" data-acc-only="chargeur cable">{{ form_row(form.acc_technology) }}</div>
+                        <div class="acc-field" data-acc-only="chargeur batterie">{{ form_row(form.acc_ports_count) }}</div>
+                        <div class="acc-field" data-acc-only="chargeur cable">{{ form_row(form.acc_certifications) }}</div>
+                        <div class="acc-field" data-acc-only="cable">{{ form_row(form.acc_length) }}</div>
+                    </div>
+
+                    <div class="specs-subtitle mt-3 acc-cond" data-acc-only="chargeur cable audio batterie">
+                        🔌 Connectique
+                    </div>
+                    <div class="acc-grid acc-cond" data-acc-only="chargeur cable audio batterie">
+                        <div class="acc-field" data-acc-only="chargeur cable audio batterie">{{ form_row(form.acc_connector) }}</div>
+                    </div>
+
+                    <div class="specs-subtitle mt-3 acc-cond" data-acc-only="audio batterie">
+                        🎧 Autonomie & performance
+                    </div>
+                    <div class="acc-grid acc-cond" data-acc-only="audio batterie">
+                        <div class="acc-field" data-acc-only="audio batterie">{{ form_row(form.acc_battery_life) }}</div>
+                        <div class="acc-field" data-acc-only="audio">{{ form_row(form.acc_water_resistance) }}</div>
+                    </div>
+
+                    <div class="specs-subtitle mt-3 acc-cond" data-acc-only="coque protection_ecran support audio autre">
+                        🎨 Aspect & matériau
+                    </div>
+                    <div class="acc-grid acc-cond" data-acc-only="coque protection_ecran support audio autre">
+                        <div class="acc-field" data-acc-only="coque protection_ecran support audio autre">{{ form_row(form.acc_material) }}</div>
+                        <div class="acc-field" data-acc-only="coque protection_ecran support audio autre">{{ form_row(form.acc_color) }}</div>
+                    </div>
+
+                    <div class="specs-subtitle mt-3">📦 Livraison & garantie</div>
+                    <div class="acc-grid">
+                        <div class="acc-field">{{ form_row(form.acc_contents) }}</div>
+                        <div class="acc-field">{{ form_row(form.acc_warranty) }}</div>
+                    </div>
                 </div>
             </div>
 
@@ -265,44 +578,41 @@
 
         </div>
 
-        <div style="margin-top:20px;">
-            {% if article.image %}
-                <div style="margin-bottom:14px;">
-                    <div style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:8px;">Image principale actuelle</div>
-                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}" class="img-preview">
-                </div>
-            {% endif %}
-            {{ form_row(form.imageFilename) }}
-        </div>
+        <hr class="section-divider">
 
-        {# Photos supplémentaires (galerie) #}
-        <div style="margin-top:20px;">
-            {% if article.photos|length > 0 %}
-                <div style="font-size:12px;font-weight:600;color:#6c757d;margin-bottom:8px;">Photos de la galerie</div>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-                    {% for photo in article.photos %}
-                        <div style="text-align:center;">
-                            <img src="{{ asset('uploads/images/' ~ photo.filename) }}"
-                                 alt="photo"
-                                 style="width:100px;height:100px;object-fit:cover;border:1px solid #dee2e6;border-radius:6px;display:block;">
-                            <form method="post"
-                                  action="{{ path('admin_article_photo_delete', {'id': photo.id}) }}"
-                                  onsubmit="return confirm('Supprimer cette photo ?');"
-                                  style="margin-top:4px;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete-photo-' ~ photo.id) }}">
-                                <button type="submit" class="btn btn-sm btn-danger" style="font-size:11px;padding:2px 8px;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
+        {# Description #}
+        <div class="form-section-title">Description</div>
+        {{ form_row(form.description) }}
+
+        <hr class="section-divider">
+
+        {# Photos de l'article — UX unifiée #}
+        <div style="margin-top:20px;"
+             id="photoPicker"
+             data-existing-main="{{ article.image|default('')|e('html_attr') }}"
+             data-existing-photos="{{ article.photos|map(p => {id: p.id, filename: p.filename})|json_encode|e('html_attr') }}">
+            <label class="form-section-title" style="margin-bottom:8px;">Photos de l'article</label>
 
             {{ form_row(form.photos) }}
-            <small style="color:#6c757d;">
-                Ces photos s'ajoutent à l'image principale et forment la galerie affichée sur la fiche produit.
-            </small>
+
+            <button type="button" id="btnAddPhotos" class="photo-picker-btn">
+                <i class="fas fa-plus mr-1"></i> Ajouter des photos
+            </button>
+            <div class="photo-picker-hint">
+                JPEG, PNG ou WebP · 4 Mo max par fichier · Clique autant de fois que nécessaire — les photos s'ajoutent.
+            </div>
+
+            <div id="photoGrid" class="photo-grid"></div>
+
+            <div class="photo-picker-counter">
+                <strong id="photoCount">0</strong> photo(s) sélectionnée(s) —
+                <span id="mainLabel" class="photo-main-label-empty">aucune photo principale</span>
+            </div>
+
+            <input type="hidden" name="main_photo_source"    id="mainPhotoSource"   value="unchanged">
+            <input type="hidden" name="main_photo_id"        id="mainPhotoId"       value="">
+            <input type="hidden" name="main_photo_new_index" id="mainPhotoNewIndex" value="">
+            <input type="hidden" name="deleted_photo_ids"    id="deletedPhotoIds"   value="[]">
         </div>
 
         <div style="margin-top:28px;">
@@ -341,6 +651,250 @@
 
     catSelect.addEventListener('change', updateSpecs);
     updateSpecs();
+
+    // ══════════════════════════════════════════════════════════════
+    //  Accessoires — affichage adaptatif par type
+    // ══════════════════════════════════════════════════════════════
+    (function initAccPicker() {
+        var accSelect = document.getElementById('article_acc_type');
+        var accFields = document.getElementById('acc-fields');
+        var accEmpty  = document.getElementById('acc-empty-state');
+        if (!accSelect || !accFields) return;
+
+        function updateAccFields() {
+            var t = accSelect.value;
+            if (!t) {
+                accFields.style.display = 'none';
+                if (accEmpty) accEmpty.style.display = '';
+                return;
+            }
+            accFields.style.display = '';
+            if (accEmpty) accEmpty.style.display = 'none';
+
+            accFields.querySelectorAll('.acc-cond, .acc-field[data-acc-only]').forEach(function(el) {
+                var only = (el.getAttribute('data-acc-only') || '').split(/\s+/);
+                el.style.display = only.indexOf(t) !== -1 ? '' : 'none';
+            });
+        }
+
+        accSelect.addEventListener('change', updateAccFields);
+        updateAccFields();
+    })();
+
+    // ══════════════════════════════════════════════════════════════
+    //  Photo picker — UX unifiée (accumulation + étoile + croix)
+    // ══════════════════════════════════════════════════════════════
+    (function initPhotoPicker() {
+        var picker    = document.getElementById('photoPicker');
+        if (!picker) return;
+        var fileInput = document.getElementById('article_photos');
+        var btnAdd    = document.getElementById('btnAddPhotos');
+        var grid      = document.getElementById('photoGrid');
+        var counter   = document.getElementById('photoCount');
+        var mainLbl   = document.getElementById('mainLabel');
+        var hSource   = document.getElementById('mainPhotoSource');
+        var hId       = document.getElementById('mainPhotoId');
+        var hIndex    = document.getElementById('mainPhotoNewIndex');
+        var hDeleted  = document.getElementById('deletedPhotoIds');
+
+        var existingMainFilename = picker.dataset.existingMain || '';
+        var existingPhotos       = JSON.parse(picker.dataset.existingPhotos || '[]');
+        existingPhotos.forEach(function(p) { p.deleted = false; });
+
+        var stagedFiles = [];
+        var mainSelection = existingMainFilename
+            ? { kind: 'existing', id: 'main' }
+            : (existingPhotos.length > 0
+                ? { kind: 'existing', id: existingPhotos[0].id }
+                : { kind: 'none' });
+
+        btnAdd.addEventListener('click', function() { fileInput.click(); });
+
+        fileInput.addEventListener('change', function() {
+            Array.from(fileInput.files || []).forEach(function(f) {
+                if (f.type.startsWith('image/')) stagedFiles.push(f);
+            });
+            if (mainSelection.kind === 'none' && stagedFiles.length > 0) {
+                mainSelection = { kind: 'new', index: 0 };
+            }
+            syncFileInput();
+            render();
+        });
+
+        function syncFileInput() {
+            var dt = new DataTransfer();
+            stagedFiles.forEach(function(f) { dt.items.add(f); });
+            fileInput.files = dt.files;
+        }
+
+        function updateHiddenInputs() {
+            if (mainSelection.kind === 'existing') {
+                hSource.value = 'existing';
+                hId.value     = String(mainSelection.id);
+                hIndex.value  = '';
+            } else if (mainSelection.kind === 'new') {
+                hSource.value = 'new';
+                hId.value     = '';
+                hIndex.value  = String(mainSelection.index);
+            } else {
+                hSource.value = 'unchanged';
+                hId.value     = '';
+                hIndex.value  = '';
+            }
+            var deletedIds = existingPhotos.filter(function(p) { return p.deleted; })
+                                          .map(function(p) { return p.id; });
+            hDeleted.value = JSON.stringify(deletedIds);
+        }
+
+        function renderThumb(opts) {
+            var thumb = document.createElement('div');
+            thumb.className = 'photo-thumb' + (opts.isMain ? ' is-main' : '');
+
+            var img = document.createElement('img');
+            img.src = opts.src;
+            thumb.appendChild(img);
+
+            var overlay = document.createElement('div');
+            overlay.className = 'photo-thumb-overlay';
+
+            var actions = document.createElement('div');
+            actions.className = 'photo-thumb-actions';
+
+            var starBtn = document.createElement('button');
+            starBtn.type = 'button';
+            starBtn.className = 'photo-thumb-btn star' + (opts.isMain ? ' active' : '');
+            starBtn.title = 'Désigner comme photo principale';
+            starBtn.innerHTML = '<i class="fas fa-star"></i>';
+            starBtn.addEventListener('click', function(e) { e.stopPropagation(); opts.onSetMain(); });
+
+            var trashBtn = document.createElement('button');
+            trashBtn.type = 'button';
+            trashBtn.className = 'photo-thumb-btn trash';
+            trashBtn.title = 'Retirer';
+            trashBtn.innerHTML = '<i class="fas fa-times"></i>';
+            trashBtn.addEventListener('click', function(e) { e.stopPropagation(); opts.onDelete(); });
+
+            actions.appendChild(starBtn);
+            actions.appendChild(trashBtn);
+            overlay.appendChild(actions);
+
+            if (opts.isMain) {
+                var badge = document.createElement('span');
+                badge.className = 'photo-thumb-badge';
+                badge.innerHTML = '<i class="fas fa-star"></i> Principale';
+                overlay.appendChild(badge);
+            } else {
+                overlay.appendChild(document.createElement('div'));
+            }
+
+            thumb.appendChild(overlay);
+            return thumb;
+        }
+
+        function isMainMarkedDeleted() {
+            return existingPhotos.some(function(p) { return p.id === 'main' && p.deleted; });
+        }
+
+        function markExistingDeleted(id) {
+            if (id === 'main') {
+                existingPhotos.push({ id: 'main', filename: existingMainFilename, deleted: true });
+                return;
+            }
+            existingPhotos.forEach(function(p) {
+                if (String(p.id) === String(id)) p.deleted = true;
+            });
+        }
+
+        function promoteFirstAvailable() {
+            var kept = existingPhotos.find(function(p) { return !p.deleted && p.id !== 'main'; });
+            if (existingMainFilename && !isMainMarkedDeleted()) {
+                mainSelection = { kind: 'existing', id: 'main' };
+            } else if (kept) {
+                mainSelection = { kind: 'existing', id: kept.id };
+            } else if (stagedFiles.length > 0) {
+                mainSelection = { kind: 'new', index: 0 };
+            } else {
+                mainSelection = { kind: 'none' };
+            }
+        }
+
+        function render() {
+            grid.innerHTML = '';
+            var total = 0;
+
+            if (existingMainFilename && !isMainMarkedDeleted()) {
+                var isMain = mainSelection.kind === 'existing' && mainSelection.id === 'main';
+                grid.appendChild(renderThumb({
+                    src: '{{ asset('uploads/images/') }}' + existingMainFilename,
+                    isMain: isMain,
+                    onSetMain: function() { mainSelection = { kind: 'existing', id: 'main' }; render(); },
+                    onDelete: function() {
+                        markExistingDeleted('main');
+                        if (mainSelection.kind === 'existing' && mainSelection.id === 'main') {
+                            promoteFirstAvailable();
+                        }
+                        render();
+                    }
+                }));
+                total++;
+            }
+
+            existingPhotos.forEach(function(p) {
+                if (p.deleted || p.id === 'main') return;
+                var isMain = mainSelection.kind === 'existing' && String(mainSelection.id) === String(p.id);
+                grid.appendChild(renderThumb({
+                    src: '{{ asset('uploads/images/') }}' + p.filename,
+                    isMain: isMain,
+                    onSetMain: function() { mainSelection = { kind: 'existing', id: p.id }; render(); },
+                    onDelete: function() {
+                        p.deleted = true;
+                        if (isMain) promoteFirstAvailable();
+                        render();
+                    }
+                }));
+                total++;
+            });
+
+            stagedFiles.forEach(function(file, i) {
+                var isMain = mainSelection.kind === 'new' && mainSelection.index === i;
+                grid.appendChild(renderThumb({
+                    src: URL.createObjectURL(file),
+                    isMain: isMain,
+                    onSetMain: function() { mainSelection = { kind: 'new', index: i }; render(); },
+                    onDelete: function() {
+                        stagedFiles.splice(i, 1);
+                        if (mainSelection.kind === 'new') {
+                            if (mainSelection.index === i) promoteFirstAvailable();
+                            else if (mainSelection.index > i) mainSelection.index--;
+                        }
+                        syncFileInput();
+                        render();
+                    }
+                }));
+                total++;
+            });
+
+            if (total === 0) {
+                var empty = document.createElement('div');
+                empty.className = 'photo-picker-empty';
+                empty.textContent = 'Aucune photo pour le moment';
+                grid.appendChild(empty);
+            }
+
+            counter.textContent = total;
+            if (mainSelection.kind === 'none' || total === 0) {
+                mainLbl.textContent = 'aucune photo principale';
+                mainLbl.className = 'photo-main-label-empty';
+            } else {
+                mainLbl.textContent = 'principale définie';
+                mainLbl.className = 'photo-main-label';
+            }
+
+            updateHiddenInputs();
+        }
+
+        render();
+    })();
 })();
 </script>
 

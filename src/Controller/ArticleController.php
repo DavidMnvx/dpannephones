@@ -73,13 +73,21 @@ class ArticleController extends AbstractController
             'garantie'        => 'portable_warranty',
         ],
         'accessoires' => [
-            'compatibilite' => 'acc_compatibility',
-            'materiau'      => 'acc_material',
-            'couleur'       => 'acc_color',
-            'connectique'   => 'acc_connector',
-            'puissance'     => 'acc_power',
-            'contenu_boite' => 'acc_contents',
-            'garantie'      => 'acc_warranty',
+            'type'             => 'acc_type',
+            'marque'           => 'acc_brand',
+            'compatibilite'    => 'acc_compatibility',
+            'materiau'         => 'acc_material',
+            'couleur'          => 'acc_color',
+            'connectique'      => 'acc_connector',
+            'puissance'        => 'acc_power',
+            'technologie'      => 'acc_technology',
+            'nombre_ports'     => 'acc_ports_count',
+            'longueur'         => 'acc_length',
+            'certifications'   => 'acc_certifications',
+            'autonomie'        => 'acc_battery_life',
+            'resistance_eau'   => 'acc_water_resistance',
+            'contenu_boite'    => 'acc_contents',
+            'garantie'         => 'acc_warranty',
         ],
         'telephone' => [
             'brand'            => 'tel_brand',
@@ -126,8 +134,7 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleImageUpload($form, $article, $slugger);
-            $this->handlePhotosUpload($form, $article, $slugger);
+            $this->handleArticlePhotos($form, $article, $request, $slugger);
             $this->extractSpecsFromForm($form, $article);
 
             $em->persist($article);
@@ -156,8 +163,7 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleImageUpload($form, $article, $slugger);
-            $this->handlePhotosUpload($form, $article, $slugger);
+            $this->handleArticlePhotos($form, $article, $request, $slugger);
             $this->extractSpecsFromForm($form, $article);
 
             $em->flush();
@@ -203,43 +209,109 @@ class ArticleController extends AbstractController
     //  Helpers privés
     // ─────────────────────────────────────────────────────────────────────
 
-    private function handleImageUpload($form, Article $article, SluggerInterface $slugger): void
-    {
-        $imageFile = $form->get('imageFilename')->getData();
-        if (!$imageFile) {
-            return;
-        }
-
-        $newFilename = $this->uploadImageFile($imageFile, $slugger);
-        if ($newFilename !== null) {
-            $article->setImage($newFilename);
-        }
-    }
-
     /**
-     * Photos supplémentaires (galerie). Uploaded files → Photo entities appended to the article.
+     * Gère l'ensemble des changements sur les photos d'un article :
+     *  - suppression des photos existantes marquées (deleted_photo_ids)
+     *  - upload des nouveaux fichiers (mapped:false 'photos')
+     *  - désignation de la photo principale (article.image = la principale, article.photos = le reste)
+     *
+     * Inputs POST attendus (hidden côté template) :
+     *  - main_photo_source     : 'existing' | 'new' | 'unchanged'
+     *  - main_photo_id         : id de la Photo choisie, ou 'main' si l'image principale actuelle reste principale
+     *  - main_photo_new_index  : index (dans l'ordre d'upload) du nouveau fichier choisi comme principal
+     *  - deleted_photo_ids     : JSON array d'ids de Photo à supprimer (peut contenir 'main' pour supprimer l'image principale)
      */
-    private function handlePhotosUpload($form, Article $article, SluggerInterface $slugger): void
+    private function handleArticlePhotos($form, Article $article, Request $request, SluggerInterface $slugger): void
     {
-        $files = $form->get('photos')->getData();
-        if (!$files) {
-            return;
+        // 1) Suppressions demandées sur les photos existantes
+        $deletedIds = json_decode((string) $request->request->get('deleted_photo_ids', '[]'), true);
+        $deletedIds = is_array($deletedIds) ? $deletedIds : [];
+
+        if (in_array('main', $deletedIds, true)) {
+            $article->setImage(null);
         }
 
-        $position = $article->getPhotos()->count();
+        foreach ($article->getPhotos()->toArray() as $existing) {
+            if (in_array((string) $existing->getId(), array_map('strval', $deletedIds), true)) {
+                $article->removePhoto($existing);
+            }
+        }
+
+        // 2) Upload des nouveaux fichiers → filenames dans l'ordre de sélection
+        $files = $form->get('photos')->getData() ?? [];
+        $newFilenames = [];
         foreach ($files as $file) {
             if (!$file instanceof UploadedFile) {
                 continue;
             }
-            $newFilename = $this->uploadImageFile($file, $slugger);
-            if ($newFilename === null) {
+            $fn = $this->uploadImageFile($file, $slugger);
+            if ($fn === null) {
                 $this->addFlash('warning', 'Une photo n\'a pas pu être enregistrée.');
                 continue;
             }
-            $photo = (new Photo())
-                ->setFilename($newFilename)
-                ->setPosition($position++);
-            $article->addPhoto($photo);
+            $newFilenames[] = $fn;
+        }
+
+        // 3) Détermination du nouveau filename principal
+        $source       = $request->request->get('main_photo_source', 'unchanged');
+        $mainId       = $request->request->get('main_photo_id', '');
+        $mainNewIndex = $request->request->has('main_photo_new_index') && $request->request->get('main_photo_new_index') !== ''
+            ? (int) $request->request->get('main_photo_new_index')
+            : -1;
+
+        $newMainFilename    = null;
+        $newMainFromPhotoId = null;
+
+        if ($source === 'new' && $mainNewIndex >= 0 && isset($newFilenames[$mainNewIndex])) {
+            $newMainFilename = $newFilenames[$mainNewIndex];
+        } elseif ($source === 'existing') {
+            if ($mainId === 'main') {
+                $newMainFilename = $article->getImage(); // inchangé
+            } else {
+                foreach ($article->getPhotos() as $p) {
+                    if ((string) $p->getId() === (string) $mainId) {
+                        $newMainFilename    = $p->getFilename();
+                        $newMainFromPhotoId = $p->getId();
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 4) Application : article.image devient la principale ; l'ancienne principale (si différente) part en Photo
+        if ($newMainFilename !== null && $newMainFilename !== $article->getImage()) {
+            $oldMain = $article->getImage();
+            if ($oldMain) {
+                $article->addPhoto(
+                    (new Photo())->setFilename($oldMain)->setPosition($article->getPhotos()->count())
+                );
+            }
+            if ($newMainFromPhotoId !== null) {
+                foreach ($article->getPhotos()->toArray() as $p) {
+                    if ($p->getId() === $newMainFromPhotoId) {
+                        $article->removePhoto($p);
+                        break;
+                    }
+                }
+            }
+            $article->setImage($newMainFilename);
+        }
+
+        // 5) Ajout des autres nouveaux uploads en Photo (celui devenu principal est déjà exclu ci-dessus)
+        foreach ($newFilenames as $i => $fn) {
+            if ($source === 'new' && $i === $mainNewIndex) {
+                continue;
+            }
+            $article->addPhoto(
+                (new Photo())->setFilename($fn)->setPosition($article->getPhotos()->count())
+            );
+        }
+
+        // 6) Fallback : article.image nul mais des photos existent → première photo devient principale
+        if ($article->getImage() === null && $article->getPhotos()->count() > 0) {
+            $first = $article->getPhotos()->first();
+            $article->setImage($first->getFilename());
+            $article->removePhoto($first);
         }
     }
 

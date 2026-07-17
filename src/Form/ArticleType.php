@@ -58,24 +58,12 @@ class ArticleType extends AbstractType
                 'label'    => 'Article neuf',
                 'required' => false,
             ])
-            ->add('imageFilename', FileType::class, [
-                'label'       => "Image principale de l'article",
-                'mapped'      => false,
-                'required'    => false,
-                'constraints' => [
-                    new File([
-                        'maxSize'          => '2M',
-                        'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp'],
-                        'mimeTypesMessage' => 'Veuillez télécharger une image valide (JPEG, PNG ou WEBP).',
-                    ])
-                ],
-            ])
             ->add('photos', FileType::class, [
-                'label'       => 'Photos supplémentaires (plusieurs possibles)',
+                'label'       => "Photos de l'article",
                 'mapped'      => false,
                 'multiple'    => true,
                 'required'    => false,
-                'attr'        => ['accept' => 'image/*'],
+                'attr'        => ['accept' => 'image/*', 'style' => 'display:none;'],
                 'constraints' => [
                     new \Symfony\Component\Validator\Constraints\All([
                         'constraints' => [
@@ -353,8 +341,30 @@ class ArticleType extends AbstractType
             ])
 
             // ══════════════════════════════════════════════════════
-            // ACCESSOIRES — nouveau ! Spécifications
+            // ACCESSOIRES — spécifications typées (type + fields adaptés)
             // ══════════════════════════════════════════════════════
+            ->add('acc_type', ChoiceType::class, [
+                'label'       => "Type d'accessoire",
+                'mapped'      => false,
+                'required'    => false,
+                'placeholder' => "Choisir un type d'accessoire",
+                'choices'     => [
+                    'Chargeur / Adaptateur secteur' => 'chargeur',
+                    'Câble'                          => 'cable',
+                    'Écouteurs / Casque'             => 'audio',
+                    'Coque / Housse'                 => 'coque',
+                    'Protection écran'               => 'protection_ecran',
+                    'Support / Fixation'             => 'support',
+                    'Batterie externe'               => 'batterie',
+                    'Autre accessoire'               => 'autre',
+                ],
+            ])
+            ->add('acc_brand', TextType::class, [
+                'label'    => 'Marque',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. Anker, Belkin, Apple, Samsung…'],
+            ])
             ->add('acc_compatibility', TextType::class, [
                 'label'    => 'Compatibilité',
                 'mapped'   => false,
@@ -384,6 +394,42 @@ class ArticleType extends AbstractType
                 'mapped'   => false,
                 'required' => false,
                 'attr'     => ['placeholder' => 'Ex. 20W Power Delivery / 10000 mAh'],
+            ])
+            ->add('acc_technology', TextType::class, [
+                'label'    => 'Technologie / Norme',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. Power Delivery, Quick Charge, MagSafe, USB 3.1…'],
+            ])
+            ->add('acc_ports_count', TextType::class, [
+                'label'    => 'Nombre de ports',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. 2 USB-C + 1 USB-A'],
+            ])
+            ->add('acc_length', TextType::class, [
+                'label'    => 'Longueur',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. 1m, 1.5m, 2m…'],
+            ])
+            ->add('acc_certifications', TextType::class, [
+                'label'    => 'Certifications',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. CE, MFi, RoHS, PD 3.0…'],
+            ])
+            ->add('acc_battery_life', TextType::class, [
+                'label'    => 'Autonomie',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. 24h avec boîtier, 6h en écoute'],
+            ])
+            ->add('acc_water_resistance', TextType::class, [
+                'label'    => 'Résistance à l\'eau',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => ['placeholder' => 'Ex. IPX4, IP68, Résistant aux éclaboussures'],
             ])
             ->add('acc_contents', TextType::class, [
                 'label'    => 'Contenu de la boîte',
