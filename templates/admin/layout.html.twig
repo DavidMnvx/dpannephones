@@ -2,6 +2,303 @@
 
 {% block stylesheets %}
 {{ parent() }}
+<style>
+    /* ══════════════════════════════════════════════════════════════
+       ADMIN FORMS — style universel pour tout le CRUD
+       ══════════════════════════════════════════════════════════════ */
+
+    .admin-card label,
+    .admin-form label,
+    .admin-card .form-group > label,
+    .admin-form .form-group > label {
+        display: block !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #1a2b4b !important;
+        margin-bottom: 8px !important;
+        letter-spacing: 0.005em;
+    }
+
+    .admin-card input[type="text"],
+    .admin-card input[type="number"],
+    .admin-card input[type="email"],
+    .admin-card input[type="url"],
+    .admin-card input[type="tel"],
+    .admin-card input[type="password"],
+    .admin-card input[type="date"],
+    .admin-card input[type="time"],
+    .admin-card input[type="search"],
+    .admin-card .form-control,
+    .admin-card select,
+    .admin-card textarea,
+    .admin-form input[type="text"],
+    .admin-form input[type="number"],
+    .admin-form input[type="email"],
+    .admin-form input[type="url"],
+    .admin-form input[type="tel"],
+    .admin-form input[type="password"],
+    .admin-form input[type="date"],
+    .admin-form input[type="time"],
+    .admin-form input[type="search"],
+    .admin-form .form-control,
+    .admin-form select,
+    .admin-form textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        padding: 13px 16px !important;
+        font-size: 15px !important;
+        line-height: 1.4 !important;
+        min-height: 50px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #dde3ea !important;
+        background-color: #ffffff !important;
+        color: #1a2b4b !important;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        max-width: 100% !important;
+    }
+
+    .admin-card select,
+    .admin-form select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23094771' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 16px center !important;
+        padding-right: 44px !important;
+    }
+
+    .admin-card input:hover:not(:focus),
+    .admin-card select:hover:not(:focus),
+    .admin-card textarea:hover:not(:focus),
+    .admin-form input:hover:not(:focus),
+    .admin-form select:hover:not(:focus),
+    .admin-form textarea:hover:not(:focus) {
+        border-color: #b8c1cc !important;
+    }
+    .admin-card input:focus,
+    .admin-card select:focus,
+    .admin-card textarea:focus,
+    .admin-form input:focus,
+    .admin-form select:focus,
+    .admin-form textarea:focus {
+        border-color: #094771 !important;
+        box-shadow: 0 0 0 4px rgba(9,71,113,0.12) !important;
+        outline: none !important;
+    }
+
+    .admin-card textarea,
+    .admin-card textarea.form-control,
+    .admin-form textarea,
+    .admin-form textarea.form-control {
+        min-height: 140px !important;
+        line-height: 1.55 !important;
+        padding: 16px !important;
+        resize: vertical !important;
+    }
+
+    .admin-card .form-group,
+    .admin-form .form-group {
+        margin-bottom: 22px !important;
+    }
+
+    .admin-card input[type="checkbox"],
+    .admin-form input[type="checkbox"],
+    .admin-card input[type="radio"],
+    .admin-form input[type="radio"] {
+        width: 20px !important;
+        height: 20px !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        accent-color: #094771;
+        margin-right: 8px !important;
+        cursor: pointer;
+        vertical-align: middle;
+        max-width: 20px !important;
+    }
+
+    /* File inputs — dashed border, more clickable */
+    .admin-card input[type="file"],
+    .admin-form input[type="file"] {
+        padding: 12px 14px !important;
+        font-size: 14px !important;
+        min-height: 46px !important;
+        border-radius: 10px !important;
+        border: 1.5px dashed #b8c1cc !important;
+        background-color: #f9fafc !important;
+        cursor: pointer;
+    }
+    .admin-card input[type="file"]:hover,
+    .admin-form input[type="file"]:hover {
+        border-color: #094771 !important;
+        background-color: rgba(9,71,113,0.03) !important;
+    }
+
+    /* Titres de section */
+    .form-section-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: #7d8896;
+        margin: 8px 0 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .form-section-title::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background: linear-gradient(to right, #e5e8ec, transparent);
+    }
+
+    /* Divider fin */
+    .section-divider {
+        margin: 36px 0 28px !important;
+        border: none;
+        border-top: 1px solid #edf0f3 !important;
+        opacity: 1 !important;
+    }
+
+    /* Bouton submit imposant */
+    .btn-admin-submit {
+        padding: 14px 34px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        border-radius: 10px !important;
+        background: #094771 !important;
+        border: none !important;
+        color: white !important;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.05s;
+        letter-spacing: 0.01em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-admin-submit:hover {
+        background: #063354 !important;
+        transform: translateY(-1px);
+    }
+    .btn-admin-submit:active { transform: translateY(0); }
+
+    /* ══════════════════════════════════════════════════════════════
+       SIDEBAR — refresh 2026 : pills arrondies + vignettes colorées
+       ══════════════════════════════════════════════════════════════ */
+    #sidebar {
+        padding: 0 10px 20px !important;
+    }
+    .sidebar-header {
+        padding: 22px 10px 14px !important;
+        font-size: 11px !important;
+        letter-spacing: 2px !important;
+        color: #7d8896 !important;
+        border-bottom: none !important;
+        margin-bottom: 6px !important;
+    }
+    #sidebar .nav {
+        gap: 2px;
+    }
+    #sidebar .nav-link {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 10px 12px !important;
+        font-size: 14.5px !important;
+        font-weight: 500 !important;
+        color: #d0d7de !important;
+        border-left: none !important;
+        border-radius: 10px !important;
+        margin: 1px 0 !important;
+        transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease !important;
+        text-decoration: none !important;
+        position: relative;
+    }
+
+    /* Effet hover — pill lift avec fond doux */
+    #sidebar .nav-link:hover {
+        background-color: rgba(255,255,255,0.07) !important;
+        color: #ffffff !important;
+        transform: translateX(3px);
+    }
+
+    /* État actif — pill avec gradient bleu marine */
+    #sidebar .nav-link.active {
+        background: linear-gradient(90deg, rgba(74,159,212,0.35), rgba(74,159,212,0.10)) !important;
+        color: #ffffff !important;
+        box-shadow: inset 0 0 0 1px rgba(74,159,212,0.25), 0 3px 10px rgba(9,71,113,0.35);
+    }
+    #sidebar .nav-link.active::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 22%;
+        bottom: 22%;
+        width: 3px;
+        background: #4a9fd4;
+        border-radius: 0 3px 3px 0;
+    }
+
+    /* Vignettes icônes — carrés colorés 32×32 avec gradient */
+    #sidebar .nav-link i {
+        width: 32px !important;
+        height: 32px !important;
+        text-align: center !important;
+        font-size: 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 8px !important;
+        color: #ffffff !important;
+        flex-shrink: 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    #sidebar .nav-link:hover i {
+        transform: scale(1.10) rotate(-4deg);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.30);
+    }
+
+    /* Couleurs par icône (chaque section a sa vignette) */
+    #sidebar .nav-link .fa-tachometer-alt { background: linear-gradient(135deg, #10b981, #059669) !important; }
+    #sidebar .nav-link .fa-chart-line     { background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important; }
+    #sidebar .nav-link .fa-tags           { background: linear-gradient(135deg, #ec4899, #db2777) !important; }
+    #sidebar .nav-link .fa-mobile-alt     { background: linear-gradient(135deg, #06b6d4, #0891b2) !important; }
+    #sidebar .nav-link .fa-tools          { background: linear-gradient(135deg, #f97316, #ea580c) !important; }
+    #sidebar .nav-link .fa-shopping-bag   { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; }
+    #sidebar .nav-link .fa-receipt        { background: linear-gradient(135deg, #14b8a6, #0d9488) !important; }
+    #sidebar .nav-link .fa-ticket-alt     { background: linear-gradient(135deg, #22c55e, #16a34a) !important; }
+    #sidebar .nav-link .fa-users          { background: linear-gradient(135deg, #6366f1, #4f46e5) !important; }
+    #sidebar .nav-link .fa-handshake      { background: linear-gradient(135deg, #eab308, #ca8a04) !important; }
+    #sidebar .nav-link .fa-share-alt      { background: linear-gradient(135deg, #60a5fa, #3b82f6) !important; }
+    #sidebar .nav-link .fa-images         { background: linear-gradient(135deg, #a855f7, #9333ea) !important; }
+    #sidebar .nav-link .fa-google         { background: linear-gradient(135deg, #ea4335, #c2372a) !important; }
+    #sidebar .nav-link .fa-star-half-alt  { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; }
+    #sidebar .nav-link .fa-clock          { background: linear-gradient(135deg, #0ea5e9, #0284c7) !important; }
+    #sidebar .nav-link .fa-cog            { background: linear-gradient(135deg, #64748b, #475569) !important; }
+
+    /* Séparateur avant Paramètres */
+    #sidebar .nav-item[style*="border-top"] {
+        margin-top: 16px !important;
+        padding-top: 16px !important;
+        border-top: 1px solid rgba(255,255,255,0.08) !important;
+    }
+
+    /* Notif badge */
+    .sidebar-notif-badge {
+        background: #dc2626 !important;
+        color: white !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        padding: 2px 7px !important;
+        border-radius: 10px !important;
+        margin-left: auto;
+        min-width: 20px;
+        text-align: center;
+    }
+</style>
 {% endblock %}
 
 {% block body %}
