@@ -3,6 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Article;
+use App\Entity\ProductColor;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -50,6 +52,7 @@ class ArticleType extends AbstractType
                     'PC Bureautique' => 'pc_bureautique',
                     'PC Portable'    => 'pc_portable',
                     'Accessoires'    => 'accessoires',
+                    'Coques'         => 'coque',
                     'Film Hydrogel'  => 'film_hydrogel',
                     'Téléphones'     => 'telephone',
                 ],
@@ -377,12 +380,8 @@ class ArticleType extends AbstractType
                 'required' => false,
                 'attr'     => ['placeholder' => 'Ex. Silicone TPU, Cuir synthétique…'],
             ])
-            ->add('acc_color', TextType::class, [
-                'label'    => 'Couleur',
-                'mapped'   => false,
-                'required' => false,
-                'attr'     => ['placeholder' => 'Ex. Noir, Transparent, Bleu nuit'],
-            ])
+            // acc_color : retiré — les couleurs sont maintenant assignées par photo directement
+            // via le photo picker (Photo.color_id). Cf. handleArticlePhotos + template.
             ->add('acc_connector', TextType::class, [
                 'label'    => 'Connectique / Prise',
                 'mapped'   => false,
@@ -446,12 +445,25 @@ class ArticleType extends AbstractType
 
             // ── Film Hydrogel specs ───────────────────────────────────────────
             ->add('hydrogel_models', TextareaType::class, [
-                'label'    => 'Modèles compatibles (un par ligne)',
+                'label'    => 'Modèles compatibles (une marque par ligne)',
+                'help'     => 'Format : "Marque: modèle1, modèle2, modèle3" — une ligne par marque.',
                 'mapped'   => false,
                 'required' => false,
                 'attr'     => [
-                    'rows'        => 6,
-                    'placeholder' => "iPhone 15\niPhone 15 Pro\nSamsung Galaxy S24\n...",
+                    'rows'        => 8,
+                    'placeholder' => "Apple: iPhone 12, iPhone 13, iPhone 14, iPhone 15\nSamsung: Galaxy S22, Galaxy S23, Galaxy S24\nXiaomi: Redmi Note 12, Poco X5",
+                ],
+            ])
+
+            // ── Coques specs ──────────────────────────────────────────────────
+            ->add('coque_models', TextareaType::class, [
+                'label'    => 'Modèles compatibles (une marque par ligne)',
+                'help'     => 'Format : "Marque: modèle1, modèle2, modèle3" — une ligne par marque.',
+                'mapped'   => false,
+                'required' => false,
+                'attr'     => [
+                    'rows'        => 8,
+                    'placeholder' => "Apple: iPhone 13, iPhone 14, iPhone 15\nSamsung: Galaxy S23, Galaxy A54\nXiaomi: Redmi Note 12",
                 ],
             ])
 

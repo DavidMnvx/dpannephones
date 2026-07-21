@@ -23,6 +23,7 @@ class BoutiqueController extends AbstractController
         'pc_bureautique' => 'PC Bureautique',
         'pc_portable'    => 'PC Portable',
         'accessoires'    => 'Accessoires',
+        'coque'          => 'Coques',
         'film_hydrogel'  => 'Film Hydrogel',
         'telephone'      => 'Téléphones',
     ];
@@ -34,10 +35,27 @@ class BoutiqueController extends AbstractController
         $brand     = $request->query->get('brand');
 
         if ($categorie && array_key_exists($categorie, self::CATEGORIES)) {
-            $articles = $em->getRepository(Article::class)->findBy(['categorie' => $categorie]);
+            $articles = $em->getRepository(Article::class)->findBy(['categorie' => $categorie], ['id' => 'DESC']);
         } else {
             $categorie = null;
-            $articles  = $em->getRepository(Article::class)->findAll();
+            $articles  = $em->getRepository(Article::class)->findBy([], ['id' => 'DESC']);
+
+            // Ordre stable : regroupés par catégorie (ordre de CATEGORIES), les plus récents d'abord
+            $rank = array_flip(array_keys(self::CATEGORIES));
+            usort($articles, function (Article $a, Article $b) use ($rank) {
+                $ra = $rank[$a->getCategorie()] ?? PHP_INT_MAX;
+                $rb = $rank[$b->getCategorie()] ?? PHP_INT_MAX;
+                return $ra === $rb ? $b->getId() <=> $a->getId() : $ra <=> $rb;
+            });
+        }
+
+        // Compteurs par catégorie pour la sidebar
+        $categoryCounts = ['__all__' => 0];
+        foreach ($em->getRepository(Article::class)->createQueryBuilder('a')
+                     ->select('a.categorie AS cat, COUNT(a.id) AS nb')
+                     ->groupBy('a.categorie')->getQuery()->getArrayResult() as $row) {
+            $categoryCounts[$row['cat'] ?? ''] = (int) $row['nb'];
+            $categoryCounts['__all__'] += (int) $row['nb'];
         }
 
         // Filtre par marque (téléphones uniquement)
@@ -71,6 +89,7 @@ class BoutiqueController extends AbstractController
             'cartTotal'        => $cartTotal,
             'currentCategorie' => $categorie,
             'categories'       => self::CATEGORIES,
+            'categoryCounts'   => $categoryCounts,
             'availableBrands'  => $availableBrands,
             'currentBrand'     => $brand,
         ]);
@@ -109,9 +128,17 @@ class BoutiqueController extends AbstractController
 
         $cartItem->setQuantity($cartItem->getQuantity() + 1);
 
+        $options = $cartItem->getOptions() ?? [];
         $model = $request->query->get('model');
-        if ($model && $article->getCategorie() === 'film_hydrogel') {
-            $cartItem->setOptions(['model' => $model]);
+        if ($model && in_array($article->getCategorie(), ['film_hydrogel', 'coque'], true)) {
+            $options['model'] = $model;
+        }
+        $color = $request->query->get('color');
+        if ($color) {
+            $options['color'] = $color;
+        }
+        if (!empty($options)) {
+            $cartItem->setOptions($options);
         }
 
         $em->persist($cartItem);

@@ -287,6 +287,96 @@
         font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
         font-weight: 700; padding: 3px 8px; border-radius: 4px;
     }
+    #photoPicker .photo-thumb-color {
+        display: flex; align-items: center; gap: 6px;
+        padding: 5px 6px;
+        background: #f7f8fa;
+        border-top: 1px solid #e5e8ec;
+        border-radius: 0 0 8px 8px;
+    }
+    #photoPicker .photo-thumb-color-dot {
+        width: 14px; height: 14px; border-radius: 50%;
+        flex-shrink: 0;
+    }
+    #photoPicker .photo-thumb-color-select {
+        flex: 1; min-width: 0;
+        font-size: 11px !important;
+        padding: 3px 22px 3px 6px !important;
+        min-height: 26px !important;
+        border-radius: 5px !important;
+        border: 1px solid #dde3ea !important;
+        background-color: #fff !important;
+        background-position: right 6px center !important;
+        cursor: pointer;
+    }
+    #photoPicker .photo-thumb { display: flex; flex-direction: column; aspect-ratio: auto; }
+    #photoPicker .photo-thumb > img { aspect-ratio: 1; width: 100%; }
+    /* Rangées par couleur */
+    #photoPicker .photo-row {
+        border: 1px solid #edf0f3;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 14px;
+        background: #fbfcfd;
+    }
+    #photoPicker .photo-row-header {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 12px; flex-wrap: wrap;
+    }
+    #photoPicker .photo-row-title {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-size: 14px; font-weight: 700; color: #1a2b4b;
+    }
+    #photoPicker .photo-row-title .color-dot {
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    #photoPicker .photo-row-actions {
+        display: flex; gap: 8px;
+    }
+    #photoPicker .photo-row-choose {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 14px;
+        border: 1.5px dashed #094771;
+        background: transparent;
+        color: #094771;
+        border-radius: 8px;
+        font-size: 13px; font-weight: 600;
+        cursor: pointer;
+    }
+    #photoPicker .photo-row-choose:hover { background: rgba(9,71,113,0.05); }
+    #photoPicker .photo-row-remove {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 10px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: #dc2626;
+        border-radius: 6px;
+        font-size: 12px; font-weight: 500;
+        cursor: pointer;
+    }
+    #photoPicker .photo-row-remove:hover { background: rgba(220,38,38,0.08); }
+    #photoPicker .photo-row-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+    }
+    #photoPicker .photo-row-empty {
+        grid-column: 1 / -1; text-align: center; color: #9aa5b1;
+        padding: 22px 0; font-size: 12px;
+    }
+    #photoPicker .add-color-select {
+        padding: 10px 14px !important;
+        border: 1.5px dashed #ec4899 !important;
+        color: #ec4899 !important;
+        background: transparent !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        cursor: pointer;
+        font-size: 13px !important;
+        min-height: 42px !important;
+        max-width: 320px;
+    }
     #photoPicker .photo-picker-empty {
         grid-column: 1 / -1; text-align: center; color: #6c757d;
         padding: 32px 0; border: 2px dashed #e5e8ec; border-radius: 8px;
@@ -523,8 +613,10 @@
                     </div>
                     <div class="acc-grid acc-cond" data-acc-only="coque protection_ecran support audio autre">
                         <div class="acc-field" data-acc-only="coque protection_ecran support audio autre">{{ form_row(form.acc_material) }}</div>
-                        <div class="acc-field" data-acc-only="coque protection_ecran support audio autre">{{ form_row(form.acc_color) }}</div>
                     </div>
+                    <p class="acc-cond" data-acc-only="coque protection_ecran support audio autre" style="font-size:12px;color:#7d8896;margin:-8px 0 12px;">
+                        💡 Les couleurs disponibles sont pilotées par les photos ci-dessous : assigne une couleur à chaque photo dans le picker.
+                    </p>
 
                     {# 6. Toujours — Livraison & garantie #}
                     <div class="specs-subtitle mt-3">📦 Livraison & garantie</div>
@@ -538,8 +630,15 @@
             {# Hydrogel Group #}
             <div class="specs-group" id="group-film_hydrogel" style="display:none;">
                 <div class="specs-group-title"><i class="fas fa-mobile-alt mr-2"></i>Modèles compatibles</div>
+                {% include 'admin/article/_brand_model_picker.html.twig' with {targetField: 'article_hydrogel_models', domId: 'hydrogel'} %}
                 {{ form_row(form.hydrogel_models) }}
-                <small class="form-text text-muted">Entrez un modèle par ligne. Ces modèles seront proposés au client sur la page boutique.</small>
+            </div>
+
+            {# Coque Group — même format que hydrogel #}
+            <div class="specs-group" id="group-coque" style="display:none;">
+                <div class="specs-group-title"><i class="fas fa-shield-alt mr-2"></i>Modèles de téléphone compatibles</div>
+                {% include 'admin/article/_brand_model_picker.html.twig' with {targetField: 'article_coque_models', domId: 'coque'} %}
+                {{ form_row(form.coque_models) }}
             </div>
 
             {# Téléphone Group #}
@@ -612,38 +711,63 @@
 
         <hr class="section-divider">
 
+        {# Créer une couleur (palette globale) #}
+        <div class="form-section-title">Couleurs disponibles</div>
+        <div id="newColorButtonSlot" style="margin-bottom:16px;"></div>
+        <p style="font-size:12px;color:#7d8896;margin:-8px 0 20px;">
+            💡 Crée ici une couleur qui n'existerait pas encore dans la palette (elle sera disponible pour tous les articles).
+            Pour associer un coloris précis à cet article, utilise le bouton "Ajouter une couleur" dans la section photos.
+        </p>
+
+        <hr class="section-divider">
+
         {# Description #}
         <div class="form-section-title">Description</div>
         {{ form_row(form.description) }}
 
         <hr class="section-divider">
 
-        {# Photos de l'article — UX unifiée : accumulation, étoile pour principale, croix pour retirer #}
-        <div style="margin-top:8px;" id="photoPicker" data-existing-main="" data-existing-photos="[]">
+        {# Photos de l'article — UX unifiée : accumulation, étoile pour principale, croix pour retirer, couleur par photo #}
+        <div style="margin-top:8px;"
+             id="photoPicker"
+             data-existing-main=""
+             data-existing-photos="[]"
+             data-colors="{{ colors|map(c => {id: c.id, name: c.name, hex: c.hex})|json_encode|e('html_attr') }}"
+             data-main-color-id="">
             <label class="form-section-title" style="margin-bottom:8px;">Photos de l'article</label>
 
             {# Input Symfony caché (recevra les fichiers accumulés au submit) #}
             {{ form_row(form.photos) }}
 
-            <button type="button" id="btnAddPhotos" class="photo-picker-btn">
-                <i class="fas fa-plus mr-1"></i> Ajouter des photos
-            </button>
             <div class="photo-picker-hint">
-                JPEG, PNG ou WebP · 4 Mo max par fichier · Clique autant de fois que nécessaire — les photos s'ajoutent.
+                JPEG, PNG ou WebP · 4 Mo max par fichier ·
+                Une ligne par coloris — les photos sans coloris apparaîtront pour toutes les couleurs.
             </div>
 
-            <div id="photoGrid" class="photo-grid"></div>
+            {# Container des lignes photo (une ligne par couleur) — rendu par JS #}
+            <div id="photoRowsContainer"></div>
+
+            {# Sélecteur "Ajouter une couleur" (dropdown des couleurs existantes) #}
+            <div class="add-color-wrapper" style="margin-top:16px;display:flex;align-items:center;gap:10px;">
+                <select id="addColorSelect" class="add-color-select">
+                    <option value="">+ Ajouter une couleur à l'article</option>
+                </select>
+            </div>
 
             <div class="photo-picker-counter">
-                <strong id="photoCount">0</strong> photo(s) sélectionnée(s) —
+                <strong id="photoCount">0</strong> photo(s) au total —
                 <span id="mainLabel" class="photo-main-label-empty">aucune photo principale</span>
             </div>
+
+            {# Bouton caché — déclenché programmatiquement par les boutons "Choisir photos" de chaque ligne #}
+            <button type="button" id="btnAddPhotos" style="display:none;"></button>
 
             {# Champs cachés lus par le controller #}
             <input type="hidden" name="main_photo_source"    id="mainPhotoSource"   value="unchanged">
             <input type="hidden" name="main_photo_id"        id="mainPhotoId"       value="">
             <input type="hidden" name="main_photo_new_index" id="mainPhotoNewIndex" value="">
             <input type="hidden" name="deleted_photo_ids"    id="deletedPhotoIds"   value="[]">
+            <input type="hidden" name="photo_colors"         id="photoColors"       value="{}">
         </div>
 
         <div style="margin-top:28px;">
@@ -664,6 +788,7 @@
         'pc_bureautique': ['group-pc_bureautique'],
         'pc_portable':    ['group-pc_portable'],
         'accessoires':    ['group-accessoires'],
+        'coque':          ['group-coque'],
         'film_hydrogel':  ['group-film_hydrogel'],
         'telephone':      ['group-telephone']
     };
@@ -713,28 +838,54 @@
     })();
 
     // ══════════════════════════════════════════════════════════════
-    //  Photo picker — UX unifiée (accumulation + étoile + croix)
+    //  Photo picker — UX rangées par couleur (générique + coloris ajoutés)
     // ══════════════════════════════════════════════════════════════
     (function initPhotoPicker() {
         var picker    = document.getElementById('photoPicker');
         if (!picker) return;
-        var fileInput = document.getElementById('article_photos');
-        var btnAdd    = document.getElementById('btnAddPhotos');
-        var grid      = document.getElementById('photoGrid');
-        var counter   = document.getElementById('photoCount');
+        var fileInput      = document.getElementById('article_photos');
+        var btnAdd         = document.getElementById('btnAddPhotos');
+        var rowsContainer  = document.getElementById('photoRowsContainer');
+        var addColorSelect = document.getElementById('addColorSelect');
+        var counter        = document.getElementById('photoCount');
         var mainLbl   = document.getElementById('mainLabel');
         var hSource   = document.getElementById('mainPhotoSource');
         var hId       = document.getElementById('mainPhotoId');
         var hIndex    = document.getElementById('mainPhotoNewIndex');
         var hDeleted  = document.getElementById('deletedPhotoIds');
+        var hColors   = document.getElementById('photoColors');
 
         // État
         var existingMainFilename = picker.dataset.existingMain || '';
         var existingPhotos       = JSON.parse(picker.dataset.existingPhotos || '[]');
-        //   -> [{id: 42, filename: 'x.jpg'}, ...]
+        //   -> [{id: 42, filename: 'x.jpg', color_id: 5|null}, ...]
         existingPhotos.forEach(function(p) { p.deleted = false; });
 
-        var stagedFiles = []; // File[] nouveaux uploads
+        var allColors    = JSON.parse(picker.dataset.colors || '[]');
+        //   -> [{id, name, hex}, ...]
+        var mainPhotoColorId = null; // Couleur de la "photo principale existante" (article.image)
+        var stagedFiles  = []; // File[] nouveaux uploads
+        var stagedColors = []; // color_id | null, aligné avec stagedFiles
+
+        // Expose une API pour que le modal "Nouvelle couleur" puisse ajouter à allColors
+        // activeColorIds : colors ayant une ligne visible (hors "générique" toujours affichée)
+        var activeColorIds = [];
+        // Auto-init depuis les photos existantes
+        existingPhotos.forEach(function(p) {
+            if (p.color_id && activeColorIds.indexOf(p.color_id) === -1) {
+                activeColorIds.push(p.color_id);
+            }
+        });
+
+        // Couleur à assigner aux prochains uploads (fixée par le clic sur une ligne)
+        var pendingUploadColor = null;
+
+        window.__addPhotoPickerColor = function(c) {
+            if (!allColors.find(function(x) { return x.id === c.id; })) {
+                allColors.push(c);
+                renderAddColorSelect();
+            }
+        };
         // mainSelection : { kind: 'existing'|'new'|'none', id?, index? }
         var mainSelection = existingMainFilename
             ? { kind: 'existing', id: 'main' }
@@ -742,13 +893,24 @@
                 ? { kind: 'existing', id: existingPhotos[0].id }
                 : { kind: 'none' });
 
-        btnAdd.addEventListener('click', function() { fileInput.click(); });
+        // Sélecteur "Ajouter une couleur"
+        addColorSelect.addEventListener('change', function() {
+            var cid = parseInt(addColorSelect.value, 10);
+            if (!cid) return;
+            if (activeColorIds.indexOf(cid) === -1) activeColorIds.push(cid);
+            addColorSelect.value = '';
+            render();
+        });
 
         fileInput.addEventListener('change', function() {
+            var assignedColor = pendingUploadColor; // capture avant reset
+            pendingUploadColor = null;
             Array.from(fileInput.files || []).forEach(function(f) {
-                if (f.type.startsWith('image/')) stagedFiles.push(f);
+                if (f.type.startsWith('image/')) {
+                    stagedFiles.push(f);
+                    stagedColors.push(assignedColor);
+                }
             });
-            // Si aucune principale, la 1ère nouvelle devient principale
             if (mainSelection.kind === 'none' && stagedFiles.length > 0) {
                 mainSelection = { kind: 'new', index: 0 };
             }
@@ -778,16 +940,24 @@
             }
             var deletedIds = existingPhotos.filter(function(p) { return p.deleted; })
                                           .map(function(p) { return p.id; });
-            if (existingMainFilename && mainSelection.kind !== 'existing' &&
-                !stagedFiles.length && existingPhotos.some(function(p) { return !p.deleted; })) {
-                // Cas rare : la principale actuelle est retirée alors qu'aucun remplacement n'est fourni.
-                // On ne la supprime PAS ici — laissée telle quelle côté serveur pour éviter les cas dégénérés.
-            }
             hDeleted.value = JSON.stringify(deletedIds);
+
+            // Sérialisation des assignations couleur
+            var colorMap = {};
+            if (mainPhotoColorId) colorMap['main'] = mainPhotoColorId;
+            existingPhotos.forEach(function(p) {
+                if (!p.deleted && p.id !== 'main' && p.color_id) {
+                    colorMap[String(p.id)] = p.color_id;
+                }
+            });
+            stagedColors.forEach(function(cid, i) {
+                if (cid) colorMap['new:' + i] = cid;
+            });
+            hColors.value = JSON.stringify(colorMap);
         }
 
         function renderThumb(opts) {
-            // opts: { src, isMain, onSetMain, onDelete, badge? }
+            // opts: { src, isMain, onSetMain, onDelete, colorId, onColorChange }
             var thumb = document.createElement('div');
             thumb.className = 'photo-thumb' + (opts.isMain ? ' is-main' : '');
 
@@ -832,73 +1002,171 @@
             return thumb;
         }
 
-        function render() {
-            grid.innerHTML = '';
+        function renderAddColorSelect() {
+            // Reconstruit les options du <select> "Ajouter une couleur"
+            // en excluant les couleurs déjà actives
+            var current = addColorSelect.value;
+            addColorSelect.innerHTML = '<option value="">+ Ajouter une couleur à l\'article</option>';
+            allColors.forEach(function(c) {
+                if (activeColorIds.indexOf(c.id) !== -1) return;
+                var o = document.createElement('option');
+                o.value = String(c.id);
+                o.textContent = c.name;
+                addColorSelect.appendChild(o);
+            });
+        }
 
-            var total = 0;
+        // Renvoie la liste des vignettes à rendre dans une rangée pour un colorId donné
+        function collectThumbsForColor(colorId) {
+            var list = [];
+            // 1) main photo (article.image)
+            if (existingMainFilename && !isMainMarkedDeleted() && ((mainPhotoColorId || null) === colorId)) {
+                list.push({ kind: 'main' });
+            }
+            // 2) photos existantes
+            existingPhotos.forEach(function(p, idx) {
+                if (p.deleted || p.id === 'main') return;
+                if ((p.color_id || null) === colorId) list.push({ kind: 'existing', p: p, idx: idx });
+            });
+            // 3) uploads en attente
+            stagedFiles.forEach(function(f, i) {
+                if ((stagedColors[i] || null) === colorId) list.push({ kind: 'new', i: i });
+            });
+            return list;
+        }
 
-            // 1) Photo principale actuelle (existingMainFilename)
-            if (existingMainFilename && !isMainMarkedDeleted()) {
-                var isMain = mainSelection.kind === 'existing' && mainSelection.id === 'main';
-                grid.appendChild(renderThumb({
-                    src: '{{ asset('uploads/images/') }}' + existingMainFilename,
-                    isMain: isMain,
-                    onSetMain: function() { mainSelection = { kind: 'existing', id: 'main' }; render(); },
-                    onDelete: function() {
-                        markExistingDeleted('main');
-                        if (mainSelection.kind === 'existing' && mainSelection.id === 'main') {
-                            promoteFirstAvailable();
-                        }
-                        render();
-                    }
-                }));
-                total++;
+        // Rendu d'une rangée (colorId = null pour la rangée "générique")
+        function renderRow(colorId) {
+            var color = colorId ? allColors.find(function(c) { return c.id === colorId; }) : null;
+
+            var row = document.createElement('div');
+            row.className = 'photo-row';
+
+            var header = document.createElement('div');
+            header.className = 'photo-row-header';
+
+            var title = document.createElement('div');
+            title.className = 'photo-row-title';
+            if (color) {
+                var dot = document.createElement('span');
+                dot.className = 'color-dot';
+                dot.style.background = color.hex;
+                title.appendChild(dot);
+                title.appendChild(document.createTextNode('Coloris : ' + color.name));
+            } else {
+                title.innerHTML = '<i class="fas fa-images" style="color:#7d8896;"></i> <span>Photos génériques</span>';
+            }
+            header.appendChild(title);
+
+            var actions = document.createElement('div');
+            actions.className = 'photo-row-actions';
+
+            var chooseBtn = document.createElement('button');
+            chooseBtn.type = 'button';
+            chooseBtn.className = 'photo-row-choose';
+            chooseBtn.innerHTML = '<i class="fas fa-plus"></i> Choisir des photos' + (color ? ' pour ' + color.name : '');
+            chooseBtn.addEventListener('click', function() {
+                pendingUploadColor = colorId;
+                fileInput.click();
+            });
+            actions.appendChild(chooseBtn);
+
+            if (color) {
+                var removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'photo-row-remove';
+                removeBtn.innerHTML = '<i class="fas fa-times"></i> Retirer ce coloris';
+                removeBtn.addEventListener('click', function() {
+                    var thumbs = collectThumbsForColor(colorId);
+                    if (thumbs.length > 0 && !confirm('Cette ligne contient ' + thumbs.length + ' photo(s). Les repasser en générique ?')) return;
+                    // Reset color to null on all matching
+                    if (mainPhotoColorId === colorId) mainPhotoColorId = null;
+                    existingPhotos.forEach(function(p) { if (p.color_id === colorId) p.color_id = null; });
+                    stagedColors.forEach(function(cid, i) { if (cid === colorId) stagedColors[i] = null; });
+                    activeColorIds = activeColorIds.filter(function(id) { return id !== colorId; });
+                    render();
+                });
+                actions.appendChild(removeBtn);
             }
 
-            // 2) Photos existantes (non supprimées)
-            existingPhotos.forEach(function(p) {
-                if (p.deleted) return;
-                var isMain = mainSelection.kind === 'existing' && String(mainSelection.id) === String(p.id);
-                grid.appendChild(renderThumb({
-                    src: '{{ asset('uploads/images/') }}' + p.filename,
-                    isMain: isMain,
-                    onSetMain: function() { mainSelection = { kind: 'existing', id: p.id }; render(); },
-                    onDelete: function() {
-                        p.deleted = true;
-                        if (isMain) promoteFirstAvailable();
-                        render();
-                    }
-                }));
-                total++;
-            });
+            header.appendChild(actions);
+            row.appendChild(header);
 
-            // 3) Nouveaux uploads
-            stagedFiles.forEach(function(file, i) {
-                var isMain = mainSelection.kind === 'new' && mainSelection.index === i;
-                grid.appendChild(renderThumb({
-                    src: URL.createObjectURL(file),
-                    isMain: isMain,
-                    onSetMain: function() { mainSelection = { kind: 'new', index: i }; render(); },
-                    onDelete: function() {
-                        stagedFiles.splice(i, 1);
-                        // Réajuste mainSelection si concerné
-                        if (mainSelection.kind === 'new') {
-                            if (mainSelection.index === i) promoteFirstAvailable();
-                            else if (mainSelection.index > i) mainSelection.index--;
-                        }
-                        syncFileInput();
-                        render();
-                    }
-                }));
-                total++;
-            });
-
-            if (total === 0) {
+            var grid = document.createElement('div');
+            grid.className = 'photo-row-grid';
+            var thumbs = collectThumbsForColor(colorId);
+            if (thumbs.length === 0) {
                 var empty = document.createElement('div');
-                empty.className = 'photo-picker-empty';
-                empty.textContent = 'Aucune photo pour le moment';
+                empty.className = 'photo-row-empty';
+                empty.textContent = color
+                    ? 'Aucune photo pour ' + color.name + ' — clique sur "Choisir des photos" ci-dessus.'
+                    : 'Aucune photo générique — utilise "Choisir des photos" pour en ajouter.';
                 grid.appendChild(empty);
+            } else {
+                thumbs.forEach(function(entry) {
+                    if (entry.kind === 'main') {
+                        var isMain = mainSelection.kind === 'existing' && mainSelection.id === 'main';
+                        grid.appendChild(renderThumb({
+                            src: '{{ asset('uploads/images/') }}' + existingMainFilename,
+                            isMain: isMain,
+                            onSetMain: function() { mainSelection = { kind: 'existing', id: 'main' }; render(); },
+                            onDelete: function() {
+                                markExistingDeleted('main');
+                                if (mainSelection.kind === 'existing' && mainSelection.id === 'main') promoteFirstAvailable();
+                                render();
+                            }
+                        }));
+                    } else if (entry.kind === 'existing') {
+                        var p = entry.p;
+                        var isMain = mainSelection.kind === 'existing' && String(mainSelection.id) === String(p.id);
+                        grid.appendChild(renderThumb({
+                            src: '{{ asset('uploads/images/') }}' + p.filename,
+                            isMain: isMain,
+                            onSetMain: function() { mainSelection = { kind: 'existing', id: p.id }; render(); },
+                            onDelete: function() { p.deleted = true; if (isMain) promoteFirstAvailable(); render(); }
+                        }));
+                    } else if (entry.kind === 'new') {
+                        var i = entry.i;
+                        var f = stagedFiles[i];
+                        var isMain = mainSelection.kind === 'new' && mainSelection.index === i;
+                        grid.appendChild(renderThumb({
+                            src: URL.createObjectURL(f),
+                            isMain: isMain,
+                            onSetMain: function() { mainSelection = { kind: 'new', index: i }; render(); },
+                            onDelete: function() {
+                                stagedFiles.splice(i, 1);
+                                stagedColors.splice(i, 1);
+                                if (mainSelection.kind === 'new') {
+                                    if (mainSelection.index === i) promoteFirstAvailable();
+                                    else if (mainSelection.index > i) mainSelection.index--;
+                                }
+                                syncFileInput();
+                                render();
+                            }
+                        }));
+                    }
+                });
             }
+            row.appendChild(grid);
+            return row;
+        }
+
+        function render() {
+            rowsContainer.innerHTML = '';
+
+            // Toujours : rangée générique en premier
+            rowsContainer.appendChild(renderRow(null));
+
+            // Une rangée par couleur active
+            activeColorIds.forEach(function(cid) {
+                rowsContainer.appendChild(renderRow(cid));
+            });
+
+            // Compter total
+            var total = 0;
+            if (existingMainFilename && !isMainMarkedDeleted()) total++;
+            existingPhotos.forEach(function(p) { if (!p.deleted && p.id !== 'main') total++; });
+            total += stagedFiles.length;
 
             counter.textContent = total;
             if (mainSelection.kind === 'none' || total === 0) {
@@ -909,6 +1177,7 @@
                 mainLbl.className = 'photo-main-label';
             }
 
+            renderAddColorSelect();
             updateHiddenInputs();
         }
 
@@ -947,5 +1216,7 @@
     })();
 })();
 </script>
+
+{{ include('admin/article/_color_picker.html.twig') }}
 
 {% endblock %}

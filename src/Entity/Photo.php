@@ -24,6 +24,25 @@ class Photo
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Article $article = null;
 
+    /**
+     * Couleur associée à cette photo (nullable = photo générique, visible pour toutes les couleurs).
+     * Permet de gérer un article multi-couleurs avec ses photos par variante.
+     */
+    #[ORM\ManyToOne(targetEntity: ProductColor::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?ProductColor $color = null;
+
+    public function getColor(): ?ProductColor
+    {
+        return $this->color;
+    }
+
+    public function setColor(?ProductColor $color): self
+    {
+        $this->color = $color;
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

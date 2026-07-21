@@ -19,7 +19,14 @@
         <meta property="og:image"       content="{% block og_image %}{{ absolute_url(asset('images/logo_dpannephones/Logo_dpannephones.png')) }}{% endblock %}">
         <meta property="og:locale"      content="fr_FR">
 
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        {# ── Favicons (référence Google Search + navigateurs + PWA) ── #}
+        <link rel="icon"          href="{{ asset('favicon.ico') }}" sizes="any">
+        <link rel="icon"          href="{{ asset('favicon-32.png') }}"  sizes="32x32"   type="image/png">
+        <link rel="icon"          href="{{ asset('favicon-192.png') }}" sizes="192x192" type="image/png">
+        <link rel="icon"          href="{{ asset('favicon-512.png') }}" sizes="512x512" type="image/png">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+        <link rel="manifest"      href="{{ asset('site.webmanifest') }}">
+        <meta name="theme-color"  content="#094771">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         
         
@@ -50,8 +57,29 @@
             "longitude": 5.154775
           },
           "openingHoursSpecification": [
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday"], "opens": "09:30", "closes": "18:30" },
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:30", "closes": "17:00" }
+            {% set dayNames = {1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday', 7: 'Sunday'} %}
+            {% set specs = [] %}
+            {% for horaire in horaires_semaine() %}
+              {% if not horaire.ferme %}
+                {% if horaire.matinOuverture and horaire.matinFermeture %}
+                  {% set specs = specs|merge([{
+                    day: dayNames[horaire.jourNumero],
+                    opens: horaire.matinOuverture|date('H:i'),
+                    closes: horaire.matinFermeture|date('H:i')
+                  }]) %}
+                {% endif %}
+                {% if horaire.apresmidiOuverture and horaire.apresmidiFermeture %}
+                  {% set specs = specs|merge([{
+                    day: dayNames[horaire.jourNumero],
+                    opens: horaire.apresmidiOuverture|date('H:i'),
+                    closes: horaire.apresmidiFermeture|date('H:i')
+                  }]) %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% for s in specs %}
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "{{ s.day }}", "opens": "{{ s.opens }}", "closes": "{{ s.closes }}" }{% if not loop.last %},{% endif %}
+            {% endfor %}
           ],
           "priceRange": "€€"
         }
@@ -243,7 +271,15 @@
            class="google-rating-float"
            id="google-rating-float"
            aria-label="Voir tous les avis Google">
-            <span class="google-rating-float-icon" aria-hidden="true"><i class="fab fa-google"></i></span>
+            {# Badge compact (état replié) #}
+            <span class="grf-compact" aria-hidden="true">
+                <i class="fab fa-google grf-g"></i>
+                <span class="grf-compact-score">{{ _googleRating }}</span>
+                <i class="fas fa-star grf-compact-star"></i>
+            </span>
+
+            {# Panneau détaillé (état déplié au survol / tap) #}
+            <span class="google-rating-float-icon" aria-hidden="true"><i class="fab fa-google grf-g"></i></span>
 
             <span class="google-rating-float-main">
                 <span class="google-rating-float-score">{{ _googleRating }}</span>
@@ -261,7 +297,22 @@
                 Voir les avis <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </span>
         </a>
-        {# Plus de JS : la pastille est désormais statique, fixe en bas à droite. #}
+        <script>
+        (function () {
+            var f = document.getElementById('google-rating-float');
+            if (!f || !('ontouchstart' in window)) return;
+            // Mobile : le 1er tap déplie le badge, le 2e navigue
+            f.addEventListener('click', function (e) {
+                if (!f.classList.contains('grf-open')) {
+                    e.preventDefault();
+                    f.classList.add('grf-open');
+                }
+            });
+            document.addEventListener('click', function (e) {
+                if (!f.contains(e.target)) f.classList.remove('grf-open');
+            });
+        })();
+        </script>
         {% endif %}
 
          {% block body %}{% endblock %}

@@ -1,0 +1,202 @@
+{# Picker Marque / Série / Modèles compatibles.
+   Utilisé par les groupes coque et film_hydrogel dans admin/article/new+edit.
+   Paramètres attendus :
+     - targetField : nom du <textarea> à alimenter (ex: 'article_coque_models' ou 'article_hydrogel_models')
+     - marques     : liste des Marque avec leurs Model[] (fournie par le controller)
+     - domId       : identifiant unique (pour éviter les collisions si plusieurs pickers sur la page)
+#}
+<style>
+    .bm-picker {
+        margin-bottom: 12px;
+        background: #f9fafc;
+        border: 1px solid #edf0f3;
+        border-radius: 12px;
+        padding: 16px 18px;
+    }
+    .bm-picker-title {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; font-weight: 700; color: #094771;
+        margin-bottom: 12px;
+    }
+    .bm-brand {
+        margin-bottom: 6px;
+        border-top: 1px solid #edf0f3;
+        padding-top: 8px;
+    }
+    .bm-brand:first-of-type { border-top: none; padding-top: 0; }
+    .bm-brand-header {
+        display: flex; align-items: center; gap: 8px;
+        padding: 6px 4px; cursor: pointer;
+        font-weight: 600; color: #1a2b4b; font-size: 14px;
+    }
+    .bm-brand-header:hover { background: rgba(9,71,113,0.04); }
+    .bm-brand-header .caret {
+        transition: transform 0.15s; font-size: 11px; color: #7d8896;
+    }
+    .bm-brand.open .bm-brand-header .caret { transform: rotate(90deg); }
+    .bm-brand-body { display: none; padding: 6px 6px 10px 22px; }
+    .bm-brand.open .bm-brand-body { display: block; }
+    .bm-count {
+        margin-left: auto; font-size: 11px; color: #7d8896;
+        font-weight: 500;
+    }
+    .bm-count.has-selected { color: #16a34a; font-weight: 600; }
+    .bm-selected-preview {
+        display: flex; flex-wrap: wrap; gap: 4px;
+        padding: 0 4px 6px 22px;
+    }
+    .bm-brand.open .bm-selected-preview { display: none; }
+    .bm-selected-preview:empty { display: none; }
+    .bm-chip {
+        display: inline-flex; align-items: center;
+        background: #e8f4fb; color: #094771;
+        border: 1px solid #b8dcef;
+        border-radius: 999px;
+        padding: 2px 10px; font-size: 11px; font-weight: 500;
+    }
+    .bm-serie {
+        font-size: 12px; font-weight: 700; color: #7d8896;
+        text-transform: uppercase; letter-spacing: 0.05em;
+        margin: 8px 0 4px;
+    }
+    .bm-models {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 4px 12px;
+    }
+    .bm-model-label {
+        display: flex; align-items: center; gap: 8px;
+        padding: 4px 6px; border-radius: 6px;
+        cursor: pointer; font-size: 13px !important;
+        font-weight: 400 !important; color: #1a2b4b !important;
+        margin-bottom: 0 !important;
+    }
+    .bm-model-label:hover { background: rgba(9,71,113,0.05); }
+    .bm-model-label input[type="checkbox"] {
+        width: 16px !important; height: 16px !important;
+        min-height: 16px !important; max-width: 16px !important;
+        accent-color: #094771;
+    }
+    .bm-actions {
+        display: flex; gap: 6px; margin-top: 10px;
+        padding-top: 8px; border-top: 1px dashed #dee2e6;
+    }
+    .bm-actions button {
+        padding: 4px 10px; font-size: 11px; font-weight: 500;
+        border: 1px solid #dde3ea; background: white;
+        border-radius: 6px; cursor: pointer; color: #64748b;
+    }
+    .bm-actions button:hover { border-color: #094771; color: #094771; }
+</style>
+
+<div class="bm-picker" id="bmPicker_{{ domId }}" data-target="{{ targetField }}">
+    <div class="bm-picker-title">
+        <i class="fas fa-mobile-alt"></i>
+        Sélection rapide des modèles compatibles
+    </div>
+
+    {% for brand, data in popularPhones %}
+        {% set brandModelCount = 0 %}
+        {% for models in data.families %}{% set brandModelCount = brandModelCount + models|length %}{% endfor %}
+        <div class="bm-brand" data-brand-name="{{ brand|e('html_attr') }}">
+            <div class="bm-brand-header" onclick="bmToggleBrand(this)">
+                <span class="caret">▶</span>
+                <span>{{ brand }}</span>
+                <span class="bm-count" data-role="count">0 / {{ brandModelCount }} sélectionné(s)</span>
+            </div>
+            <div class="bm-selected-preview" data-role="preview"></div>
+            <div class="bm-brand-body">
+                {% for famille, models in data.families %}
+                    {% if data.families|length > 1 or famille != 'Autres' %}
+                        <div class="bm-serie">{{ famille }}</div>
+                    {% endif %}
+                    <div class="bm-models">
+                        {% for model in models %}
+                            <label class="bm-model-label">
+                                <input type="checkbox"
+                                       class="bm-model-check"
+                                       value="{{ model.modelName|e('html_attr') }}"
+                                       onchange="bmUpdate('{{ domId }}')">
+                                {{ model.modelName }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="bm-actions">
+                    <button type="button" onclick="bmSelectAll(this, true)">Tout cocher</button>
+                    <button type="button" onclick="bmSelectAll(this, false)">Tout décocher</button>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+function bmToggleBrand(header) {
+    header.parentElement.classList.toggle('open');
+}
+function bmSelectAll(btn, checked) {
+    var brand = btn.closest('.bm-brand');
+    brand.querySelectorAll('.bm-model-check').forEach(function(cb) { cb.checked = checked; });
+    var picker = brand.closest('.bm-picker');
+    bmUpdate(picker.id.replace('bmPicker_', ''));
+}
+function bmUpdate(domId) {
+    var picker = document.getElementById('bmPicker_' + domId);
+    var target = document.getElementById(picker.dataset.target);
+    if (!target) return;
+
+    var lines = [];
+    picker.querySelectorAll('.bm-brand').forEach(function(brandEl) {
+        var name = brandEl.dataset.brandName;
+        var checked = Array.from(brandEl.querySelectorAll('.bm-model-check:checked')).map(function(cb) { return cb.value; });
+        var count = brandEl.querySelector('[data-role="count"]');
+        var total = brandEl.querySelectorAll('.bm-model-check').length;
+        count.textContent = checked.length + ' / ' + total + ' sélectionné(s)';
+        count.classList.toggle('has-selected', checked.length > 0);
+        var preview = brandEl.querySelector('[data-role="preview"]');
+        if (preview) {
+            preview.innerHTML = '';
+            checked.forEach(function(m) {
+                var chip = document.createElement('span');
+                chip.className = 'bm-chip';
+                chip.textContent = m;
+                preview.appendChild(chip);
+            });
+        }
+        if (checked.length > 0) {
+            lines.push(name + ': ' + checked.join(', '));
+        }
+    });
+    target.value = lines.join('\n');
+}
+
+// Sync initial : coche les checkboxes qui correspondent au contenu actuel du textarea
+(function initBmPicker_{{ domId }}() {
+    var picker = document.getElementById('bmPicker_{{ domId }}');
+    if (!picker) return;
+    var target = document.getElementById(picker.dataset.target);
+    if (!target || !target.value) return;
+
+    var byBrand = {};
+    target.value.split(/\r?\n/).forEach(function(line) {
+        line = line.trim();
+        if (!line || line.indexOf(':') === -1) return;
+        var parts = line.split(':');
+        var brand = parts[0].trim();
+        var models = parts.slice(1).join(':').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+        byBrand[brand] = models;
+    });
+
+    picker.querySelectorAll('.bm-brand').forEach(function(brandEl) {
+        var name = brandEl.dataset.brandName;
+        var models = byBrand[name] || [];
+        if (models.length === 0) return;
+        brandEl.classList.add('open'); // développe si des modèles sont pré-cochés
+        brandEl.querySelectorAll('.bm-model-check').forEach(function(cb) {
+            if (models.indexOf(cb.value) !== -1) cb.checked = true;
+        });
+    });
+    bmUpdate('{{ domId }}');
+})();
+</script>

@@ -77,7 +77,6 @@ class ArticleController extends AbstractController
             'marque'           => 'acc_brand',
             'compatibilite'    => 'acc_compatibility',
             'materiau'         => 'acc_material',
-            'couleur'          => 'acc_color',
             'connectique'      => 'acc_connector',
             'puissance'        => 'acc_power',
             'technologie'      => 'acc_technology',
@@ -134,7 +133,7 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleArticlePhotos($form, $article, $request, $slugger);
+            $this->handleArticlePhotos($form, $article, $request, $slugger, $em);
             $this->extractSpecsFromForm($form, $article);
 
             $em->persist($article);
@@ -147,6 +146,8 @@ class ArticleController extends AbstractController
         return $this->render('admin/article/new.html.twig', [
             'form'    => $form->createView(),
             'article' => $article,
+            'colors'         => $em->getRepository(\App\Entity\ProductColor::class)->findAllOrdered(),
+            'popularPhones'  => $em->getRepository(\App\Entity\PopularPhoneModel::class)->findGroupedByBrandAndFamille(),
         ]);
     }
 
@@ -157,13 +158,13 @@ class ArticleController extends AbstractController
 
         // Pré-remplir les champs specs depuis les données stockées (avant handleRequest)
         if (!$request->isMethod('POST')) {
-            $this->populateSpecsIntoForm($form, $article);
+            $this->populateSpecsIntoForm($form, $article, $em);
         }
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->handleArticlePhotos($form, $article, $request, $slugger);
+            $this->handleArticlePhotos($form, $article, $request, $slugger, $em);
             $this->extractSpecsFromForm($form, $article);
 
             $em->flush();
@@ -175,6 +176,8 @@ class ArticleController extends AbstractController
         return $this->render('admin/article/edit.html.twig', [
             'form'    => $form->createView(),
             'article' => $article,
+            'colors'         => $em->getRepository(\App\Entity\ProductColor::class)->findAllOrdered(),
+            'popularPhones'  => $em->getRepository(\App\Entity\PopularPhoneModel::class)->findGroupedByBrandAndFamille(),
         ]);
     }
 
@@ -221,8 +224,17 @@ class ArticleController extends AbstractController
      *  - main_photo_new_index  : index (dans l'ordre d'upload) du nouveau fichier choisi comme principal
      *  - deleted_photo_ids     : JSON array d'ids de Photo à supprimer (peut contenir 'main' pour supprimer l'image principale)
      */
-    private function handleArticlePhotos($form, Article $article, Request $request, SluggerInterface $slugger): void
+    private function handleArticlePhotos($form, Article $article, Request $request, SluggerInterface $slugger, EntityManagerInterface $em): void
     {
+        // 0) Récupération de la map des couleurs {"main": id, "42": id, "new:0": id, ...}
+        $photoColors = json_decode((string) $request->request->get('photo_colors', '{}'), true);
+        $photoColors = is_array($photoColors) ? $photoColors : [];
+        $colorRepo   = $em->getRepository(\App\Entity\ProductColor::class);
+        $resolveColor = function ($colorId) use ($colorRepo) {
+            if (!$colorId) return null;
+            return $colorRepo->find((int) $colorId);
+        };
+
         // 1) Suppressions demandées sur les photos existantes
         $deletedIds = json_decode((string) $request->request->get('deleted_photo_ids', '[]'), true);
         $deletedIds = is_array($deletedIds) ? $deletedIds : [];
@@ -298,13 +310,14 @@ class ArticleController extends AbstractController
         }
 
         // 5) Ajout des autres nouveaux uploads en Photo (celui devenu principal est déjà exclu ci-dessus)
+        $newPhotosByIndex = [];
         foreach ($newFilenames as $i => $fn) {
             if ($source === 'new' && $i === $mainNewIndex) {
                 continue;
             }
-            $article->addPhoto(
-                (new Photo())->setFilename($fn)->setPosition($article->getPhotos()->count())
-            );
+            $photo = (new Photo())->setFilename($fn)->setPosition($article->getPhotos()->count());
+            $article->addPhoto($photo);
+            $newPhotosByIndex[$i] = $photo;
         }
 
         // 6) Fallback : article.image nul mais des photos existent → première photo devient principale
@@ -312,7 +325,34 @@ class ArticleController extends AbstractController
             $first = $article->getPhotos()->first();
             $article->setImage($first->getFilename());
             $article->removePhoto($first);
+            unset($newPhotosByIndex[array_search($first, $newPhotosByIndex, true)]);
         }
+
+        // 7) Application des couleurs aux photos
+        //    - photos existantes non supprimées : setColor() depuis $photoColors[photo.id]
+        //    - nouveaux uploads : setColor() depuis $photoColors["new:i"]
+        //    - main photo : couleur stockée dans specs.main_photo_color_id
+        foreach ($article->getPhotos() as $photo) {
+            $key = (string) $photo->getId();
+            $photo->setColor(
+                isset($photoColors[$key]) ? $resolveColor($photoColors[$key]) : null
+            );
+        }
+        foreach ($newPhotosByIndex as $i => $photo) {
+            $key = 'new:' . $i;
+            if (isset($photoColors[$key])) {
+                $photo->setColor($resolveColor($photoColors[$key]));
+            }
+        }
+
+        // Couleur de la photo principale (stockée dans specs)
+        $existingSpecs = $article->getSpecs() ?? [];
+        if (isset($photoColors['main']) && $photoColors['main']) {
+            $existingSpecs['main_photo_color_id'] = (int) $photoColors['main'];
+        } else {
+            unset($existingSpecs['main_photo_color_id']);
+        }
+        $article->setSpecs($existingSpecs ?: null);
     }
 
     private function uploadImageFile(UploadedFile $file, SluggerInterface $slugger): ?string
@@ -348,17 +388,43 @@ class ArticleController extends AbstractController
         $specs = [];
         foreach ($mapping as $specKey => $fieldName) {
             $val = $form->get($fieldName)->getData();
+            // Cas EntityType (couleur) → on ne stocke que le nom dans les specs
+            if ($val instanceof \App\Entity\ProductColor) {
+                $val = $val->getName();
+            }
             if ($val !== null && $val !== '') {
                 $specs[$specKey] = $val;
             }
         }
 
-        // 3. Cas spécial : hydrogel — liste de modèles compatibles (textarea multi-lignes)
-        if ($categorie === 'film_hydrogel') {
-            $raw = $form->get('hydrogel_models')->getData();
-            if ($raw) {
-                $specs['compatible_models'] = array_values(array_filter(array_map('trim', explode("\n", $raw))));
+        // 3. Cas spécial : hydrogel et coques — modèles compatibles groupés par marque
+        //    Format admin attendu : une ligne par marque, sous la forme
+        //      "Marque: modèle1, modèle2, modèle3"
+        //    Ex : "Apple: iPhone 12, iPhone 13, iPhone 14 Pro"
+        //    Stocké dans specs.brand_models = { "Apple": ["iPhone 12", …], … }
+        if (in_array($categorie, ['film_hydrogel', 'coque'], true)) {
+            $sourceField = $categorie === 'coque' ? 'coque_models' : 'hydrogel_models';
+            $raw = $form->has($sourceField)
+                ? (string) ($form->get($sourceField)->getData() ?? '')
+                : '';
+            $brandModels = [];
+            foreach (preg_split('/\r?\n/', $raw) as $line) {
+                $line = trim($line);
+                if ($line === '' || !str_contains($line, ':')) {
+                    continue;
+                }
+                [$brand, $modelsStr] = explode(':', $line, 2);
+                $brand  = trim($brand);
+                $models = array_values(array_filter(array_map('trim', explode(',', $modelsStr))));
+                if ($brand !== '' && !empty($models)) {
+                    $brandModels[$brand] = $models;
+                }
             }
+            if (!empty($brandModels)) {
+                $specs['brand_models'] = $brandModels;
+            }
+            // Compat descendante : on retire l'ancien format s'il traîne
+            unset($specs['compatible_models']);
         }
 
         // 4. On fusionne : nouvelles valeurs du form + anciennes clés custom non couvertes
@@ -370,7 +436,7 @@ class ArticleController extends AbstractController
     /**
      * Pré-remplit les champs du formulaire avec les specs déjà stockées.
      */
-    private function populateSpecsIntoForm($form, Article $article): void
+    private function populateSpecsIntoForm($form, Article $article, EntityManagerInterface $em): void
     {
         $specs = $article->getSpecs() ?? [];
         if (empty($specs)) {
@@ -381,14 +447,37 @@ class ArticleController extends AbstractController
         foreach (self::SPECS_MAPPING as $mapping) {
             foreach ($mapping as $specKey => $fieldName) {
                 if (isset($specs[$specKey]) && $form->has($fieldName)) {
-                    $form->get($fieldName)->setData($specs[$specKey]);
+                    $value = $specs[$specKey];
+                    // Cas spécial : acc_color est un EntityType → on cherche la ProductColor par son nom
+                    if ($fieldName === 'acc_color' && is_string($value)) {
+                        $value = $em->getRepository(\App\Entity\ProductColor::class)
+                            ->findOneBy(['name' => $value]);
+                    }
+                    if ($value !== null) {
+                        $form->get($fieldName)->setData($value);
+                    }
                 }
             }
         }
 
-        // Cas spécial : hydrogel
-        if (isset($specs['compatible_models']) && is_array($specs['compatible_models']) && $form->has('hydrogel_models')) {
-            $form->get('hydrogel_models')->setData(implode("\n", $specs['compatible_models']));
+        // Cas spécial : hydrogel & coque — reconstruire le format "Marque: modèle1, modèle2" par ligne
+        $currentCategorie = $article->getCategorie();
+        $targetField = $currentCategorie === 'coque' ? 'coque_models' : 'hydrogel_models';
+        if ($form->has($targetField)) {
+            $lines = [];
+            if (isset($specs['brand_models']) && is_array($specs['brand_models'])) {
+                foreach ($specs['brand_models'] as $brand => $models) {
+                    if (is_array($models) && !empty($models)) {
+                        $lines[] = $brand . ': ' . implode(', ', $models);
+                    }
+                }
+            } elseif (isset($specs['compatible_models']) && is_array($specs['compatible_models'])) {
+                // Ancien format à convertir : on met tout sous "Autres"
+                $lines[] = 'Autres : ' . implode(', ', $specs['compatible_models']);
+            }
+            if (!empty($lines)) {
+                $form->get($targetField)->setData(implode("\n", $lines));
+            }
         }
     }
 }

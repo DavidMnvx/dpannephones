@@ -75,6 +75,8 @@
 
     {# Fil d'Ariane #}
     <nav class="article-breadcrumb">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="bc-sep">›</span>
         <a href="{{ path('boutique_index') }}">Boutique</a>
         {% if article.categorie and categories[article.categorie] is defined %}
             <span class="bc-sep">›</span>
@@ -90,6 +92,45 @@
            COLONNE GAUCHE — Image + vignettes
            ══════════════════════════════════════ #}
         <div class="article-detail-img-col">
+
+            {# ── Regroupement des photos par couleur ──
+               availableColors = [{id, name, hex}, ...] (couleurs distinctes présentes sur les photos)
+               photosByColor   = { color_id: [filenames], "none": [filenames sans couleur] }              #}
+            {% set availableColors = [] %}
+            {% set colorMap = {} %}
+
+            {# Photo principale (article.image) : sa couleur est dans specs.main_photo_color_id #}
+            {% set mainColorId = article.specs.main_photo_color_id|default(null) %}
+            {% if article.image %}
+                {% set key = mainColorId ? mainColorId|number_format : 'none' %}
+                {% set arr = colorMap[key]|default([]) %}
+                {% set arr = arr|merge([article.image]) %}
+                {% set colorMap = colorMap|merge({(key): arr}) %}
+            {% endif %}
+
+            {# Photos supplémentaires (article.photos) : chacune peut avoir photo.color #}
+            {% for photo in article.photos %}
+                {% set cid = photo.color ? photo.color.id : null %}
+                {% set key = cid ? cid|number_format : 'none' %}
+                {% set arr = colorMap[key]|default([]) %}
+                {% set arr = arr|merge([photo.filename]) %}
+                {% set colorMap = colorMap|merge({(key): arr}) %}
+                {% if photo.color and (availableColors|filter(c => c.id == photo.color.id)|length == 0) %}
+                    {% set availableColors = availableColors|merge([{id: photo.color.id, name: photo.color.name, hex: photo.color.hex}]) %}
+                {% endif %}
+            {% endfor %}
+
+            {# Ajouter la couleur de la photo principale si elle n'y est pas déjà #}
+            {% if mainColorId %}
+                {% set existsInAvailable = availableColors|filter(c => c.id == mainColorId)|length > 0 %}
+                {% if not existsInAvailable %}
+                    {% for photo in article.photos %}
+                        {% if photo.color and photo.color.id == mainColorId %}
+                            {% set availableColors = availableColors|merge([{id: photo.color.id, name: photo.color.name, hex: photo.color.hex}]) %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endif %}
 
             {# Image principale #}
             {% if article.image %}
@@ -107,23 +148,108 @@
                 </div>
             {% endif %}
 
-            {# Galerie photos supplémentaires #}
-            {% if article.photos|length > 0 %}
-                <div class="article-detail-gallery" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
+            {# ── Sélecteur de couleur ── #}
+            {% if availableColors|length > 1 %}
+                <div class="color-swatches" style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center;">
+                    <strong style="font-size:13px;color:#1a2b4b;">Couleur :</strong>
+                    <button type="button" class="color-swatch color-swatch--all active"
+                            data-color-id="all" onclick="filterByColor(null, null)"
+                            style="padding:5px 12px;border:1.5px solid #094771;background:#094771;color:#fff;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">
+                        Toutes
+                    </button>
+                    {% for c in availableColors %}
+                        <button type="button" class="color-swatch"
+                                data-color-id="{{ c.id }}"
+                                onclick="filterByColor({{ c.id }}, '{{ c.name|e('js') }}')"
+                                title="{{ c.name }}"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1.5px solid #dee2e6;background:#fff;color:#1a2b4b;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">
+                            <span style="width:14px;height:14px;border-radius:50%;background:{{ c.hex }};border:1px solid rgba(0,0,0,0.1);"></span>
+                            {{ c.name }}
+                        </button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Galerie photos ── vignettes de toutes les photos, filtrées par JS #}
+            {% if article.photos|length > 0 or article.image %}
+                <div class="article-detail-gallery" id="articleGallery" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
                     {% if article.image %}
                         <img src="{{ asset('uploads/images/' ~ article.image) }}"
                              alt="{{ article.name }}"
+                             data-color-id="{{ mainColorId ?: '' }}"
                              onclick="document.getElementById('mainArticleImage').src=this.src;"
                              style="width:70px;height:70px;object-fit:cover;border:2px solid #dee2e6;border-radius:6px;cursor:pointer;">
                     {% endif %}
                     {% for photo in article.photos %}
                         <img src="{{ asset('uploads/images/' ~ photo.filename) }}"
                              alt="{{ article.name }}"
+                             data-color-id="{{ photo.color ? photo.color.id : '' }}"
                              onclick="document.getElementById('mainArticleImage').src=this.src;"
                              style="width:70px;height:70px;object-fit:cover;border:2px solid #dee2e6;border-radius:6px;cursor:pointer;">
                     {% endfor %}
                 </div>
             {% endif %}
+
+            <script>
+            // Couleur sélectionnée globalement — transmise au panier via ?color=<name>
+            window.selectedCartColor = null;
+            window.selectedCartColorName = null;
+
+            function filterByColor(colorId, colorName) {
+                var gallery = document.getElementById('articleGallery');
+                var mainImg = document.getElementById('mainArticleImage');
+                if (!gallery) return;
+
+                var firstMatch = null;
+                Array.from(gallery.querySelectorAll('img')).forEach(function(im) {
+                    var cid = im.getAttribute('data-color-id');
+                    var show = (colorId === null) || (cid && parseInt(cid, 10) === colorId) || (colorId === null && !cid);
+                    im.style.display = show ? '' : 'none';
+                    if (show && !firstMatch) firstMatch = im;
+                });
+                if (mainImg && firstMatch) mainImg.src = firstMatch.src;
+
+                document.querySelectorAll('.color-swatch').forEach(function(b) {
+                    var active = (b.getAttribute('data-color-id') === (colorId === null ? 'all' : String(colorId)));
+                    b.style.borderColor = active ? '#094771' : '#dee2e6';
+                    b.style.background  = active ? '#094771' : '#fff';
+                    b.style.color       = active ? '#fff' : '#1a2b4b';
+                });
+
+                // Mémorise la couleur choisie pour l'ajout au panier
+                window.selectedCartColor = colorId;
+                window.selectedCartColorName = colorName || null;
+                syncColorToCartControls();
+            }
+
+            // Propage la couleur choisie aux formulaires/liens "Ajouter au panier"
+            function syncColorToCartControls() {
+                var name = window.selectedCartColorName || '';
+                // 1) forms → ajouter/mettre à jour un input hidden name="color"
+                document.querySelectorAll('form[action*="cart/add"]').forEach(function(form) {
+                    var input = form.querySelector('input[name="color"]');
+                    if (!input) {
+                        input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'color';
+                        form.appendChild(input);
+                    }
+                    input.value = name;
+                });
+                // 2) liens directs → ajouter ?color=<name> dynamiquement au clic
+                document.querySelectorAll('a[href*="cart/add"]:not([data-color-bound])').forEach(function(a) {
+                    a.setAttribute('data-color-bound', '1');
+                    a.addEventListener('click', function(e) {
+                        var color = window.selectedCartColorName;
+                        if (!color) return;
+                        var href = a.getAttribute('href');
+                        var sep = href.indexOf('?') === -1 ? '?' : '&';
+                        a.setAttribute('href', href + sep + 'color=' + encodeURIComponent(color));
+                    });
+                });
+            }
+            document.addEventListener('DOMContentLoaded', syncColorToCartControls);
+            </script>
 
             {# Vignettes specs clés — téléphones uniquement #}
             {% if article.categorie == 'telephone' and article.specs %}

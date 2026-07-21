@@ -278,6 +278,7 @@
     #sidebar .nav-link .fa-star-half-alt  { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; }
     #sidebar .nav-link .fa-clock          { background: linear-gradient(135deg, #0ea5e9, #0284c7) !important; }
     #sidebar .nav-link .fa-cog            { background: linear-gradient(135deg, #64748b, #475569) !important; }
+    #sidebar .nav-link .fa-palette        { background: linear-gradient(135deg, #f472b6, #ec4899) !important; }
 
     /* Séparateur avant Paramètres */
     #sidebar .nav-item[style*="border-top"] {
@@ -395,6 +396,18 @@
                         {% if pendingCount > 0 %}
                             <span class="sidebar-notif-badge" title="{{ pendingCount }} avis en attente de modération">{{ pendingCount }}</span>
                         {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'colors' ? 'active' : '' }}"
+                       href="{{ path('admin_colors_index') }}">
+                        <i class="fas fa-palette"></i> Couleurs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'popular_phones' ? 'active' : '' }}"
+                       href="{{ path('admin_popular_phones_index') }}">
+                        <i class="fas fa-mobile-alt"></i> Téléphones populaires
                     </a>
                 </li>
                 <li class="nav-item">

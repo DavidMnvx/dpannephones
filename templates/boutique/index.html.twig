@@ -18,7 +18,39 @@
 
 <div style="width:80%;margin:0 auto 60px;padding:0 16px;">
 
-    <div class="boutique-page-title">Boutique</div>
+    {# Fil d'ariane #}
+    <nav class="bt-breadcrumb" aria-label="Fil d'ariane">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="bt-bc-sep">›</span>
+        {% if currentCategorie %}
+            <a href="{{ path('boutique_index') }}">Boutique</a>
+            <span class="bt-bc-sep">›</span>
+            <span class="bt-bc-current">{{ categories[currentCategorie] }}</span>
+        {% else %}
+            <span class="bt-bc-current">Boutique</span>
+        {% endif %}
+    </nav>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Accueil", "item": "{{ url('home') }}"},
+            {"@type": "ListItem", "position": 2, "name": "Boutique", "item": "{{ url('boutique_index') }}"}
+            {%- if currentCategorie -%}
+            ,{"@type": "ListItem", "position": 3, "name": "{{ categories[currentCategorie] }}", "item": "{{ url('boutique_index', {categorie: currentCategorie}) }}"}
+            {%- endif %}
+        ]
+    }
+    </script>
+
+    <div class="boutique-header-row">
+        <div class="boutique-page-title">Boutique</div>
+        <a href="{{ path('cart_index') }}" class="cart-pill">
+            <i class="fas fa-shopping-cart"></i>
+            Panier{% if cart is not empty %} · {{ cart|length }} <span class="cart-pill-total">{{ cartTotal|number_format(2, ',', ' ') }} €</span>{% endif %}
+        </a>
+    </div>
 
     {# ── Filtre mobile catégories (visible ≤992px) ── #}
     <div class="mobile-cat-bar">
@@ -32,7 +64,8 @@
                 {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
                 {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
                 {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
-                {% elseif slug == 'film_hydrogel' %}<i class="fas fa-shield-alt"></i>
+                {% elseif slug == 'coque' %}<i class="fas fa-shield-alt"></i>
+                {% elseif slug == 'film_hydrogel' %}<i class="fas fa-tint"></i>
                 {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
                 {% endif %}
                 {{ label }}
@@ -55,6 +88,7 @@
             <div class="cat-sidebar-title">Catégories</div>
             <a href="{{ path('boutique_index') }}" class="cat-link {{ currentCategorie is null ? 'active' : '' }}">
                 <i class="fas fa-th-large"></i> Tous les articles
+                <span class="cat-count">{{ categoryCounts['__all__'] ?? 0 }}</span>
             </a>
             {% for slug, label in categories %}
                 <a href="{{ path('boutique_index', {categorie: slug}) }}"
@@ -63,10 +97,14 @@
                     {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
                     {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
                     {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
-                    {% elseif slug == 'film_hydrogel' %}<i class="fas fa-shield-alt"></i>
+                    {% elseif slug == 'coque' %}<i class="fas fa-shield-alt"></i>
+                    {% elseif slug == 'film_hydrogel' %}<i class="fas fa-tint"></i>
                     {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
                     {% endif %}
                     {{ label }}
+                    {% if categoryCounts[slug] is defined and categoryCounts[slug] > 0 %}
+                        <span class="cat-count">{{ categoryCounts[slug] }}</span>
+                    {% endif %}
                 </a>
             {% endfor %}
         </aside>
@@ -210,6 +248,53 @@
                 {% endif %}
 
             {# ══════════════════════════════════════════════
+               PAGE COQUES (grille + sélecteur modèle par carte)
+            ══════════════════════════════════════════════ #}
+            {% elseif currentCategorie == 'coque' %}
+
+                <div class="coque-intro">
+                    <h1 class="coque-intro-title">Coques de protection</h1>
+                    <p class="coque-intro-sub">
+                        Choisissez votre coque, puis sélectionnez le modèle de votre téléphone.
+                        Chaque coque est déclinée pour de nombreux modèles — vous ne payez qu'une fois.
+                    </p>
+                </div>
+
+                {% if articles is empty %}
+                    <div class="coque-empty">
+                        <i class="fas fa-shield-alt"></i>
+                        <p>Aucune coque disponible pour le moment.</p>
+                    </div>
+                {% else %}
+                    <div class="coque-grid">
+                        {% for article in articles %}
+                            <article class="coque-card">
+                                <div class="coque-card-img">
+                                    {% if article.image %}
+                                        <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}" loading="lazy">
+                                    {% else %}
+                                        <div class="coque-card-noimg"><i class="fas fa-shield-alt"></i></div>
+                                    {% endif %}
+                                </div>
+                                <div class="coque-card-body">
+                                    <h3 class="coque-card-title">{{ article.name }}</h3>
+                                    {% if article.description %}
+                                        <p class="coque-card-desc">{{ article.description|length > 90 ? article.description|slice(0, 90) ~ '…' : article.description }}</p>
+                                    {% endif %}
+                                    <div class="coque-card-footer">
+                                        <span class="coque-card-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
+                                        <button type="button" class="btn-cart btn-cart--coque"
+                                                data-toggle="modal" data-target="#hydrogelModal{{ article.id }}">
+                                            <i class="fas fa-mobile-alt mr-1"></i> Choisir mon modèle
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+            {# ══════════════════════════════════════════════
                GRILLE PRODUITS CLASSIQUE (autres catégories)
             ══════════════════════════════════════════════ #}
             {% else %}
@@ -240,121 +325,79 @@
                             <i class="fas fa-arrow-left"></i> Voir tout
                         </a>
                     </div>
+                {% elseif currentCategorie is null %}
+
+                    {# ── Accueil : une section par catégorie, rangée défilante + "Voir tout" ── #}
+                    {% for slug, label in categories %}
+                        {% set catArticles = articles|filter(a => a.categorie == slug) %}
+                        {% if catArticles|length > 0 %}
+                            <section class="cat-section">
+                                <div class="cat-section-head">
+                                    <h2 class="cat-section-title">
+                                        {% if slug == 'pc_gamer' %}<i class="fas fa-gamepad"></i>
+                                        {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
+                                        {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
+                                        {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
+                                        {% elseif slug == 'coque' %}<i class="fas fa-shield-alt"></i>
+                                        {% elseif slug == 'film_hydrogel' %}<i class="fas fa-tint"></i>
+                                        {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
+                                        {% endif %}
+                                        {{ label }}
+                                        <span class="cat-section-count">{{ catArticles|length }}</span>
+                                    </h2>
+                                    <a href="{{ path('boutique_index', {categorie: slug}) }}" class="cat-section-more">
+                                        Voir tout <i class="fas fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                                <div class="cat-section-row">
+                                    {% for article in catArticles %}
+                                        {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
+                                    {% endfor %}
+                                </div>
+                            </section>
+                        {% endif %}
+                    {% endfor %}
+
+                    {# Articles sans catégorie connue #}
+                    {% set orphans = articles|filter(a => a.categorie is null or categories[a.categorie] is not defined) %}
+                    {% if orphans|length > 0 %}
+                        <section class="cat-section">
+                            <div class="cat-section-head">
+                                <h2 class="cat-section-title"><i class="fas fa-box"></i> Autres <span class="cat-section-count">{{ orphans|length }}</span></h2>
+                            </div>
+                            <div class="cat-section-row">
+                                {% for article in orphans %}
+                                    {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endif %}
+
                 {% else %}
                     <div class="products-grid">
                         {% for article in articles %}
-                            <div class="product-card">
-                                <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-img-link">
-                                    <div class="product-img-wrap">
-                                        {% if article.image %}
-                                            <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
-                                        {% else %}
-                                            <i class="fas fa-image no-img"></i>
-                                        {% endif %}
-                                    </div>
-                                </a>
-                                <div class="product-body">
-                                    <div class="product-badges">
-                                        <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
-                                            {{ article.isNew ? 'Neuf' : "D'occasion" }}
-                                        </span>
-                                        {% if article.grade %}
-                                            <span class="badge-grade grade-tooltip-wrap" tabindex="0">
-                                                Grade {{ article.grade }}
-                                                <span class="grade-tooltip">
-                                                    <strong>Grade A</strong> — Excellent état<br>
-                                                    <strong>Grade B</strong> — Légères traces d'usage<br>
-                                                    <strong>Grade C</strong> — Traces visibles
-                                                </span>
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="product-name">
-                                        <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-name-link">{{ article.name }}</a>
-                                    </div>
-                                    <p class="product-desc">{{ article.description }}</p>
-
-                                    {# Specs par catégorie #}
-                                    {% if article.categorie in ['pc_gamer', 'pc_bureautique', 'pc_portable'] %}
-                                        {% if article.specs %}
-                                            <div class="pc-specs-list">
-                                                {% for key, val in article.specs %}
-                                                    <div class="pc-spec-row">
-                                                        <span class="pc-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
-                                                        <span class="pc-spec-val">{{ val }}</span>
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    {% elseif article.categorie == 'telephone' %}
-                                        {% if article.specs %}
-                                            <div class="pc-specs-list">
-                                                {% if article.specs.storage_capacity is defined %}
-                                                    <div class="pc-spec-row">
-                                                        <span class="pc-spec-key">Stockage</span>
-                                                        <span class="pc-spec-val">{{ article.specs.storage_capacity }}</span>
-                                                    </div>
-                                                {% endif %}
-                                                {% if article.specs.color is defined %}
-                                                    <div class="pc-spec-row">
-                                                        <span class="pc-spec-key">Couleur</span>
-                                                        <span class="pc-spec-val">{{ article.specs.color }}</span>
-                                                    </div>
-                                                {% endif %}
-                                                {% if article.specs.network is defined %}
-                                                    <div class="pc-spec-row">
-                                                        <span class="pc-spec-key">Réseau</span>
-                                                        <span class="pc-spec-val">{{ article.specs.network }}</span>
-                                                    </div>
-                                                {% endif %}
-                                                {% if article.specs.battery_health is defined %}
-                                                    <div class="pc-spec-row">
-                                                        <span class="pc-spec-key">Batterie</span>
-                                                        <span class="pc-spec-val">{{ article.specs.battery_health }}%</span>
-                                                    </div>
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
-
-                                    <div class="product-footer">
-                                        <span class="product-price">{{ article.price }} €</span>
-
-                                        {% if article.categorie == 'film_hydrogel' %}
-                                            <a href="{{ path('boutique_index', {categorie: 'film_hydrogel'}) }}" class="btn-cart btn-cart--hydrogel">
-                                                <i class="fas fa-shield-alt"></i> Découvrir
-                                            </a>
-                                        {% else %}
-                                            <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">
-                                                <i class="fas fa-cart-plus"></i> Ajouter
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
+                            {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
                         {% endfor %}
                     </div>
                 {% endif %}
             {% endif %}
+
         </div>
 
-        {# Colonne droite : mini-panier + cards livraison #}
+        {# Colonne droite : mini-panier + livraison (équilibre avec la sidebar gauche) #}
         <div class="boutique-right-col">
 
-            {# Mini-panier #}
             <aside class="mini-cart">
                 <div class="mini-cart-header">
                     <i class="fas fa-shopping-cart"></i> Panier
                     {% if cart is not empty %}
-                        <span style="margin-left:auto;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px 8px;font-size:12px;">
-                            {{ cart|length }}
-                        </span>
+                        <span class="mini-cart-count">{{ cart|length }}</span>
                     {% endif %}
                 </div>
                 <div class="mini-cart-body">
                     {% if cart is empty %}
                         <div class="mini-cart-empty">
-                            <i class="fas fa-shopping-basket" style="font-size:26px;display:block;margin-bottom:10px;"></i>
+                            <i class="fas fa-shopping-basket" style="font-size:24px;display:block;margin-bottom:10px;"></i>
                             Panier vide
                         </div>
                     {% else %}
@@ -394,37 +437,34 @@
                 </div>
             </aside>
 
-            {# Cards livraison sous le panier #}
             <div class="delivery-cards">
-                <div class="delivery-cards-title">
-                    <i class="fas fa-truck mr-1"></i> Livraison
-                </div>
+                <div class="delivery-cards-title">Livraison</div>
                 <div class="delivery-card">
-                    <div class="delivery-card-icon" style="color:#ffb700;background:#fffbe6;"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="delivery-card-icon"><i class="fas fa-shipping-fast"></i></div>
                     <div class="delivery-card-info">
                         <strong>Colissimo</strong>
                         <span>2–3 jours ouvrés</span>
                     </div>
                 </div>
                 <div class="delivery-card">
-                    <div class="delivery-card-icon" style="color:#7a2c8e;background:#f5eefa;"><i class="fas fa-bolt"></i></div>
+                    <div class="delivery-card-icon"><i class="fas fa-bolt"></i></div>
                     <div class="delivery-card-info">
                         <strong>Chronopost</strong>
                         <span>Express 24h</span>
                     </div>
                 </div>
                 <div class="delivery-card">
-                    <div class="delivery-card-icon" style="color:#e8732a;background:#fff4ed;"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="delivery-card-icon"><i class="fas fa-map-marker-alt"></i></div>
                     <div class="delivery-card-info">
                         <strong>Mondial Relay</strong>
                         <span>3–5 jours · Point relais</span>
                     </div>
                 </div>
                 <div class="delivery-card delivery-card--free">
-                    <div class="delivery-card-icon" style="color:#16a34a;background:#f0fdf4;"><i class="fas fa-store"></i></div>
+                    <div class="delivery-card-icon delivery-card-icon--free"><i class="fas fa-store"></i></div>
                     <div class="delivery-card-info">
                         <strong>Retrait boutique</strong>
-                        <span>Pélissanne · Gratuit · sous 24h</span>
+                        <span>Pélissanne · sous 24h</span>
                     </div>
                     <span class="delivery-card-free-badge">Gratuit</span>
                 </div>
@@ -485,10 +525,14 @@
 
 </div>
 
-{# ══ Modals sélection modèle hydrogel ══ #}
+{# ══ Modals sélection modèle (hydrogel + coques) ══ #}
 {% for article in articles %}
-{% if article.categorie == 'film_hydrogel' %}
+{% if article.categorie in ['film_hydrogel', 'coque'] %}
+{# Fallback : si aucun brand_models mais un ancien compatible_models existe, on le range sous "Modèles compatibles" #}
 {% set brandModels = article.specs.brand_models ?? {} %}
+{% if brandModels is empty and article.specs.compatible_models is defined and article.specs.compatible_models %}
+    {% set brandModels = {'Modèles compatibles': article.specs.compatible_models} %}
+{% endif %}
 <div class="modal fade" id="hydrogelModal{{ article.id }}" tabindex="-1" role="dialog" aria-labelledby="hydrogelModalLabel{{ article.id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content hydrogel-modal-content">
