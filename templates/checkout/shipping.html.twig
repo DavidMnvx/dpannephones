@@ -70,17 +70,34 @@
                         </span>
                     </div>
 
+                    {# Point relais validé (état final) #}
                     <div id="relayConfirm" class="relay-confirm" style="{{ relayPoint ? '' : 'display:none;' }}">
                         <i class="fas fa-check-circle"></i>
                         <div>
+                            <small class="relay-confirm-kicker">Point relais validé</small>
                             <strong id="relayConfirmName">{{ relayPoint ? relayPoint.name : '' }}</strong>
                             <span id="relayConfirmAddr">{{ relayPoint ? (relayPoint.address ~ ', ' ~ relayPoint.zip ~ ' ' ~ relayPoint.city) : '' }}</span>
                         </div>
                     </div>
 
+                    {# Point sélectionné dans le widget, en attente de validation #}
+                    <div id="relayPending" class="relay-pending" style="display:none;">
+                        <div class="relay-pending-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <small>Votre sélection</small>
+                                <strong id="relayPendingName"></strong>
+                                <span id="relayPendingAddr"></span>
+                            </div>
+                        </div>
+                        <button type="button" id="btnValidateRelay" class="relay-validate-btn">
+                            <i class="fas fa-check mr-1"></i> Valider ce point relais
+                        </button>
+                    </div>
+
                     <p class="relay-hint">
                         <i class="fas fa-info-circle mr-1"></i>
-                        Recherchez autour de chez vous puis cliquez sur un point relais dans la liste ou sur la carte pour le sélectionner.
+                        Recherchez autour de chez vous, cliquez sur un point relais dans la liste ou sur la carte, puis <strong>validez votre choix</strong>.
                     </p>
 
                     <div id="Zone_Widget" class="relay-widget"></div>
@@ -190,39 +207,76 @@
                 NbResults: '7',
                 ShowResultsOnMap: true,
                 OnParcelShopSelected: function(data) {
-                    var relay = {
+                    // Sélection dans le widget = proposition : rien n'est enregistré
+                    // tant que le client n'a pas cliqué "Valider ce point relais"
+                    window.__pendingRelay = {
                         id:      data.ID || '',
                         name:    data.Nom || '',
                         address: (data.Adresse1 || '') + (data.Adresse2 ? ' ' + data.Adresse2 : ''),
                         zip:     data.CP || '',
                         city:    data.Ville || ''
                     };
-                    fetch('{{ path('checkout_set_relay') }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'same-origin',
-                        body: JSON.stringify(relay)
-                    }).then(function(r) { return r.json(); }).then(function(res) {
-                        if (!res.ok) return;
-                        // Visu de validation : encart vert + chip + déverrouillage du paiement
-                        document.getElementById('relayConfirmName').textContent = relay.name;
-                        document.getElementById('relayConfirmAddr').textContent =
-                            relay.address + ', ' + relay.zip + ' ' + relay.city;
-                        document.getElementById('relayConfirm').style.display = '';
-                        var chip = document.getElementById('relayChip');
-                        chip.classList.remove('ck-valid-chip--todo');
-                        chip.innerHTML = '<i class="fas fa-check"></i> Sélectionné';
-                        var btn = document.getElementById('btnGoPayment');
-                        btn.classList.remove('btn-checkout--disabled');
-                        btn.removeAttribute('aria-disabled');
-                        btn.removeAttribute('tabindex');
-                        btn.setAttribute('href', '{{ path('payment_checkout') }}');
-                        var hint = document.getElementById('paymentLockedHint');
-                        if (hint) hint.style.display = 'none';
-                    });
+                    document.getElementById('relayPendingName').textContent = window.__pendingRelay.name;
+                    document.getElementById('relayPendingAddr').textContent =
+                        window.__pendingRelay.address + ', ' + window.__pendingRelay.zip + ' ' + window.__pendingRelay.city;
+                    document.getElementById('relayConfirm').style.display = 'none';
+                    document.getElementById('relayPending').style.display = '';
+
+                    var chip = document.getElementById('relayChip');
+                    chip.classList.add('ck-valid-chip--todo');
+                    chip.innerHTML = '<i class="fas fa-hourglass-half"></i> À valider';
+
+                    // Tant que le nouveau choix n'est pas validé, le paiement reste verrouillé
+                    var btn = document.getElementById('btnGoPayment');
+                    btn.classList.add('btn-checkout--disabled');
+                    btn.setAttribute('aria-disabled', 'true');
+                    btn.setAttribute('tabindex', '-1');
+                    var hint = document.getElementById('paymentLockedHint');
+                    if (hint) {
+                        hint.innerHTML = '<i class="fas fa-info-circle mr-1"></i> Validez votre point relais pour continuer.';
+                        hint.style.display = '';
+                    }
+                    document.getElementById('relayPending').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             });
         }
+
+        // Validation explicite du point relais sélectionné → enregistrement serveur
+        document.getElementById('btnValidateRelay').addEventListener('click', function() {
+            var relay = window.__pendingRelay;
+            if (!relay) return;
+            var validateBtn = this;
+            validateBtn.disabled = true;
+
+            fetch('{{ path('checkout_set_relay') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(relay)
+            }).then(function(r) { return r.json(); }).then(function(res) {
+                validateBtn.disabled = false;
+                if (!res.ok) return;
+
+                // Visu de validation : encart vert + chip verte + déverrouillage du paiement
+                document.getElementById('relayConfirmName').textContent = relay.name;
+                document.getElementById('relayConfirmAddr').textContent =
+                    relay.address + ', ' + relay.zip + ' ' + relay.city;
+                document.getElementById('relayPending').style.display = 'none';
+                document.getElementById('relayConfirm').style.display = '';
+
+                var chip = document.getElementById('relayChip');
+                chip.classList.remove('ck-valid-chip--todo');
+                chip.innerHTML = '<i class="fas fa-check"></i> Validé';
+
+                var btn = document.getElementById('btnGoPayment');
+                btn.classList.remove('btn-checkout--disabled');
+                btn.removeAttribute('aria-disabled');
+                btn.removeAttribute('tabindex');
+                btn.setAttribute('href', '{{ path('payment_checkout') }}');
+                var hint = document.getElementById('paymentLockedHint');
+                if (hint) hint.style.display = 'none';
+            }).catch(function() { validateBtn.disabled = false; });
+        });
 
         // jQuery est chargé en fin de page par le layout : on attend le "load" complet,
         // puis on charge le plugin Mondial Relay avant d'initialiser le widget

@@ -2243,6 +2243,82 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
     color: #3f6212;
 }
 
+.relay-confirm-kicker {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #16a34a;
+    margin-bottom: 2px;
+}
+
+/* Point sélectionné dans le widget, en attente de validation */
+.relay-pending {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: #f4f8fb;
+    border: 1px solid #b8d4e8;
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-bottom: 14px;
+}
+
+.relay-pending-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.relay-pending-info > i {
+    color: rgb(9, 71, 113);
+    font-size: 18px;
+    margin-top: 3px;
+}
+
+.relay-pending-info small {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6c8bab;
+    margin-bottom: 2px;
+}
+
+.relay-pending-info strong {
+    display: block;
+    font-size: 14px;
+    color: #1b2e45;
+}
+
+.relay-pending-info span {
+    font-size: 12.5px;
+    color: #5c6670;
+}
+
+.relay-validate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 11px 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.relay-validate-btn:hover { background: #15803d; }
+.relay-validate-btn:disabled { opacity: 0.6; cursor: wait; }
+
 .relay-hint {
     font-size: 12.5px;
     color: #8a94a0;
