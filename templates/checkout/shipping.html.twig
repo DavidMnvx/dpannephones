@@ -80,24 +80,9 @@
                         </div>
                     </div>
 
-                    {# Point sélectionné dans le widget, en attente de validation #}
-                    <div id="relayPending" class="relay-pending" style="display:none;">
-                        <div class="relay-pending-info">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <small>Votre sélection</small>
-                                <strong id="relayPendingName"></strong>
-                                <span id="relayPendingAddr"></span>
-                            </div>
-                        </div>
-                        <button type="button" id="btnValidateRelay" class="relay-validate-btn">
-                            <i class="fas fa-check mr-1"></i> Valider ce point relais
-                        </button>
-                    </div>
-
                     <p class="relay-hint">
                         <i class="fas fa-info-circle mr-1"></i>
-                        Recherchez autour de chez vous, cliquez sur un point relais dans la liste ou sur la carte, puis <strong>validez votre choix</strong>.
+                        Recherchez autour de chez vous, puis cliquez sur un point relais dans la liste ou sur la carte — votre commande à droite se met à jour instantanément.
                     </p>
 
                     <div id="Zone_Widget" class="relay-widget"></div>
@@ -108,10 +93,28 @@
 
         {# ── Récapitulatif + passage au paiement ── #}
         <div class="col-lg-4">
-            <div class="cart-summary">
+            <div class="cart-summary ck-sticky">
                 <div class="receipt-header">
                     <i class="fas fa-receipt mr-2" style="color:rgb(9,71,113);"></i>
                     Votre commande
+                </div>
+
+                {# Suivi du flux de validation — s'allume au fil des choix #}
+                <div class="ck-flow">
+                    <div class="ck-flow-item ck-flow-item--ok">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Panier — {{ cart|length }} article{{ cart|length > 1 ? 's' : '' }}</span>
+                    </div>
+                    <div class="ck-flow-item {{ selectedMode ? 'ck-flow-item--ok' : '' }}">
+                        <i class="fas {{ selectedMode ? 'fa-check-circle' : 'fa-circle' }}"></i>
+                        <span>Livraison{% if selectedMode %} — {{ availableShipping[selectedMode].label }}{% else %} : à choisir{% endif %}</span>
+                    </div>
+                    {% if selectedMode == 'mondial_relay' %}
+                        <div class="ck-flow-item {{ relayPoint ? 'ck-flow-item--ok' : '' }}" id="flowRelay">
+                            <i class="fas {{ relayPoint ? 'fa-check-circle' : 'fa-circle' }}"></i>
+                            <span id="flowRelayText">Point relais{% if relayPoint %} — {{ relayPoint.name }}{% else %} : à sélectionner{% endif %}</span>
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="receipt-items">
@@ -207,76 +210,51 @@
                 NbResults: '7',
                 ShowResultsOnMap: true,
                 OnParcelShopSelected: function(data) {
-                    // Sélection dans le widget = proposition : rien n'est enregistré
-                    // tant que le client n'a pas cliqué "Valider ce point relais"
-                    window.__pendingRelay = {
+                    var relay = {
                         id:      data.ID || '',
                         name:    data.Nom || '',
                         address: (data.Adresse1 || '') + (data.Adresse2 ? ' ' + data.Adresse2 : ''),
                         zip:     data.CP || '',
                         city:    data.Ville || ''
                     };
-                    document.getElementById('relayPendingName').textContent = window.__pendingRelay.name;
-                    document.getElementById('relayPendingAddr').textContent =
-                        window.__pendingRelay.address + ', ' + window.__pendingRelay.zip + ' ' + window.__pendingRelay.city;
-                    document.getElementById('relayConfirm').style.display = 'none';
-                    document.getElementById('relayPending').style.display = '';
+                    fetch('{{ path('checkout_set_relay') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(relay)
+                    }).then(function(r) { return r.json(); }).then(function(res) {
+                        if (!res.ok) return;
 
-                    var chip = document.getElementById('relayChip');
-                    chip.classList.add('ck-valid-chip--todo');
-                    chip.innerHTML = '<i class="fas fa-hourglass-half"></i> À valider';
+                        // Encart local + chip
+                        document.getElementById('relayConfirmName').textContent = relay.name;
+                        document.getElementById('relayConfirmAddr').textContent =
+                            relay.address + ', ' + relay.zip + ' ' + relay.city;
+                        document.getElementById('relayConfirm').style.display = '';
+                        var chip = document.getElementById('relayChip');
+                        chip.classList.remove('ck-valid-chip--todo');
+                        chip.innerHTML = '<i class="fas fa-check"></i> Validé';
 
-                    // Tant que le nouveau choix n'est pas validé, le paiement reste verrouillé
-                    var btn = document.getElementById('btnGoPayment');
-                    btn.classList.add('btn-checkout--disabled');
-                    btn.setAttribute('aria-disabled', 'true');
-                    btn.setAttribute('tabindex', '-1');
-                    var hint = document.getElementById('paymentLockedHint');
-                    if (hint) {
-                        hint.innerHTML = '<i class="fas fa-info-circle mr-1"></i> Validez votre point relais pour continuer.';
-                        hint.style.display = '';
-                    }
-                    document.getElementById('relayPending').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // La carte "Votre commande" (sticky, toujours visible) suit le flux :
+                        // la ligne Point relais s'allume et le paiement se déverrouille sous les yeux du client
+                        var flow = document.getElementById('flowRelay');
+                        if (flow) {
+                            flow.classList.add('ck-flow-item--ok', 'ck-flow-item--flash');
+                            flow.querySelector('i').className = 'fas fa-check-circle';
+                            document.getElementById('flowRelayText').textContent = 'Point relais — ' + relay.name;
+                            setTimeout(function() { flow.classList.remove('ck-flow-item--flash'); }, 1600);
+                        }
+
+                        var btn = document.getElementById('btnGoPayment');
+                        btn.classList.remove('btn-checkout--disabled');
+                        btn.removeAttribute('aria-disabled');
+                        btn.removeAttribute('tabindex');
+                        btn.setAttribute('href', '{{ path('payment_checkout') }}');
+                        var hint = document.getElementById('paymentLockedHint');
+                        if (hint) hint.style.display = 'none';
+                    });
                 }
             });
         }
-
-        // Validation explicite du point relais sélectionné → enregistrement serveur
-        document.getElementById('btnValidateRelay').addEventListener('click', function() {
-            var relay = window.__pendingRelay;
-            if (!relay) return;
-            var validateBtn = this;
-            validateBtn.disabled = true;
-
-            fetch('{{ path('checkout_set_relay') }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'same-origin',
-                body: JSON.stringify(relay)
-            }).then(function(r) { return r.json(); }).then(function(res) {
-                validateBtn.disabled = false;
-                if (!res.ok) return;
-
-                // Visu de validation : encart vert + chip verte + déverrouillage du paiement
-                document.getElementById('relayConfirmName').textContent = relay.name;
-                document.getElementById('relayConfirmAddr').textContent =
-                    relay.address + ', ' + relay.zip + ' ' + relay.city;
-                document.getElementById('relayPending').style.display = 'none';
-                document.getElementById('relayConfirm').style.display = '';
-
-                var chip = document.getElementById('relayChip');
-                chip.classList.remove('ck-valid-chip--todo');
-                chip.innerHTML = '<i class="fas fa-check"></i> Validé';
-
-                var btn = document.getElementById('btnGoPayment');
-                btn.classList.remove('btn-checkout--disabled');
-                btn.removeAttribute('aria-disabled');
-                btn.removeAttribute('tabindex');
-                btn.setAttribute('href', '{{ path('payment_checkout') }}');
-                var hint = document.getElementById('paymentLockedHint');
-                if (hint) hint.style.display = 'none';
-            }).catch(function() { validateBtn.disabled = false; });
-        });
 
         // jQuery est chargé en fin de page par le layout : on attend le "load" complet,
         // puis on charge le plugin Mondial Relay avant d'initialiser le widget
