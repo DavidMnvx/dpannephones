@@ -8,6 +8,7 @@ use App\Repository\SocialLinkRepository;
 use App\Service\AppSettingService;
 use App\Service\StaticReviewsProvider;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 /**
@@ -53,6 +54,62 @@ class AdminExtension extends AbstractExtension
     public function getAppSetting(string $key, string $default = ''): string
     {
         return $this->settings->getString($key, $default);
+    }
+
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('rich_description', [$this, 'formatRichDescription'], ['is_safe' => ['html']]),
+        ];
+    }
+
+    /**
+     * Met en forme une description saisie en texte libre dans l'admin :
+     *  - lignes commençant par "*", "-" ou "•"  → liste à puces
+     *  - ligne courte isolée sans ponctuation finale → sous-titre
+     *  - le reste → paragraphes (retours à la ligne préservés)
+     * Le contenu est échappé : aucune balise saisie n'est interprétée.
+     */
+    public function formatRichDescription(?string $text): string
+    {
+        if (!$text || trim($text) === '') {
+            return '';
+        }
+
+        // Découpage en blocs séparés par des lignes vides
+        $blocks  = [];
+        $current = [];
+        foreach (preg_split('/\R/u', $text) as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                if ($current) { $blocks[] = $current; $current = []; }
+            } else {
+                $current[] = $line;
+            }
+        }
+        if ($current) {
+            $blocks[] = $current;
+        }
+
+        $html = '';
+        foreach ($blocks as $block) {
+            $isList = count(array_filter($block, fn ($l) => preg_match('/^[\*\-•]\s+/u', $l))) === count($block);
+
+            if ($isList) {
+                $html .= '<ul>';
+                foreach ($block as $l) {
+                    $html .= '<li>' . htmlspecialchars(preg_replace('/^[\*\-•]\s+/u', '', $l), ENT_QUOTES) . '</li>';
+                }
+                $html .= '</ul>';
+            } elseif (count($block) === 1 && mb_strlen($block[0]) <= 65 && !preg_match('/[.!?;:,]$/u', $block[0])) {
+                $html .= '<h4>' . htmlspecialchars($block[0], ENT_QUOTES) . '</h4>';
+            } else {
+                $escaped = array_map(fn ($l) => htmlspecialchars($l, ENT_QUOTES), $block);
+                $html .= '<p>' . implode('<br>', $escaped) . '</p>';
+            }
+        }
+
+        return $html;
     }
 
     /**

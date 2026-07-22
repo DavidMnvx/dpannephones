@@ -352,10 +352,10 @@
                 {% endif %}
             </div>
 
-            {# Nom + description #}
+            {# Nom + description (mise en forme auto : titres, listes à puces, paragraphes) #}
             <h1 class="article-detail-name">{{ article.name }}</h1>
             {% if article.description %}
-                <p class="article-detail-desc">{{ article.description }}</p>
+                <div class="article-detail-desc rich-desc">{{ article.description|rich_description }}</div>
             {% endif %}
 
             {# ── PRIX + PANIER (bloc achat principal) ── #}
@@ -660,8 +660,31 @@
                                 </h2>
                                 <div id="collapseGeneric" class="collapse show specs-accordion-collapse" role="tabpanel" aria-labelledby="headingGeneric" data-parent="#specsAccordionGeneric">
                                     <div class="specs-accordion-body">
+                                        {# Ordre canonique (mêmes libellés que les cartes boutique), OS en tête #}
+                                        {% set specLabels = {
+                                            'os':              'OS',
+                                            'processeur':      'Processeur',
+                                            'ram':             'RAM',
+                                            'stockage':        'Stockage',
+                                            'carte_graphique': 'Carte graphique',
+                                            'carte_mere':      'Carte mère',
+                                            'alimentation':    'Alimentation',
+                                            'refroidissement': 'Refroidissement',
+                                            'boitier':         'Boîtier',
+                                            'eclairage_rgb':   'Éclairage RGB',
+                                            'garantie':        'Garantie'
+                                        } %}
+                                        {% set hiddenSpecs = ['brand_models', 'compatible_models', 'main_photo_color_id', 'photo_colors'] %}
+                                        {% for key, label in specLabels %}
+                                            {% if article.specs[key] is defined and article.specs[key] is not iterable and article.specs[key] %}
+                                                <div class="article-spec-row">
+                                                    <span class="article-spec-key">{{ label }}</span>
+                                                    <span class="article-spec-val">{{ article.specs[key] }}</span>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
                                         {% for key, val in article.specs %}
-                                            {% if val is not iterable %}
+                                            {% if specLabels[key] is not defined and key not in hiddenSpecs and val is not iterable %}
                                                 <div class="article-spec-row">
                                                     <span class="article-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
                                                     <span class="article-spec-val">{{ val }}</span>

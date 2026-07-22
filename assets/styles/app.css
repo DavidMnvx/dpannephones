@@ -6867,6 +6867,43 @@ footer .table tbody tr:last-child:hover td {
     margin-bottom: 20px;
 }
 
+/* Description mise en forme automatiquement (titres, listes, paragraphes) */
+.rich-desc p {
+    margin: 0 0 12px;
+}
+
+.rich-desc h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1b2e45;
+    margin: 18px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #edf0f3;
+}
+
+.rich-desc ul {
+    margin: 0 0 12px;
+    padding-left: 4px;
+    list-style: none;
+}
+
+.rich-desc li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 4px;
+}
+
+.rich-desc li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #9fc1d8;
+}
+
 /* Bloc spécifications */
 .article-detail-specs {
     background: #f8fafc;

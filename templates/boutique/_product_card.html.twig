@@ -44,14 +44,17 @@
                     'ram':             'RAM',
                     'stockage':        'Stockage',
                     'carte_graphique': 'Carte graphique',
+                    'carte_mere':      'Carte mère',
                     'alimentation':    'Alimentation',
                     'refroidissement': 'Refroidissement',
                     'boitier':         'Boîtier',
+                    'eclairage_rgb':   'Éclairage RGB',
                     'garantie':        'Garantie'
                 } %}
+                {% set hiddenSpecs = ['brand_models', 'compatible_models', 'main_photo_color_id', 'photo_colors'] %}
                 <div class="pc-specs-list">
                     {% for key, label in specLabels %}
-                        {% if article.specs[key] is defined and article.specs[key] %}
+                        {% if article.specs[key] is defined and article.specs[key] is not iterable and article.specs[key] %}
                             <div class="pc-spec-row">
                                 <span class="pc-spec-key">{{ label }}</span>
                                 <span class="pc-spec-val">{{ article.specs[key] }}</span>
@@ -59,7 +62,7 @@
                         {% endif %}
                     {% endfor %}
                     {% for key, val in article.specs %}
-                        {% if specLabels[key] is not defined and val is not iterable %}
+                        {% if specLabels[key] is not defined and key not in hiddenSpecs and val is not iterable %}
                             <div class="pc-spec-row">
                                 <span class="pc-spec-key">{{ key|replace({'_': ' '})|capitalize }}</span>
                                 <span class="pc-spec-val">{{ val }}</span>
