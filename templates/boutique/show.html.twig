@@ -184,6 +184,7 @@
                         <img src="{{ asset('uploads/images/' ~ photo.filename) }}"
                              alt="{{ article.name }}"
                              data-color-id="{{ photo.color ? photo.color.id : '' }}"
+                             data-main="{{ photo.isMain ? '1' : '0' }}"
                              onclick="document.getElementById('mainArticleImage').src=this.src;"
                              style="width:70px;height:70px;object-fit:cover;border:2px solid #dee2e6;border-radius:6px;cursor:pointer;">
                     {% endfor %}
@@ -201,13 +202,16 @@
                 if (!gallery) return;
 
                 var firstMatch = null;
+                var mainMatch  = null; // photo désignée "principale" du coloris
                 Array.from(gallery.querySelectorAll('img')).forEach(function(im) {
                     var cid = im.getAttribute('data-color-id');
                     var show = (colorId === null) || (cid && parseInt(cid, 10) === colorId) || (colorId === null && !cid);
                     im.style.display = show ? '' : 'none';
                     if (show && !firstMatch) firstMatch = im;
+                    if (show && !mainMatch && im.getAttribute('data-main') === '1') mainMatch = im;
                 });
-                if (mainImg && firstMatch) mainImg.src = firstMatch.src;
+                var best = mainMatch || firstMatch;
+                if (mainImg && best) mainImg.src = best.src;
 
                 document.querySelectorAll('.color-swatch').forEach(function(b) {
                     var active = (b.getAttribute('data-color-id') === (colorId === null ? 'all' : String(colorId)));

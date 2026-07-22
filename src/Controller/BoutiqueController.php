@@ -124,11 +124,10 @@ class BoutiqueController extends AbstractController
     public function add(Article $article, Request $request, EntityManagerInterface $em, SessionInterface $session): Response
     {
         $cart = $this->getOrCreateCart($em, $session);
-        $cartItem = $this->findOrCreateCartItem($cart, $article, $em);
 
-        $cartItem->setQuantity($cartItem->getQuantity() + 1);
-
-        $options = $cartItem->getOptions() ?? [];
+        // Les options (couleur, modèle) font partie de l'identité de la ligne :
+        // un même article en blanc et en noir = deux lignes distinctes du panier
+        $options = [];
         $model = $request->query->get('model');
         if ($model && in_array($article->getCategorie(), ['film_hydrogel', 'coque'], true)) {
             $options['model'] = $model;
@@ -137,9 +136,9 @@ class BoutiqueController extends AbstractController
         if ($color) {
             $options['color'] = $color;
         }
-        if (!empty($options)) {
-            $cartItem->setOptions($options);
-        }
+
+        $cartItem = $this->findOrCreateCartItem($cart, $article, $options, $em);
+        $cartItem->setQuantity($cartItem->getQuantity() + 1);
 
         $em->persist($cartItem);
         $em->flush();
@@ -162,7 +161,7 @@ class BoutiqueController extends AbstractController
         foreach ($cart->getItems() as $cartItem) {
             $item = new CommandeItem();
             $item->setArticle($cartItem->getArticle());
-            $item->setArticleName($cartItem->getArticle()->getName());
+            $item->setArticleName($cartItem->getDisplayName());
             $item->setPrix($cartItem->getArticle()->getPrice());
             $item->setQuantite($cartItem->getQuantity());
             $commande->addItem($item);
@@ -182,17 +181,15 @@ class BoutiqueController extends AbstractController
         return $this->redirectToRoute('boutique_index');
     }
 
+    // {id} désigne désormais la LIGNE de panier (CartItem), pas l'article —
+    // indispensable pour distinguer deux couleurs d'un même article
     #[Route('/cart/increment/{id}', name: 'cart_increment', methods: ['GET'])]
     public function increment(int $id, EntityManagerInterface $em, SessionInterface $session): Response
     {
-        $cart = $this->getCurrentCart($em, $session);
-        if ($cart) {
-            $article  = $em->getRepository(Article::class)->find($id);
-            $cartItem = $article ? $em->getRepository(CartItem::class)->findOneBy(['cart' => $cart, 'article' => $article]) : null;
-            if ($cartItem) {
-                $cartItem->setQuantity($cartItem->getQuantity() + 1);
-                $em->flush();
-            }
+        $cartItem = $this->findOwnCartItem($id, $em, $session);
+        if ($cartItem) {
+            $cartItem->setQuantity($cartItem->getQuantity() + 1);
+            $em->flush();
         }
         return $this->redirectToRoute('cart_index');
     }
@@ -200,18 +197,14 @@ class BoutiqueController extends AbstractController
     #[Route('/cart/decrement/{id}', name: 'cart_decrement', methods: ['GET'])]
     public function decrement(int $id, EntityManagerInterface $em, SessionInterface $session): Response
     {
-        $cart = $this->getCurrentCart($em, $session);
-        if ($cart) {
-            $article  = $em->getRepository(Article::class)->find($id);
-            $cartItem = $article ? $em->getRepository(CartItem::class)->findOneBy(['cart' => $cart, 'article' => $article]) : null;
-            if ($cartItem) {
-                if ($cartItem->getQuantity() <= 1) {
-                    $em->remove($cartItem);
-                } else {
-                    $cartItem->setQuantity($cartItem->getQuantity() - 1);
-                }
-                $em->flush();
+        $cartItem = $this->findOwnCartItem($id, $em, $session);
+        if ($cartItem) {
+            if ($cartItem->getQuantity() <= 1) {
+                $em->remove($cartItem);
+            } else {
+                $cartItem->setQuantity($cartItem->getQuantity() - 1);
             }
+            $em->flush();
         }
         return $this->redirectToRoute('cart_index');
     }
@@ -219,23 +212,29 @@ class BoutiqueController extends AbstractController
     #[Route('/cart/remove/{id}', name: 'cart_remove', methods: ['GET'])]
     public function remove(int $id, EntityManagerInterface $em, SessionInterface $session): Response
     {
-        $cart = $this->getCurrentCart($em, $session);
-
-        if ($cart) {
-            $article = $em->getRepository(Article::class)->find($id);
-            if ($article) {
-                $cartItem = $em->getRepository(CartItem::class)->findOneBy([
-                    'cart'    => $cart,
-                    'article' => $article,
-                ]);
-                if ($cartItem) {
-                    $em->remove($cartItem);
-                    $em->flush();
-                }
-            }
+        $cartItem = $this->findOwnCartItem($id, $em, $session);
+        if ($cartItem) {
+            $em->remove($cartItem);
+            $em->flush();
         }
 
         return $this->redirectToRoute('cart_index');
+    }
+
+    /**
+     * Récupère une ligne de panier par son id, en vérifiant qu'elle appartient
+     * bien au panier de la session courante.
+     */
+    private function findOwnCartItem(int $id, EntityManagerInterface $em, SessionInterface $session): ?CartItem
+    {
+        $cart = $this->getCurrentCart($em, $session);
+        if (!$cart) {
+            return null;
+        }
+
+        $cartItem = $em->getRepository(CartItem::class)->find($id);
+
+        return ($cartItem && $cartItem->getCart() === $cart) ? $cartItem : null;
     }
 
     #[Route('/cart', name: 'cart_index', methods: ['GET'])]
@@ -404,18 +403,32 @@ class BoutiqueController extends AbstractController
         return $em->getRepository(Cart::class)->find($cartId);
     }
 
-    private function findOrCreateCartItem(Cart $cart, Article $article, EntityManagerInterface $em): CartItem
+    private function findOrCreateCartItem(Cart $cart, Article $article, array $options, EntityManagerInterface $em): CartItem
     {
-        $cartItem = $em->getRepository(CartItem::class)->findOneBy([
+        // Une ligne = un article + ses options (couleur / modèle) : on ne fusionne
+        // que si les options identifiantes sont identiques
+        $candidates = $em->getRepository(CartItem::class)->findBy([
             'cart'    => $cart,
             'article' => $article,
         ]);
 
-        if (!$cartItem) {
-            $cartItem = new CartItem();
-            $cartItem->setCart($cart);
-            $cartItem->setArticle($article);
-            $cartItem->setQuantity(0);
+        $wantedColor = $options['color'] ?? null;
+        $wantedModel = $options['model'] ?? null;
+
+        foreach ($candidates as $candidate) {
+            $candidateOptions = $candidate->getOptions() ?? [];
+            if (($candidateOptions['color'] ?? null) === $wantedColor
+                && ($candidateOptions['model'] ?? null) === $wantedModel) {
+                return $candidate;
+            }
+        }
+
+        $cartItem = new CartItem();
+        $cartItem->setCart($cart);
+        $cartItem->setArticle($article);
+        $cartItem->setQuantity(0);
+        if (!empty($options)) {
+            $cartItem->setOptions($options);
         }
 
         return $cartItem;

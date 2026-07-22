@@ -68,7 +68,7 @@ class PaymentController extends AbstractController
                 'price_data' => [
                     'currency'     => 'eur',
                     'product_data' => [
-                        'name'        => $article->getName(),
+                        'name'        => $item->getDisplayName(),
                         'description' => $article->getCategorie()
                             ? ucfirst(str_replace('_', ' ', $article->getCategorie()))
                             : null,
@@ -337,7 +337,7 @@ class PaymentController extends AbstractController
                 $article = $cartItem->getArticle();
                 $item    = new CommandeItem();
                 $item->setArticle($article);
-                $item->setArticleName($article->getName());
+                $item->setArticleName($cartItem->getDisplayName());
                 $item->setPrix($article->getPrice());
                 $item->setQuantite($cartItem->getQuantity());
                 $commande->addItem($item);
@@ -463,7 +463,7 @@ class PaymentController extends AbstractController
                     $article = $cartItem->getArticle();
                     $item    = new CommandeItem();
                     $item->setArticle($article);
-                    $item->setArticleName($article->getName());
+                    $item->setArticleName($cartItem->getDisplayName());
                     $item->setPrix($article->getPrice());
                     $item->setQuantite($cartItem->getQuantity());
                     $commande->addItem($item);

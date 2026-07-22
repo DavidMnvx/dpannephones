@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Création de sites internet — NosWeb, le créateur de dpannephones.fr{% endblock %}
+
+{% block meta_description %}Vous aimez le site de D'panne Phones ? Il a été créé par NosWeb. Sites vitrines, e-commerce, refonte et réservation en ligne à partir de 500 € HT. Découvrez nosweb.fr.{% endblock %}
+
+{% block body %}
+
+<div class="sc-page">
+
+    {# Fil d'ariane #}
+    <nav class="bt-breadcrumb" aria-label="Fil d'ariane">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="bt-bc-sep">›</span>
+        <span class="bt-bc-current">Création de sites</span>
+    </nav>
+
+    {# ── Hero ── #}
+    <p class="sc-kicker"><i class="fas fa-code"></i> Création de sites internet</p>
+    <h1 class="sc-title">Vous aimez ce site ? C'est NosWeb qui l'a créé.</h1>
+    <p class="sc-slogan">Plus de visibilité, plus de clients, moins de stress.</p>
+    <p class="sc-intro">
+        NosWeb crée des sites web sur mesure pour <strong>artisans, commerces et indépendants</strong> :
+        modernes, rapides, pensés pour transformer vos visiteurs en vrais clients — pendant que vous
+        gérez sereinement votre activité.
+    </p>
+
+    {# ── Preuve par l'exemple : ce site ── #}
+    <div class="sc-proof">
+        <div class="sc-proof-icon"><i class="fas fa-eye"></i></div>
+        <div class="sc-proof-body">
+            <strong>La preuve ? Vous êtes dessus.</strong>
+            <span>dpannephones.fr est une plateforme complète développée par NosWeb : catalogue de réparations avec tarifs en ligne, boutique e-commerce avec paiement sécurisé Stripe, demande de prise en charge et espace d'administration sur mesure.</span>
+        </div>
+    </div>
+
+    {# ── Les 4 offres ── #}
+    <h2 class="sc-section-title">Ce que NosWeb peut créer pour vous</h2>
+    <p class="sc-section-sub">Quatre offres simples et claires, adaptées aux artisans, commerces et indépendants.</p>
+
+    <div class="sc-grid">
+        <div class="sc-card">
+            <i class="fas fa-store"></i>
+            <strong>Site vitrine</strong>
+            <span>Présentez votre activité et générez des contacts qualifiés. Formulaire + Google Maps, responsive, hébergement et nom de domaine inclus la 1ère année. L'offre la plus demandée.</span>
+        </div>
+        <div class="sc-card">
+            <i class="fas fa-shopping-cart"></i>
+            <strong>E-commerce</strong>
+            <span>Boutique en ligne avec paiement sécurisé Stripe / PayPal et gestion de votre catalogue en toute autonomie.</span>
+        </div>
+        <div class="sc-card">
+            <i class="fas fa-sync-alt"></i>
+            <strong>Refonte</strong>
+            <span>Votre site existant remis au goût du jour — design, performance et affichage mobile.</span>
+        </div>
+        <div class="sc-card">
+            <i class="fas fa-calendar-check"></i>
+            <strong>Réservation en ligne</strong>
+            <span>Plateforme type Planity — créneaux, prise de RDV, notifications. Idéal salons, instituts, professions de santé.</span>
+        </div>
+    </div>
+
+    {# ── Démarche en 4 étapes ── #}
+    <h2 class="sc-section-title">Une démarche simple, en 4 étapes</h2>
+    <p class="sc-section-sub">Pas de jargon, pas de mauvaise surprise : vous savez à chaque étape où on en est.</p>
+
+    <div class="sc-steps">
+        <div class="sc-step">
+            <span class="sc-step-num">1</span>
+            <strong>Échange</strong>
+            <span>On discute de votre besoin, vos objectifs et votre budget. Gratuit et sans engagement.</span>
+        </div>
+        <div class="sc-step">
+            <span class="sc-step-num">2</span>
+            <strong>Maquette</strong>
+            <span>Une maquette sur mesure, que vous validez avant qu'une seule ligne de code soit écrite.</span>
+        </div>
+        <div class="sc-step">
+            <span class="sc-step-num">3</span>
+            <strong>Développement</strong>
+            <span>Le site prend vie avec un suivi régulier — vous voyez le projet avancer en temps réel.</span>
+        </div>
+        <div class="sc-step">
+            <span class="sc-step-num">4</span>
+            <strong>Mise en ligne</strong>
+            <span>Mise en production, configuration SEO et formation rapide pour être autonome.</span>
+        </div>
+    </div>
+
+    {# ── Réassurance chiffres clés ── #}
+    <div class="sc-facts">
+        <div class="sc-fact">
+            <strong>À partir de 500 € HT</strong>
+            <span>Site vitrine 3 à 5 pages, SEO local inclus</span>
+        </div>
+        <div class="sc-fact">
+            <strong>Livré en 1 à 3 semaines</strong>
+            <span>Dès validation de la maquette</span>
+        </div>
+        <div class="sc-fact">
+            <strong>Propriétaire à 100 %</strong>
+            <span>Code, domaine et hébergement à votre nom</span>
+        </div>
+        <div class="sc-fact">
+            <strong>Réponse sous 24 h</strong>
+            <span>Premier échange gratuit, sans engagement</span>
+        </div>
+    </div>
+
+    {# ── CTA final ── #}
+    <div class="sc-cta-block">
+        <p class="sc-cta-title">Parlons de votre projet</p>
+        <p class="sc-cta-sub">Premier échange gratuit et sans engagement — par téléphone, WhatsApp ou visio.</p>
+        <div class="sc-cta-row">
+            <a href="https://nosweb.fr" target="_blank" rel="noopener" class="sc-cta-btn">
+                Découvrir NosWeb <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="https://nosweb.fr" target="_blank" rel="noopener" class="sc-cta-link">nosweb.fr</a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

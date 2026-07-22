@@ -687,7 +687,7 @@
         <div style="margin-top:20px;"
              id="photoPicker"
              data-existing-main="{{ article.image|default('')|e('html_attr') }}"
-             data-existing-photos="{{ article.photos|map(p => {id: p.id, filename: p.filename, color_id: p.color ? p.color.id : null})|json_encode|e('html_attr') }}"
+             data-existing-photos="{{ article.photos|map(p => {id: p.id, filename: p.filename, color_id: p.color ? p.color.id : null, is_main: p.isMain})|json_encode|e('html_attr') }}"
              data-colors="{{ colors|map(c => {id: c.id, name: c.name, hex: c.hex})|json_encode|e('html_attr') }}"
              data-main-color-id="{{ article.specs.main_photo_color_id|default('') }}">
             <label class="form-section-title" style="margin-bottom:8px;">Photos de l'article</label>
@@ -719,6 +719,7 @@
             <input type="hidden" name="main_photo_new_index" id="mainPhotoNewIndex" value="">
             <input type="hidden" name="deleted_photo_ids"    id="deletedPhotoIds"   value="[]">
             <input type="hidden" name="photo_colors"         id="photoColors"       value="{}">
+            <input type="hidden" name="color_main_photos"    id="colorMainPhotos"   value="{}">
         </div>
 
         <div style="margin-top:28px;">
@@ -805,6 +806,7 @@
         var hIndex         = document.getElementById('mainPhotoNewIndex');
         var hDeleted       = document.getElementById('deletedPhotoIds');
         var hColors        = document.getElementById('photoColors');
+        var hColorMains    = document.getElementById('colorMainPhotos');
 
         var existingMainFilename = picker.dataset.existingMain || '';
         var existingPhotos       = JSON.parse(picker.dataset.existingPhotos || '[]');
@@ -835,11 +837,23 @@
                 renderAddColorSelect();
             }
         };
-        var mainSelection = existingMainFilename
-            ? { kind: 'existing', id: 'main' }
-            : (existingPhotos.length > 0
-                ? { kind: 'existing', id: existingPhotos[0].id }
-                : { kind: 'none' });
+
+        // ── Une photo principale PAR rangée (coloris ou générique) ──
+        // mainByColor : { 'generic'|'<colorId>': {kind:'main'|'existing'|'new', id?, index?} }
+        // defaultRowKey : la rangée dont la principale sert de vignette à l'article (article.image)
+        function keyOf(cid) { return cid ? String(cid) : 'generic'; }
+
+        var mainByColor = {};
+        existingPhotos.forEach(function(p) {
+            if (p.is_main) mainByColor[keyOf(p.color_id)] = { kind: 'existing', id: p.id };
+        });
+        if (existingMainFilename && !mainByColor[keyOf(mainPhotoColorId)]) {
+            mainByColor[keyOf(mainPhotoColorId)] = { kind: 'main' };
+        }
+
+        var defaultRowKey = existingMainFilename
+            ? keyOf(mainPhotoColorId)
+            : (activeColorIds.length > 0 ? keyOf(activeColorIds[0]) : 'generic');
 
         addColorSelect.addEventListener('change', function() {
             var cid = parseInt(addColorSelect.value, 10);
@@ -852,14 +866,18 @@
         fileInput.addEventListener('change', function() {
             var assignedColor = pendingUploadColor;
             pendingUploadColor = null;
+            var firstNewIndex = -1;
             Array.from(fileInput.files || []).forEach(function(f) {
                 if (f.type.startsWith('image/')) {
+                    if (firstNewIndex === -1) firstNewIndex = stagedFiles.length;
                     stagedFiles.push(f);
                     stagedColors.push(assignedColor);
                 }
             });
-            if (mainSelection.kind === 'none' && stagedFiles.length > 0) {
-                mainSelection = { kind: 'new', index: 0 };
+            // La rangée cible n'avait pas de principale → le premier upload le devient
+            var rk = keyOf(assignedColor);
+            if (firstNewIndex !== -1 && !mainByColor[rk]) {
+                mainByColor[rk] = { kind: 'new', index: firstNewIndex };
             }
             syncFileInput();
             render();
@@ -872,19 +890,20 @@
         }
 
         function updateHiddenInputs() {
-            if (mainSelection.kind === 'existing') {
-                hSource.value = 'existing';
-                hId.value     = String(mainSelection.id);
-                hIndex.value  = '';
-            } else if (mainSelection.kind === 'new') {
-                hSource.value = 'new';
-                hId.value     = '';
-                hIndex.value  = String(mainSelection.index);
+            // La vignette de l'article = principale de la rangée "par défaut"
+            mainPhotoColorId = (defaultRowKey && defaultRowKey !== 'generic') ? parseInt(defaultRowKey, 10) : null;
+
+            var defSel = mainByColor[defaultRowKey] || null;
+            if (defSel && defSel.kind === 'main') {
+                hSource.value = 'existing'; hId.value = 'main'; hIndex.value = '';
+            } else if (defSel && defSel.kind === 'existing') {
+                hSource.value = 'existing'; hId.value = String(defSel.id); hIndex.value = '';
+            } else if (defSel && defSel.kind === 'new') {
+                hSource.value = 'new'; hId.value = ''; hIndex.value = String(defSel.index);
             } else {
-                hSource.value = 'unchanged';
-                hId.value     = '';
-                hIndex.value  = '';
+                hSource.value = 'unchanged'; hId.value = ''; hIndex.value = '';
             }
+
             var deletedIds = existingPhotos.filter(function(p) { return p.deleted; })
                                           .map(function(p) { return p.id; });
             hDeleted.value = JSON.stringify(deletedIds);
@@ -900,6 +919,17 @@
                 if (cid) colorMap['new:' + i] = cid;
             });
             hColors.value = JSON.stringify(colorMap);
+
+            // Principales des AUTRES rangées → Photo.isMain côté serveur
+            var mains = {};
+            Object.keys(mainByColor).forEach(function(key) {
+                if (key === defaultRowKey) return;
+                var sel = mainByColor[key];
+                if (!sel) return;
+                if (sel.kind === 'existing')  mains[key] = String(sel.id);
+                else if (sel.kind === 'new')  mains[key] = 'new:' + sel.index;
+            });
+            hColorMains.value = JSON.stringify(mains);
         }
 
         function renderThumb(opts) {
@@ -991,6 +1021,24 @@
             } else {
                 title.innerHTML = '<i class="fas fa-images" style="color:#7d8896;"></i> <span>Photos génériques</span>';
             }
+            // Badge / bouton "Vignette de l'article" : quelle rangée fournit l'image de couverture
+            var rowKey = keyOf(colorId);
+            var vignetteBtn = document.createElement('button');
+            vignetteBtn.type = 'button';
+            if (rowKey === defaultRowKey) {
+                vignetteBtn.className = 'photo-row-vignette active';
+                vignetteBtn.innerHTML = '<i class="fas fa-image"></i> Vignette de l\'article';
+                vignetteBtn.title = 'La photo principale de cette rangée sert de couverture à l\'article';
+            } else {
+                vignetteBtn.className = 'photo-row-vignette';
+                vignetteBtn.innerHTML = '<i class="far fa-image"></i> Définir comme vignette';
+                vignetteBtn.title = 'Utiliser la photo principale de cette rangée comme couverture de l\'article';
+                vignetteBtn.addEventListener('click', function() {
+                    defaultRowKey = rowKey;
+                    render();
+                });
+            }
+            title.appendChild(vignetteBtn);
             header.appendChild(title);
 
             var actions = document.createElement('div');
@@ -1010,10 +1058,12 @@
                 removeBtn.addEventListener('click', function() {
                     var thumbs = collectThumbsForColor(colorId);
                     if (thumbs.length > 0 && !confirm('Cette ligne contient ' + thumbs.length + ' photo(s). Les repasser en générique ?')) return;
-                    if (mainPhotoColorId === colorId) mainPhotoColorId = null;
+                    delete mainByColor[rowKey];
+                    if (defaultRowKey === rowKey) defaultRowKey = 'generic';
                     existingPhotos.forEach(function(p) { if (p.color_id === colorId) p.color_id = null; });
                     stagedColors.forEach(function(cid, i) { if (cid === colorId) stagedColors[i] = null; });
                     activeColorIds = activeColorIds.filter(function(id) { return id !== colorId; });
+                    if (!mainByColor['generic']) promoteRow('generic');
                     render();
                 });
                 actions.appendChild(removeBtn);
@@ -1032,43 +1082,48 @@
                     : 'Aucune photo générique — utilise "Choisir des photos" pour en ajouter.';
                 grid.appendChild(empty);
             } else {
+                var rowSel = mainByColor[rowKey] || null;
                 thumbs.forEach(function(entry) {
                     if (entry.kind === 'main') {
-                        var isMain = mainSelection.kind === 'existing' && mainSelection.id === 'main';
+                        var isMain = !!(rowSel && rowSel.kind === 'main');
                         grid.appendChild(renderThumb({
                             src: '{{ asset('uploads/images/') }}' + existingMainFilename,
                             isMain: isMain,
-                            onSetMain: function() { mainSelection = { kind: 'existing', id: 'main' }; render(); },
+                            onSetMain: function() { mainByColor[rowKey] = { kind: 'main' }; render(); },
                             onDelete: function() {
                                 markExistingDeleted('main');
-                                if (mainSelection.kind === 'existing' && mainSelection.id === 'main') promoteFirstAvailable();
+                                if (isMain) promoteRow(rowKey);
                                 render();
                             }
                         }));
                     } else if (entry.kind === 'existing') {
                         var p = entry.p;
-                        var isMain = mainSelection.kind === 'existing' && String(mainSelection.id) === String(p.id);
+                        var isMain = !!(rowSel && rowSel.kind === 'existing' && String(rowSel.id) === String(p.id));
                         grid.appendChild(renderThumb({
                             src: '{{ asset('uploads/images/') }}' + p.filename,
                             isMain: isMain,
-                            onSetMain: function() { mainSelection = { kind: 'existing', id: p.id }; render(); },
-                            onDelete: function() { p.deleted = true; if (isMain) promoteFirstAvailable(); render(); }
+                            onSetMain: function() { mainByColor[rowKey] = { kind: 'existing', id: p.id }; render(); },
+                            onDelete: function() { p.deleted = true; if (isMain) promoteRow(rowKey); render(); }
                         }));
                     } else if (entry.kind === 'new') {
                         var i = entry.i;
                         var f = stagedFiles[i];
-                        var isMain = mainSelection.kind === 'new' && mainSelection.index === i;
+                        var isMain = !!(rowSel && rowSel.kind === 'new' && rowSel.index === i);
                         grid.appendChild(renderThumb({
                             src: URL.createObjectURL(f),
                             isMain: isMain,
-                            onSetMain: function() { mainSelection = { kind: 'new', index: i }; render(); },
+                            onSetMain: function() { mainByColor[rowKey] = { kind: 'new', index: i }; render(); },
                             onDelete: function() {
                                 stagedFiles.splice(i, 1);
                                 stagedColors.splice(i, 1);
-                                if (mainSelection.kind === 'new') {
-                                    if (mainSelection.index === i) promoteFirstAvailable();
-                                    else if (mainSelection.index > i) mainSelection.index--;
-                                }
+                                // Réindexer toutes les principales pointant vers un upload
+                                Object.keys(mainByColor).forEach(function(k) {
+                                    var s = mainByColor[k];
+                                    if (s && s.kind === 'new') {
+                                        if (s.index === i) promoteRow(k, i);
+                                        else if (s.index > i) s.index--;
+                                    }
+                                });
                                 syncFileInput();
                                 render();
                             }
@@ -1094,17 +1149,21 @@
             });
         }
 
-        function promoteFirstAvailable() {
-            var kept = existingPhotos.find(function(p) { return !p.deleted && p.id !== 'main'; });
-            if (existingMainFilename && !isMainMarkedDeleted()) {
-                mainSelection = { kind: 'existing', id: 'main' };
-            } else if (kept) {
-                mainSelection = { kind: 'existing', id: kept.id };
-            } else if (stagedFiles.length > 0) {
-                mainSelection = { kind: 'new', index: 0 };
-            } else {
-                mainSelection = { kind: 'none' };
-            }
+        // Redonne une principale à la rangée après suppression de la sienne.
+        // skipNewIndex : index d'upload en cours de suppression (à ignorer)
+        function promoteRow(rowKey, skipNewIndex) {
+            var colorId = rowKey === 'generic' ? null : parseInt(rowKey, 10);
+            var thumbs  = collectThumbsForColor(colorId).filter(function(t) {
+                if (t.kind === 'main') return !isMainMarkedDeleted();
+                if (t.kind === 'existing') return !t.p.deleted;
+                if (t.kind === 'new') return skipNewIndex === undefined || t.i !== skipNewIndex;
+                return false;
+            });
+            if (thumbs.length === 0) { delete mainByColor[rowKey]; return; }
+            var t = thumbs[0];
+            if (t.kind === 'main')          mainByColor[rowKey] = { kind: 'main' };
+            else if (t.kind === 'existing') mainByColor[rowKey] = { kind: 'existing', id: t.p.id };
+            else                            mainByColor[rowKey] = { kind: 'new', index: t.i };
         }
 
         function render() {
@@ -1118,11 +1177,11 @@
             total += stagedFiles.length;
 
             counter.textContent = total;
-            if (mainSelection.kind === 'none' || total === 0) {
-                mainLbl.textContent = 'aucune photo principale';
+            if (total === 0 || !mainByColor[defaultRowKey]) {
+                mainLbl.textContent = 'aucune vignette définie';
                 mainLbl.className = 'photo-main-label-empty';
             } else {
-                mainLbl.textContent = 'principale définie';
+                mainLbl.textContent = 'vignette définie · 1 principale par coloris';
                 mainLbl.className = 'photo-main-label';
             }
 

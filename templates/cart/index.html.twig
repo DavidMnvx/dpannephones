@@ -69,7 +69,12 @@
                                                 <div class="cart-product-img" style="display:flex;align-items:center;justify-content:center;"><i class="fas fa-image" style="color:#dee2e6;font-size:20px;"></i></div>
                                             {% endif %}
                                             <div>
-                                                <div class="cart-product-name">{{ cartItem.article.name }}</div>
+                                                <div class="cart-product-name">
+                                                    {{ cartItem.article.name }}
+                                                    {% if cartItem.options and cartItem.options.color is defined %}
+                                                        <span class="cart-color-badge">{{ cartItem.options.color }}</span>
+                                                    {% endif %}
+                                                </div>
                                                 {% if cartItem.options and cartItem.options.model is defined %}
                                                     <small class="d-block text-muted">Modèle : {{ cartItem.options.model }}</small>
                                                 {% endif %}
@@ -82,7 +87,7 @@
                                     <td class="cart-price">{{ cartItem.article.price }} €</td>
                                     <td>
                                         <div class="cart-qty-ctrl">
-                                            <a href="{{ path('cart_decrement', {id: cartItem.article.id}) }}"
+                                            <a href="{{ path('cart_decrement', {id: cartItem.id}) }}"
                                                class="qty-btn qty-btn--minus"
                                                title="{{ cartItem.quantity == 1 ? 'Retirer l\'article' : 'Diminuer' }}">
                                                 {% if cartItem.quantity == 1 %}
@@ -92,7 +97,7 @@
                                                 {% endif %}
                                             </a>
                                             <span class="qty-value">{{ cartItem.quantity }}</span>
-                                            <a href="{{ path('cart_increment', {id: cartItem.article.id}) }}"
+                                            <a href="{{ path('cart_increment', {id: cartItem.id}) }}"
                                                class="qty-btn qty-btn--plus"
                                                title="Ajouter un de plus">
                                                 <i class="fas fa-plus"></i>
@@ -101,7 +106,7 @@
                                     </td>
                                     <td class="cart-price">{{ (cartItem.article.price * cartItem.quantity)|number_format(2, '.', ' ') }} €</td>
                                     <td>
-                                        <a href="{{ path('cart_remove', {id: cartItem.article.id}) }}" class="btn-remove" onclick="return confirm('Retirer cet article ?')">
+                                        <a href="{{ path('cart_remove', {id: cartItem.id}) }}" class="btn-remove" onclick="return confirm('Retirer cet article ?')">
                                             <i class="fas fa-trash-alt"></i>
                                         </a>
                                     </td>
@@ -128,6 +133,9 @@
                             <div class="receipt-item">
                                 <div class="receipt-item-name">
                                     {{ cartItem.article.name }}
+                                    {% if cartItem.options and cartItem.options.color is defined %}
+                                        <small class="receipt-item-option">{{ cartItem.options.color }}</small>
+                                    {% endif %}
                                     {% if cartItem.options and cartItem.options.model is defined %}
                                         <small class="receipt-item-option">{{ cartItem.options.model }}</small>
                                     {% endif %}

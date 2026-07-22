@@ -74,6 +74,24 @@ class CartItem
         return $this->options;
     }
 
+    /**
+     * Nom d'affichage de la ligne : nom de l'article + couleur + modèle éventuels.
+     * Utilisé partout où la ligne est montrée au client (panier, Stripe, commandes).
+     */
+    public function getDisplayName(): string
+    {
+        $name = $this->article?->getName() ?? '';
+        $opts = $this->options ?? [];
+        if (!empty($opts['color'])) {
+            $name .= ' — ' . $opts['color'];
+        }
+        if (!empty($opts['model'])) {
+            $name .= ' (' . $opts['model'] . ')';
+        }
+
+        return $name;
+    }
+
     public function setOptions(?array $options): static
     {
         $this->options = $options;

@@ -353,6 +353,25 @@ class ArticleController extends AbstractController
             unset($existingSpecs['main_photo_color_id']);
         }
         $article->setSpecs($existingSpecs ?: null);
+
+        // 8) Photo principale PAR coloris (étoile de chaque rangée)
+        //    color_main_photos : {"<colorId>|generic": "<photoId>" | "new:<i>"}
+        $colorMains = json_decode((string) $request->request->get('color_main_photos', '{}'), true);
+        $colorMains = is_array($colorMains) ? $colorMains : [];
+
+        $wanted = [];
+        foreach ($colorMains as $ref) {
+            $wanted[(string) $ref] = true;
+        }
+
+        foreach ($article->getPhotos() as $photo) {
+            $photo->setIsMain(isset($wanted[(string) $photo->getId()]));
+        }
+        foreach ($newPhotosByIndex as $i => $photo) {
+            if (isset($wanted['new:' . $i])) {
+                $photo->setIsMain(true);
+            }
+        }
     }
 
     private function uploadImageFile(UploadedFile $file, SluggerInterface $slugger): ?string

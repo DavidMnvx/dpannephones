@@ -32,6 +32,21 @@ class Photo
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?ProductColor $color = null;
 
+    /** Photo principale de son coloris (affichée en premier quand la couleur est sélectionnée) */
+    #[ORM\Column(name: 'is_main', options: ['default' => false])]
+    private bool $isMain = false;
+
+    public function isMain(): bool
+    {
+        return $this->isMain;
+    }
+
+    public function setIsMain(bool $isMain): self
+    {
+        $this->isMain = $isMain;
+        return $this;
+    }
+
     public function getColor(): ?ProductColor
     {
         return $this->color;

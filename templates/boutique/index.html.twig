@@ -421,13 +421,13 @@
                                         <i class="fas fa-image"></i>
                                     {% endif %}
                                 </div>
-                                <span class="mini-cart-item-name">{{ cartItem.article.name }}</span>
+                                <span class="mini-cart-item-name">{{ cartItem.article.name }}{% if cartItem.options and cartItem.options.color is defined %} · {{ cartItem.options.color }}{% endif %}</span>
                                 <div class="mini-qty-ctrl">
-                                    <a href="{{ path('cart_decrement', {id: cartItem.article.id}) }}" class="mini-qty-btn" title="Retirer un">
+                                    <a href="{{ path('cart_decrement', {id: cartItem.id}) }}" class="mini-qty-btn" title="Retirer un">
                                         {% if cartItem.quantity == 1 %}<i class="fas fa-trash-alt" style="font-size:9px;"></i>{% else %}<i class="fas fa-minus"></i>{% endif %}
                                     </a>
                                     <span class="mini-qty-val">{{ cartItem.quantity }}</span>
-                                    <a href="{{ path('cart_increment', {id: cartItem.article.id}) }}" class="mini-qty-btn" title="Ajouter un">
+                                    <a href="{{ path('cart_increment', {id: cartItem.id}) }}" class="mini-qty-btn" title="Ajouter un">
                                         <i class="fas fa-plus"></i>
                                     </a>
                                 </div>

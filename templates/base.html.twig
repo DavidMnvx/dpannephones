@@ -206,6 +206,11 @@
                         <a class="nav-link" href="{{ path('app_about') }}">Qui sommes-nous ?</a>
                     </li>
                     {% endif %}
+
+                    {# Création de sites — vitrine NosWeb #}
+                    <li class="nav-item {{ currentPath starts with '/creation-de-sites' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('site_creation') }}">Création de sites</a>
+                    </li>
                 </ul>
 
                 {# ═════ À droite : Admin, Compte, Téléphone ═════ #}
@@ -412,6 +417,7 @@
 
     <div class="footer-copyright">
       <span>© {{ "now"|date("Y") }} D'panne Phones — Tous droits réservés</span>
+      <span class="footer-made-by">Site réalisé par <a href="https://nosweb.fr" target="_blank" rel="noopener">NosWeb</a></span>
       <span class="footer-legal-inline">
         <a href="{{ path('legal_cgv') }}">CGV</a>
         <span>·</span>
