@@ -51,6 +51,13 @@ class Commande
     private ?float $shippingCost = null;
 
     /**
+     * Point relais choisi (Mondial Relay) : {id, name, address, zip, city}.
+     * Snapshot figé au moment de la commande.
+     */
+    #[ORM\Column(name: 'relay_point', type: 'json', nullable: true)]
+    private ?array $relayPoint = null;
+
+    /**
      * Code promo appliqué (FK). SET NULL si le promo est supprimé ensuite.
      */
     #[ORM\ManyToOne(targetEntity: PromoCode::class)]
@@ -107,6 +114,9 @@ class Commande
 
     public function getShippingCost(): ?float { return $this->shippingCost !== null ? (float) $this->shippingCost : null; }
     public function setShippingCost(?float $v): static { $this->shippingCost = $v; return $this; }
+
+    public function getRelayPoint(): ?array { return $this->relayPoint; }
+    public function setRelayPoint(?array $v): static { $this->relayPoint = $v; return $this; }
 
     public function getPromoCode(): ?PromoCode { return $this->promoCode; }
     public function setPromoCode(?PromoCode $v): static { $this->promoCode = $v; return $this; }

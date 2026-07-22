@@ -1,0 +1,30 @@
+{# Barre d'étapes du tunnel de commande.
+   Paramètre : current (1 = Panier, 2 = Livraison, 3 = Paiement)
+   Une étape passée est validée (✓ vert, cliquable), l'étape courante est active,
+   les suivantes sont verrouillées. #}
+{% set steps = [
+    { num: 1, label: 'Panier',    icon: 'fas fa-shopping-cart', url: path('cart_index') },
+    { num: 2, label: 'Livraison', icon: 'fas fa-truck',         url: path('checkout_shipping') },
+    { num: 3, label: 'Paiement',  icon: 'fas fa-lock',          url: null }
+] %}
+<div class="ck-steps">
+    {% for step in steps %}
+        {% set state = step.num < current ? 'done' : (step.num == current ? 'active' : 'todo') %}
+        {% if not loop.first %}
+            <div class="ck-step-line {{ step.num <= current ? 'ck-step-line--done' : '' }}"></div>
+        {% endif %}
+        {% if state == 'done' and step.url %}
+            <a href="{{ step.url }}" class="ck-step ck-step--done" title="Revenir à l'étape {{ step.label }}">
+                <span class="ck-step-dot"><i class="fas fa-check"></i></span>
+                <span class="ck-step-label">{{ step.label }}</span>
+            </a>
+        {% else %}
+            <div class="ck-step ck-step--{{ state }}">
+                <span class="ck-step-dot">
+                    {% if state == 'done' %}<i class="fas fa-check"></i>{% else %}<i class="{{ step.icon }}"></i>{% endif %}
+                </span>
+                <span class="ck-step-label">{{ step.label }}</span>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>

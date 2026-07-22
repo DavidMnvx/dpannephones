@@ -2024,6 +2024,163 @@ body {
 
 .sc-cta-link:hover { text-decoration: underline; color: #0a5a8a; }
 
+/* ═══════════════════════════════════════════════════
+   TUNNEL DE COMMANDE (Panier → Livraison → Paiement)
+   ═══════════════════════════════════════════════════ */
+.ck-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 4px auto 30px;
+    max-width: 560px;
+}
+
+.ck-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    min-width: 86px;
+}
+
+.ck-step:hover { text-decoration: none; }
+
+.ck-step-dot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 2px solid #dde3ea;
+    background: white;
+    color: #aab4bf;
+    transition: all 0.15s;
+}
+
+.ck-step-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #8a94a0;
+}
+
+.ck-step--active .ck-step-dot {
+    border-color: rgb(9, 71, 113);
+    background: rgb(9, 71, 113);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(9,71,113,0.12);
+}
+.ck-step--active .ck-step-label { color: rgb(9, 71, 113); font-weight: 600; }
+
+.ck-step--done .ck-step-dot {
+    border-color: #16a34a;
+    background: #16a34a;
+    color: white;
+}
+.ck-step--done .ck-step-label { color: #16a34a; }
+a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15); }
+
+.ck-step-line {
+    flex: 1;
+    height: 2px;
+    background: #e5e9ee;
+    margin: 0 6px 24px;
+    min-width: 40px;
+}
+.ck-step-line--done { background: #16a34a; }
+
+/* Chip d'état d'une sous-étape ("Choisi" / "À choisir") */
+.ck-valid-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 3px 10px;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #d1f0dd;
+}
+
+.ck-valid-chip--todo {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde9c8;
+}
+
+/* Encart de confirmation du point relais choisi */
+.relay-box {
+    background: white;
+    border: 1px solid #e9edf2;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 18px;
+    box-shadow: 0 1px 4px rgba(15,30,50,0.04);
+}
+
+.relay-confirm {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbe7cb;
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-bottom: 14px;
+}
+
+.relay-confirm > i {
+    color: #16a34a;
+    font-size: 18px;
+    margin-top: 1px;
+}
+
+.relay-confirm strong {
+    display: block;
+    font-size: 14px;
+    color: #14532d;
+}
+
+.relay-confirm span {
+    font-size: 12.5px;
+    color: #3f6212;
+}
+
+.relay-hint {
+    font-size: 12.5px;
+    color: #8a94a0;
+    margin-bottom: 12px;
+}
+
+.relay-widget {
+    min-height: 420px;
+    border: 1px solid #e9edf2;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Bouton paiement verrouillé */
+.btn-checkout--disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    filter: grayscale(0.4);
+}
+
+.ck-locked-hint {
+    font-size: 12px;
+    color: #b45309;
+    background: #fffbeb;
+    border: 1px solid #fde9c8;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 10px 0 0;
+}
+
 /* Bouton "Vignette de l'article" sur une rangée de photos (admin) */
 .photo-row-vignette {
     display: inline-flex;

@@ -1355,6 +1355,11 @@ private const SETTINGS_CATEGORIES = [
         'icon'  => 'fas fa-bullhorn',
         'description' => 'Phrase de réassurance affichée au-dessus des articles de chaque catégorie de la boutique (ex : "Montage rapide et soigné avec D\'panne Phones…"). Laissez un champ vide pour ne rien afficher sur cette catégorie.',
     ],
+    'livraison' => [
+        'label' => 'Livraison',
+        'icon'  => 'fas fa-truck',
+        'description' => 'Paramètres des transporteurs. Le code enseigne Mondial Relay est fourni à l\'ouverture de votre contrat — en attendant, le code "BDTEST" permet de tester le sélecteur de point relais en mode démonstration.',
+    ],
     // D'autres catégories viendront s'ajouter ici (livraison gratuite, notifications…)
 ];
 

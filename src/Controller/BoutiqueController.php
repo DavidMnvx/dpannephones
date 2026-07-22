@@ -169,6 +169,9 @@ class BoutiqueController extends AbstractController
         }
 
         $commande->setTotal($total);
+        if ($session->get('shipping_mode') === 'mondial_relay' && is_array($session->get('relay_point'))) {
+            $commande->setRelayPoint($session->get('relay_point'));
+        }
         $em->persist($commande);
 
         // Vider le panier
@@ -373,9 +376,14 @@ class BoutiqueController extends AbstractController
 
         if (isset($availableShipping[$mode])) {
             $session->set('shipping_mode', $mode);
+            // Le point relais n'a de sens que pour Mondial Relay
+            if ($mode !== 'mondial_relay') {
+                $session->remove('relay_point');
+            }
         }
 
-        return $this->redirectToRoute('cart_index');
+        // Le choix de la livraison se fait sur la page Livraison du tunnel de commande
+        return $this->redirectToRoute('checkout_shipping');
     }
 
     private function getOrCreateCart(EntityManagerInterface $em, SessionInterface $session): Cart

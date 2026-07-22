@@ -125,10 +125,18 @@ class PaymentController extends AbstractController
         $cartCategories    = ShippingOptionsResolver::extractCategories($cart->getItems());
         $availableShipping = $this->shippingResolver->getAvailableOptions($cartCategories);
 
+        // Tunnel de commande : le paiement est verrouillé tant que l'étape livraison
+        // n'est pas complète — pas de mode par défaut silencieux
         $shippingMode = $session->get('shipping_mode');
         if (!$shippingMode || !isset($availableShipping[$shippingMode])) {
-            $shippingMode = $this->shippingResolver->getDefaultOption($cartCategories);
-            $session->set('shipping_mode', $shippingMode);
+            $this->addFlash('warning', 'Choisissez votre mode de livraison avant de passer au paiement.');
+            return $this->redirectToRoute('checkout_shipping');
+        }
+
+        $relayPoint = $session->get('relay_point');
+        if ($shippingMode === 'mondial_relay' && !$relayPoint) {
+            $this->addFlash('warning', 'Sélectionnez votre point relais avant de passer au paiement.');
+            return $this->redirectToRoute('checkout_shipping');
         }
 
         $shippingOption = $availableShipping[$shippingMode];
@@ -222,6 +230,7 @@ class PaymentController extends AbstractController
                 'cart_id'         => $cart->getId(),
                 'user_id'         => $userId,
                 'shipping_mode'   => $shippingMode,
+                'relay_point'     => $relayPoint ? json_encode($relayPoint, JSON_UNESCAPED_UNICODE) : null,
                 'shipping_cost'   => number_format($shippingCost, 2, '.', ''),
                 'promo_code_id'   => $promoCode?->getId(),
                 'promo_code'      => $promoCode?->getCode(),
@@ -312,6 +321,12 @@ class PaymentController extends AbstractController
 
         if ($shippingMode) {
             $commande->setShippingMode($shippingMode);
+            if (!empty($stripeSession->metadata->relay_point)) {
+                $decodedRelay = json_decode((string) $stripeSession->metadata->relay_point, true);
+                if (is_array($decodedRelay)) {
+                    $commande->setRelayPoint($decodedRelay);
+                }
+            }
             $commande->setShippingCost($shippingCost);
             $commande->setTransporteur($this->shippingResolver->getCarrierName($shippingMode));
         }
@@ -439,6 +454,12 @@ class PaymentController extends AbstractController
 
             if ($shippingMode) {
                 $commande->setShippingMode($shippingMode);
+            if (!empty($stripeSession->metadata->relay_point)) {
+                $decodedRelay = json_decode((string) $stripeSession->metadata->relay_point, true);
+                if (is_array($decodedRelay)) {
+                    $commande->setRelayPoint($decodedRelay);
+                }
+            }
                 $commande->setShippingCost($shippingCost);
                 $commande->setTransporteur($this->shippingResolver->getCarrierName($shippingMode));
             }

@@ -27,6 +27,8 @@
         {% endfor %}
     {% endfor %}
 
+    {{ include('checkout/_steps.html.twig', { current: 1 }) }}
+
     <div class="cart-page-title"><i class="fas fa-shopping-cart mr-2" style="color:rgb(9,71,113)"></i> Mon Panier</div>
     <p style="font-size:14px;color:#6c757d;margin-bottom:28px;">
         {% if cart is not empty %}
@@ -234,65 +236,13 @@
                         </form>
                     {% endif %}
 
-                    <a href="{{ path('payment_checkout') }}" class="btn-checkout btn-checkout--stripe">
-                        <i class="fab fa-stripe-s mr-2"></i>
-                        Payer par carte — {{ total|number_format(2, ',', ' ') }} €
+                    <a href="{{ path('checkout_shipping') }}" class="btn-checkout btn-checkout--stripe">
+                        Valider mon panier <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                     <a href="{{ path('boutique_index') }}" class="btn-continue">
                         <i class="fas fa-arrow-left mr-1"></i> Continuer mes achats
                     </a>
 
-                    {# ══ Choix du mode de livraison (form actif) ══ #}
-                    <form method="post" action="{{ path('cart_set_shipping') }}" id="shipping-form" class="shipping-select-box">
-                        <div class="shipping-select-title">
-                            <i class="fas fa-truck mr-1"></i> Choisir la livraison
-                        </div>
-
-                        {# Bandeau info — article volumineux dans le panier #}
-                        {% if hasBulky %}
-                            <div class="shipping-bulky-notice">
-                                <i class="fas fa-info-circle"></i>
-                                <div>
-                                    <strong>Votre commande contient {{ bulkyLabel }}</strong>
-                                    <span>Tous les articles seront regroupés dans un même colis sécurisé — les options de livraison sont donc adaptées à ce format.</span>
-                                </div>
-                            </div>
-                        {% endif %}
-
-                        {% for code, opt in availableShipping %}
-                            <label class="shipping-option {{ selectedMode == code ? 'shipping-option--active' : '' }}"
-                                   for="ship-{{ code }}">
-                                <input type="radio"
-                                       name="shipping_mode"
-                                       id="ship-{{ code }}"
-                                       value="{{ code }}"
-                                       {{ selectedMode == code ? 'checked' : '' }}
-                                       onchange="document.getElementById('shipping-form').submit()">
-                                <span class="shipping-option-icon" style="color:{{ opt.color }};">
-                                    <i class="{{ opt.icon }}"></i>
-                                </span>
-                                <span class="shipping-option-info">
-                                    <strong class="shipping-option-label">{{ opt.label }}</strong>
-                                    <small class="shipping-option-delay">{{ opt.delay }}</small>
-                                </span>
-                                <span class="shipping-option-price">
-                                    {% if opt.price > 0 %}
-                                        {{ opt.price|number_format(2, ',', ' ') }} €
-                                    {% else %}
-                                        <span class="shipping-free">Gratuit</span>
-                                    {% endif %}
-                                </span>
-                            </label>
-                        {% endfor %}
-
-                        {# Message générique si options limitées sans article volumineux #}
-                        {% if not hasBulky and availableShipping|length < 5 %}
-                            <p class="shipping-note">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                Les options affichées sont adaptées aux articles de votre panier.
-                            </p>
-                        {% endif %}
-                    </form>
                 </div>
             </div>
         </div>

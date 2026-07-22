@@ -204,6 +204,19 @@ class SeedAppSettingsCommand extends Command
             'category'    => 'boutique_accroche',
             'sortOrder'   => 50,
         ],
+
+        // ═══════════════════════════════════════════════════════════════
+        // 🚚 LIVRAISON
+        // ═══════════════════════════════════════════════════════════════
+        [
+            'key'         => 'mondial_relay_brand',
+            'label'       => 'Code enseigne Mondial Relay',
+            'description' => 'Code enseigne fourni par Mondial Relay à l\'ouverture de votre contrat (8 caractères). Laissez "BDTEST" tant que vous n\'avez pas de contrat : le sélecteur de point relais fonctionnera en mode démonstration.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => 'BDTEST',
+            'category'    => 'livraison',
+            'sortOrder'   => 10,
+        ],
     ];
 
     public function __construct(private EntityManagerInterface $em)

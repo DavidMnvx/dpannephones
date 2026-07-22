@@ -1,0 +1,244 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livraison — D'panne Phones{% endblock %}
+
+{% block body %}
+
+<div class="container mt-4 mb-5">
+
+    {# Messages flash #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'info') }}" role="alert" style="border-radius:10px;font-size:14px;">
+                <i class="fas fa-exclamation-circle mr-1"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    {{ include('checkout/_steps.html.twig', { current: 2 }) }}
+
+    <div class="cart-page-title"><i class="fas fa-truck mr-2" style="color:rgb(9,71,113)"></i> Livraison</div>
+    <p style="font-size:14px;color:#6c757d;margin-bottom:24px;">
+        Choisissez votre mode de livraison{{ selectedMode == 'mondial_relay' ? ' et votre point relais' : '' }} pour passer au paiement.
+    </p>
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            {# ── Choix du mode ── #}
+            <form method="post" action="{{ path('cart_set_shipping') }}" id="shipping-form" class="shipping-select-box" style="margin-top:0;">
+                <div class="shipping-select-title">
+                    <i class="fas fa-truck mr-1"></i> Mode de livraison
+                    {% if selectedMode %}
+                        <span class="ck-valid-chip"><i class="fas fa-check"></i> Choisi</span>
+                    {% endif %}
+                </div>
+
+                {% for code, opt in availableShipping %}
+                    <label class="shipping-option {{ selectedMode == code ? 'shipping-option--active' : '' }}" for="ship-{{ code }}">
+                        <input type="radio"
+                               name="shipping_mode"
+                               id="ship-{{ code }}"
+                               value="{{ code }}"
+                               {{ selectedMode == code ? 'checked' : '' }}
+                               onchange="document.getElementById('shipping-form').submit()">
+                        <span class="shipping-option-icon" style="color:{{ opt.color }};">
+                            <i class="{{ opt.icon }}"></i>
+                        </span>
+                        <span class="shipping-option-info">
+                            <strong class="shipping-option-label">{{ opt.label }}</strong>
+                            <small class="shipping-option-delay">{{ opt.delay }}</small>
+                        </span>
+                        <span class="shipping-option-price">
+                            {% if opt.price > 0 %}
+                                {{ opt.price|number_format(2, ',', ' ') }} €
+                            {% else %}
+                                <span class="shipping-free">Gratuit</span>
+                            {% endif %}
+                        </span>
+                    </label>
+                {% endfor %}
+            </form>
+
+            {# ── Point relais (Mondial Relay uniquement) ── #}
+            {% if selectedMode == 'mondial_relay' %}
+                <div class="relay-box">
+                    <div class="shipping-select-title">
+                        <i class="fas fa-map-marker-alt mr-1"></i> Point relais
+                        <span class="ck-valid-chip {{ relayPoint ? '' : 'ck-valid-chip--todo' }}" id="relayChip">
+                            {% if relayPoint %}<i class="fas fa-check"></i> Sélectionné{% else %}<i class="fas fa-hourglass-half"></i> À choisir{% endif %}
+                        </span>
+                    </div>
+
+                    <div id="relayConfirm" class="relay-confirm" style="{{ relayPoint ? '' : 'display:none;' }}">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong id="relayConfirmName">{{ relayPoint ? relayPoint.name : '' }}</strong>
+                            <span id="relayConfirmAddr">{{ relayPoint ? (relayPoint.address ~ ', ' ~ relayPoint.zip ~ ' ' ~ relayPoint.city) : '' }}</span>
+                        </div>
+                    </div>
+
+                    <p class="relay-hint">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Recherchez autour de chez vous puis cliquez sur un point relais dans la liste ou sur la carte pour le sélectionner.
+                    </p>
+
+                    <div id="Zone_Widget" class="relay-widget"></div>
+                    <input type="hidden" id="ParcelShopCode">
+                </div>
+            {% endif %}
+        </div>
+
+        {# ── Récapitulatif + passage au paiement ── #}
+        <div class="col-lg-4">
+            <div class="cart-summary">
+                <div class="receipt-header">
+                    <i class="fas fa-receipt mr-2" style="color:rgb(9,71,113);"></i>
+                    Votre commande
+                </div>
+
+                <div class="receipt-items">
+                    {% for cartItem in cart %}
+                        <div class="receipt-item">
+                            <div class="receipt-item-name">
+                                {{ cartItem.article.name }}
+                                {% if cartItem.options and cartItem.options.color is defined %}
+                                    <small class="receipt-item-option">{{ cartItem.options.color }}</small>
+                                {% endif %}
+                                {% if cartItem.options and cartItem.options.model is defined %}
+                                    <small class="receipt-item-option">{{ cartItem.options.model }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="receipt-item-right">
+                                <span>× {{ cartItem.quantity }}</span>
+                                <span>{{ (cartItem.article.price * cartItem.quantity)|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="receipt-divider"></div>
+
+                <div class="receipt-tax-row">
+                    <span>Sous-total TTC</span>
+                    <span>{{ subtotal|number_format(2, ',', ' ') }} €</span>
+                </div>
+                {% if discount > 0 %}
+                    <div class="receipt-tax-row">
+                        <span style="color:#16a34a;">Remise</span>
+                        <span style="color:#16a34a;font-weight:700;">−{{ discount|number_format(2, ',', ' ') }} €</span>
+                    </div>
+                {% endif %}
+                <div class="receipt-tax-row">
+                    <span>Livraison</span>
+                    <span>
+                        {% if shippingCost is null %}
+                            <em style="color:#8a94a0;font-size:12px;">à choisir</em>
+                        {% elseif shippingCost > 0 %}
+                            {{ shippingCost|number_format(2, ',', ' ') }} €
+                        {% else %}
+                            <span style="color:#16a34a;font-weight:600;">Gratuit</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                {% set totalDue = subtotal - discount + (shippingCost ?? 0) %}
+                <div class="receipt-total-row">
+                    <span class="receipt-total-label">Total</span>
+                    <span class="receipt-total-amount">{{ totalDue|number_format(2, ',', ' ') }} €</span>
+                </div>
+
+                {% set stepComplete = selectedMode and (selectedMode != 'mondial_relay' or relayPoint) %}
+                <a href="{{ stepComplete ? path('payment_checkout') : '#' }}"
+                   id="btnGoPayment"
+                   class="btn-checkout btn-checkout--stripe {{ stepComplete ? '' : 'btn-checkout--disabled' }}"
+                   {{ stepComplete ? '' : 'aria-disabled="true" tabindex="-1"' }}>
+                    <i class="fas fa-lock mr-2"></i>
+                    Procéder au paiement
+                </a>
+                <p id="paymentLockedHint" class="ck-locked-hint" style="{{ stepComplete ? 'display:none;' : '' }}">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    {% if not selectedMode %}
+                        Choisissez d'abord un mode de livraison.
+                    {% else %}
+                        Sélectionnez votre point relais pour continuer.
+                    {% endif %}
+                </p>
+
+                <a href="{{ path('cart_index') }}" class="btn-continue">
+                    <i class="fas fa-arrow-left mr-1"></i> Revenir au panier
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if selectedMode == 'mondial_relay' %}
+    {# Le widget s'appuie sur le jQuery complet chargé par base.html.twig (fin de page) :
+       on attend le "load" pour être sûr que jQuery et le plugin sont disponibles #}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    (function() {
+        function initWidget() {
+            window.jQuery('#Zone_Widget').MR_ParcelShopPicker({
+                Target: '#ParcelShopCode',
+                Brand: '{{ mondialRelayBrand|e('js') }}',
+                Country: 'FR',
+                PostCode: '13330',
+                ColLivMod: '24R',
+                NbResults: '7',
+                ShowResultsOnMap: true,
+                OnParcelShopSelected: function(data) {
+                    var relay = {
+                        id:      data.ID || '',
+                        name:    data.Nom || '',
+                        address: (data.Adresse1 || '') + (data.Adresse2 ? ' ' + data.Adresse2 : ''),
+                        zip:     data.CP || '',
+                        city:    data.Ville || ''
+                    };
+                    fetch('{{ path('checkout_set_relay') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(relay)
+                    }).then(function(r) { return r.json(); }).then(function(res) {
+                        if (!res.ok) return;
+                        // Visu de validation : encart vert + chip + déverrouillage du paiement
+                        document.getElementById('relayConfirmName').textContent = relay.name;
+                        document.getElementById('relayConfirmAddr').textContent =
+                            relay.address + ', ' + relay.zip + ' ' + relay.city;
+                        document.getElementById('relayConfirm').style.display = '';
+                        var chip = document.getElementById('relayChip');
+                        chip.classList.remove('ck-valid-chip--todo');
+                        chip.innerHTML = '<i class="fas fa-check"></i> Sélectionné';
+                        var btn = document.getElementById('btnGoPayment');
+                        btn.classList.remove('btn-checkout--disabled');
+                        btn.removeAttribute('aria-disabled');
+                        btn.removeAttribute('tabindex');
+                        btn.setAttribute('href', '{{ path('payment_checkout') }}');
+                        var hint = document.getElementById('paymentLockedHint');
+                        if (hint) hint.style.display = 'none';
+                    });
+                }
+            });
+        }
+
+        // jQuery est chargé en fin de page par le layout : on attend le "load" complet,
+        // puis on charge le plugin Mondial Relay avant d'initialiser le widget
+        function boot() {
+            var s = document.createElement('script');
+            s.src = 'https://widget.mondialrelay.com/parcelshop-picker/jquery.plugin.mondialrelay.parcelshoppicker.min.js';
+            s.onload = initWidget;
+            document.body.appendChild(s);
+        }
+        if (document.readyState === 'complete') {
+            boot();
+        } else {
+            window.addEventListener('load', boot);
+        }
+    })();
+    </script>
+{% endif %}
+
+{% endblock %}
