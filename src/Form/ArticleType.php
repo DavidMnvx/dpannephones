@@ -355,7 +355,7 @@ class ArticleType extends AbstractType
                     'Chargeur / Adaptateur secteur' => 'chargeur',
                     'Câble'                          => 'cable',
                     'Écouteurs / Casque'             => 'audio',
-                    'Coque / Housse'                 => 'coque',
+                    // 'Coque / Housse' retiré : les coques ont désormais leur propre catégorie
                     'Protection écran'               => 'protection_ecran',
                     'Support / Fixation'             => 'support',
                     'Batterie externe'               => 'batterie',
