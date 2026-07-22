@@ -39,7 +39,8 @@ class PaymentController extends AbstractController
     public function checkout(
         EntityManagerInterface $em,
         SessionInterface $session,
-        PromoCodeRepository $promoRepo
+        PromoCodeRepository $promoRepo,
+        \Psr\Log\LoggerInterface $logger
     ): Response
     {
         $cartId = $session->get('cart_id');
@@ -237,7 +238,18 @@ class PaymentController extends AbstractController
             $checkoutParams['discounts'] = [['coupon' => $stripeCoupon->id]];
         }
 
-        $checkoutSession = $stripe->checkout->sessions->create($checkoutParams);
+        try {
+            $checkoutSession = $stripe->checkout->sessions->create($checkoutParams);
+        } catch (\Exception $e) {
+            // Clé invalide, panne réseau, paramètre refusé… : erreur maîtrisée au lieu d'une page 500
+            $logger->error('Création de la session Stripe Checkout impossible : ' . $e->getMessage(), [
+                'exception' => $e,
+                'cart_id'   => $cart->getId(),
+            ]);
+            $this->addFlash('danger', "Le paiement en ligne est momentanément indisponible. Réessayez dans quelques instants ou contactez-nous au 07 83 74 83 11.");
+
+            return $this->redirectToRoute('cart_index');
+        }
 
         return $this->redirect($checkoutSession->url);
     }

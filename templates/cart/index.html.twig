@@ -18,6 +18,15 @@
 
 <div class="container mt-4 mb-5">
 
+    {# Messages flash (erreur paiement, panier vide, etc.) #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'info') }}" role="alert" style="border-radius:10px;font-size:14px;">
+                <i class="fas fa-exclamation-circle mr-1"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
     <div class="cart-page-title"><i class="fas fa-shopping-cart mr-2" style="color:rgb(9,71,113)"></i> Mon Panier</div>
     <p style="font-size:14px;color:#6c757d;margin-bottom:28px;">
         {% if cart is not empty %}
