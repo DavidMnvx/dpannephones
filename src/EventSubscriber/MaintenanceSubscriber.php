@@ -57,9 +57,11 @@ class MaintenanceSubscriber implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        // Priorité 10 : après le firewall de sécurité (qui tourne à ~8) pour avoir $security->getUser()
+        // Priorité 7 : SOUS le firewall de sécurité (priorité 8) — les priorités hautes
+        // s'exécutent en premier, il faut donc être en dessous pour que l'utilisateur
+        // soit authentifié quand on appelle isGranted('ROLE_ADMIN').
         return [
-            KernelEvents::REQUEST => ['onKernelRequest', 10],
+            KernelEvents::REQUEST => ['onKernelRequest', 7],
         ];
     }
 
