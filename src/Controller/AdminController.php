@@ -1350,6 +1350,11 @@ private const SETTINGS_CATEGORIES = [
         'description' => 'Offrez un code promo unique à chaque client qui laisse un avis — peu importe la note. Encourage les retours clients tout en restant conforme à la réglementation (Directive Omnibus UE).',
         'masterToggleKey' => 'review_reward_enabled',
     ],
+    'boutique_accroche' => [
+        'label' => 'Accroches boutique',
+        'icon'  => 'fas fa-bullhorn',
+        'description' => 'Phrase de réassurance affichée au-dessus des articles de chaque catégorie de la boutique (ex : "Montage rapide et soigné avec D\'panne Phones…"). Laissez un champ vide pour ne rien afficher sur cette catégorie.',
+    ],
     // D'autres catégories viendront s'ajouter ici (livraison gratuite, notifications…)
 ];
 

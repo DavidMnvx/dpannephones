@@ -155,6 +155,55 @@ class SeedAppSettingsCommand extends Command
             'category'    => 'review_reward',
             'sortOrder'   => 50,
         ],
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📣 ACCROCHES BOUTIQUE (phrase de réassurance par catégorie)
+        // ═══════════════════════════════════════════════════════════════
+        [
+            'key'         => 'boutique_accroche_pc_gamer',
+            'label'       => 'Accroche — PC Gamer',
+            'description' => 'Phrase affichée au-dessus des articles de la catégorie PC Gamer. Laissez vide pour ne rien afficher.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => "Montage rapide et soigné avec D'panne Phones — chaque PC est assemblé, testé et garanti 2 ans dans notre atelier de Pélissanne.",
+            'category'    => 'boutique_accroche',
+            'sortOrder'   => 10,
+        ],
+        [
+            'key'         => 'boutique_accroche_pc_bureautique',
+            'label'       => 'Accroche — PC Bureautique',
+            'description' => 'Phrase affichée au-dessus des articles de la catégorie PC Bureautique. Laissez vide pour ne rien afficher.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => '',
+            'category'    => 'boutique_accroche',
+            'sortOrder'   => 20,
+        ],
+        [
+            'key'         => 'boutique_accroche_pc_portable',
+            'label'       => 'Accroche — PC Portable',
+            'description' => 'Phrase affichée au-dessus des articles de la catégorie PC Portable. Laissez vide pour ne rien afficher.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => '',
+            'category'    => 'boutique_accroche',
+            'sortOrder'   => 30,
+        ],
+        [
+            'key'         => 'boutique_accroche_accessoires',
+            'label'       => 'Accroche — Accessoires',
+            'description' => 'Phrase affichée au-dessus des articles de la catégorie Accessoires. Laissez vide pour ne rien afficher.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => '',
+            'category'    => 'boutique_accroche',
+            'sortOrder'   => 40,
+        ],
+        [
+            'key'         => 'boutique_accroche_telephone',
+            'label'       => 'Accroche — Téléphones',
+            'description' => 'Phrase affichée au-dessus des articles de la catégorie Téléphones. Laissez vide pour ne rien afficher.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => '',
+            'category'    => 'boutique_accroche',
+            'sortOrder'   => 50,
+        ],
     ];
 
     public function __construct(private EntityManagerInterface $em)

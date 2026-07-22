@@ -1750,6 +1750,27 @@ body {
     gap: 24px;
 }
 
+/* ── Accroche de réassurance en tête de catégorie (éditable dans l'admin) ── */
+.cat-accroche {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f4f8fb;
+    border: 1px solid #dbe7f0;
+    border-radius: 12px;
+    padding: 13px 18px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #2c3a48;
+    line-height: 1.5;
+}
+
+.cat-accroche i {
+    font-size: 17px;
+    color: rgb(9, 71, 113);
+    flex-shrink: 0;
+}
+
 /* ── Sections par catégorie (accueil boutique) ── */
 .cat-section { margin-bottom: 34px; }
 .cat-section:last-child { margin-bottom: 0; }

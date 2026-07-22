@@ -299,6 +299,17 @@
             ══════════════════════════════════════════════ #}
             {% else %}
 
+                {# Accroche de réassurance éditable dans Admin > Paramètres > Accroches boutique #}
+                {% if currentCategorie %}
+                    {% set accroche = app_setting('boutique_accroche_' ~ currentCategorie) %}
+                    {% if accroche %}
+                        <div class="cat-accroche">
+                            <i class="fas fa-award"></i>
+                            <span>{{ accroche }}</span>
+                        </div>
+                    {% endif %}
+                {% endif %}
+
                 {# Filtre marques #}
                 {% if currentCategorie == 'telephone' and availableBrands is not empty %}
                     <div class="brand-filter-bar">

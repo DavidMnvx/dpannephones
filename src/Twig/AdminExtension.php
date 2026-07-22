@@ -43,7 +43,16 @@ class AdminExtension extends AbstractExtension
             new TwigFunction('page_enabled', [$this, 'isPageEnabled']),
             new TwigFunction('google_rating', [$this, 'getGoogleRating']),
             new TwigFunction('google_reviews_count', [$this, 'getGoogleReviewsCount']),
+            new TwigFunction('app_setting', [$this, 'getAppSetting']),
         ];
+    }
+
+    /**
+     * Lit un paramètre global texte (AppSetting) — ex : accroche boutique par catégorie.
+     */
+    public function getAppSetting(string $key, string $default = ''): string
+    {
+        return $this->settings->getString($key, $default);
     }
 
     /**
