@@ -15,15 +15,37 @@
         <span class="bt-bc-current">Création de sites</span>
     </nav>
 
-    {# ── Hero ── #}
-    <p class="sc-kicker"><i class="fas fa-code"></i> Création de sites internet</p>
-    <h1 class="sc-title">Vous aimez ce site ? C'est NosWeb qui l'a créé.</h1>
-    <p class="sc-slogan">Plus de visibilité, plus de clients, moins de stress.</p>
-    <p class="sc-intro">
-        NosWeb crée des sites web sur mesure pour <strong>artisans, commerces et indépendants</strong> :
-        modernes, rapides, pensés pour transformer vos visiteurs en vrais clients — pendant que vous
-        gérez sereinement votre activité.
-    </p>
+    {# ── Hero : texte + vignette du site posée en travers ── #}
+    <div class="sc-hero">
+        <div class="sc-hero-text">
+            <p class="sc-kicker"><i class="fas fa-code"></i> Création de sites internet</p>
+            <h1 class="sc-title">Vous aimez ce site ? C'est NosWeb qui l'a créé.</h1>
+            <p class="sc-slogan">Plus de visibilité, plus de clients, moins de stress.</p>
+            <p class="sc-intro">
+                NosWeb crée des sites web sur mesure pour <strong>artisans, commerces et indépendants</strong> :
+                modernes, rapides, pensés pour transformer vos visiteurs en vrais clients — pendant que vous
+                gérez sereinement votre activité.
+            </p>
+            <div class="sc-cta-row">
+                <a href="https://nosweb.fr" target="_blank" rel="noopener" class="sc-cta-btn">
+                    Découvrir NosWeb <i class="fas fa-external-link-alt"></i>
+                </a>
+                <a href="https://nosweb.fr" target="_blank" rel="noopener" class="sc-cta-link">nosweb.fr</a>
+            </div>
+        </div>
+        <div class="sc-hero-visual">
+            <div class="sc-browser-card">
+                <div class="sc-browser-bar">
+                    <span class="sc-browser-dot"></span>
+                    <span class="sc-browser-dot"></span>
+                    <span class="sc-browser-dot"></span>
+                    <span class="sc-browser-url"><i class="fas fa-lock"></i> dpannephones.fr</span>
+                </div>
+                <img src="{{ asset(site_image('banner_boutique', 'images/baner/Boutique.png')) }}" alt="Le site dpannephones.fr, réalisé par NosWeb">
+                <span class="sc-browser-badge"><i class="fas fa-code"></i> Réalisé par NosWeb</span>
+            </div>
+        </div>
+    </div>
 
     {# ── Preuve par l'exemple : ce site ── #}
     <div class="sc-proof">
