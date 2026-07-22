@@ -171,8 +171,10 @@ function bmUpdate(domId) {
     target.value = lines.join('\n');
 }
 
-// Sync initial : coche les checkboxes qui correspondent au contenu actuel du textarea
-(function initBmPicker_{{ domId }}() {
+// Sync initial : coche les checkboxes qui correspondent au contenu actuel du textarea.
+// Différé au DOMContentLoaded : le textarea cible est rendu APRÈS ce partial dans la page,
+// une exécution immédiate ne le trouverait pas (bug : rien de pré-coché en édition).
+function initBmPicker_{{ domId }}() {
     var picker = document.getElementById('bmPicker_{{ domId }}');
     if (!picker) return;
     var target = document.getElementById(picker.dataset.target);
@@ -198,5 +200,10 @@ function bmUpdate(domId) {
         });
     });
     bmUpdate('{{ domId }}');
-})();
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBmPicker_{{ domId }});
+} else {
+    initBmPicker_{{ domId }}();
+}
 </script>
