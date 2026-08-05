@@ -35,7 +35,8 @@
         <p class="product-desc">{{ article.description }}</p>
 
         {# Specs détaillées uniquement sur la page de la catégorie — cartes compactes sur l'accueil #}
-        {% if article.categorie in ['pc_gamer', 'pc_bureautique', 'pc_portable'] and currentCategorie == article.categorie %}
+        {% set catTpl = categoryTemplates[article.categorie]|default(article.categorie) %}
+        {% if catTpl in ['pc_gamer', 'pc_bureautique', 'pc_portable'] and currentCategorie == article.categorie %}
             {% if article.specs %}
                 {# Ordre canonique : chaque carte affiche les mêmes lignes dans le même ordre, à partir d'OS #}
                 {% set specLabels = {
@@ -71,7 +72,7 @@
                     {% endfor %}
                 </div>
             {% endif %}
-        {% elseif article.categorie == 'telephone' %}
+        {% elseif catTpl == 'telephone' %}
             {% if article.specs %}
                 <div class="pc-specs-list">
                     {% if article.specs.storage_capacity is defined %}

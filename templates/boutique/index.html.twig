@@ -60,14 +60,7 @@
         {% for slug, label in categories %}
             <a href="{{ path('boutique_index', {categorie: slug}) }}"
                class="mobile-cat-pill {{ currentCategorie == slug ? 'active' : '' }}">
-                {% if slug == 'pc_gamer' %}<i class="fas fa-gamepad"></i>
-                {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
-                {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
-                {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
-                {% elseif slug == 'coque' %}<i class="fas fa-shield-alt"></i>
-                {% elseif slug == 'film_hydrogel' %}<i class="fas fa-tint"></i>
-                {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
-                {% endif %}
+                <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i>
                 {{ label }}
             </a>
         {% endfor %}
@@ -93,14 +86,7 @@
             {% for slug, label in categories %}
                 <a href="{{ path('boutique_index', {categorie: slug}) }}"
                    class="cat-link {{ currentCategorie == slug ? 'active' : '' }}">
-                    {% if slug == 'pc_gamer' %}<i class="fas fa-gamepad"></i>
-                    {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
-                    {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
-                    {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
-                    {% elseif slug == 'coque' %}<i class="fas fa-shield-alt"></i>
-                    {% elseif slug == 'film_hydrogel' %}<i class="fas fa-tint"></i>
-                    {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
-                    {% endif %}
+                    <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i>
                     {{ label }}
                     {% if categoryCounts[slug] is defined and categoryCounts[slug] > 0 %}
                         <span class="cat-count">{{ categoryCounts[slug] }}</span>
@@ -345,14 +331,7 @@
                             <section class="cat-section">
                                 <div class="cat-section-head">
                                     <h2 class="cat-section-title">
-                                        {% if slug == 'pc_gamer' %}<i class="fas fa-gamepad"></i>
-                                        {% elseif slug == 'pc_bureautique' %}<i class="fas fa-desktop"></i>
-                                        {% elseif slug == 'pc_portable' %}<i class="fas fa-laptop"></i>
-                                        {% elseif slug == 'accessoires' %}<i class="fas fa-headphones"></i>
-                                        {% elseif slug == 'coque' %}<i class="fas fa-shield-alt"></i>
-                                        {% elseif slug == 'film_hydrogel' %}<i class="fas fa-tint"></i>
-                                        {% elseif slug == 'telephone' %}<i class="fas fa-mobile-alt"></i>
-                                        {% endif %}
+                                        <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i>
                                         {{ label }}
                                         <span class="cat-section-count">{{ catArticles|length }}</span>
                                     </h2>

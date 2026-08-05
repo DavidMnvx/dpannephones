@@ -30,15 +30,7 @@
         <div class="filter-tab active" onclick="filterArticles('tous', this)">
             Tous <span class="tab-count">{{ articles|length }}</span>
         </div>
-        {% set cats = {
-            'pc_gamer':       'PC Gamer',
-            'pc_bureautique': 'PC Bureautique',
-            'pc_portable':    'PC Portable',
-            'accessoires':    'Accessoires',
-            'coque':          'Coques',
-            'film_hydrogel':  'Film Hydrogel',
-            'telephone':      'Téléphones'
-        } %}
+        {% set cats = categoriesMap %}
         {% for slug, label in cats %}
             {% set count = articles|filter(a => a.categorie == slug)|length %}
             <div class="filter-tab {{ count == 0 ? 'filter-tab--empty' : '' }}" onclick="filterArticles('{{ slug }}', this)">

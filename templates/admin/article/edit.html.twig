@@ -735,15 +735,13 @@
 (function() {
     var catSelect = document.getElementById('article_categorie');
     var specsSection = document.getElementById('specs-section');
-    var groups = {
-        'pc_gamer':       ['group-pc_gamer'],
-        'pc_bureautique': ['group-pc_bureautique'],
-        'pc_portable':    ['group-pc_portable'],
-        'accessoires':    ['group-accessoires'],
-        'coque':          ['group-coque'],
-        'film_hydrogel':  ['group-film_hydrogel'],
-        'telephone':      ['group-telephone']
-    };
+    // Groupes de champs techniques par catégorie — pilotés par le gabarit
+    // défini dans Admin > Catégories (specs_template)
+    var groups = {};
+    (function() {
+        var tpl = {{ categoryTemplates|json_encode|raw }};
+        Object.keys(tpl).forEach(function(slug) { groups[slug] = ['group-' + tpl[slug]]; });
+    })();
 
     function updateSpecs() {
         var val = catSelect.value;

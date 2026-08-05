@@ -15,6 +15,18 @@ namespace App\Service;
  */
 class ShippingOptionsResolver
 {
+    public function __construct(private \App\Repository\CategoryRepository $categoryRepo)
+    {
+    }
+
+    /** Tier d'une catégorie : base de données d'abord, constantes historiques en secours */
+    private function tierOf(string $cat): int
+    {
+        return $this->categoryRepo->getSlugTierMap()[$cat]
+            ?? self::CATEGORY_TIERS[$cat]
+            ?? 1;
+    }
+
     /**
      * Niveau d'exigence de livraison par catégorie.
      * Plus c'est haut, plus le colis doit être sécurisé / volumineux.
@@ -24,8 +36,10 @@ class ShippingOptionsResolver
         'film_hydrogel'  => 1,
         'telephone'      => 2,  // Valeur moyenne — colis suivi obligatoire
         'pc_portable'    => 3,  // Volumineux et fragile
+        'pc_portable_occasion' => 3,
         'pc_bureautique' => 4,  // Très volumineux — transporteur spécialisé
         'pc_gamer'       => 4,
+        'pc_gamer_occasion'    => 4,
     ];
 
     /**
@@ -128,7 +142,7 @@ class ShippingOptionsResolver
 
         $maxTier = 1;
         foreach ($cartCategories as $cat) {
-            $tier = self::CATEGORY_TIERS[$cat] ?? 1;
+            $tier = $this->tierOf($cat);
             if ($tier > $maxTier) {
                 $maxTier = $tier;
             }
@@ -223,14 +237,10 @@ class ShippingOptionsResolver
             return null;
         }
 
-        $labels = [
-            'pc_portable'    => 'PC portable',
-            'pc_bureautique' => 'PC bureautique',
-            'pc_gamer'       => 'PC Gamer',
-        ];
+        $labels = $this->categoryRepo->getSlugLabelMap();
 
         foreach ($cartCategories as $cat) {
-            if (isset($labels[$cat]) && (self::CATEGORY_TIERS[$cat] ?? 0) === $maxTier) {
+            if (isset($labels[$cat]) && $this->tierOf($cat) === $maxTier) {
                 return $labels[$cat];
             }
         }

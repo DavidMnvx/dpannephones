@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Article;
 use App\Entity\ProductColor;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Repository\CategoryRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,6 +19,10 @@ use Symfony\Component\Validator\Constraints\File;
 
 class ArticleType extends AbstractType
 {
+    public function __construct(private CategoryRepository $categoryRepo)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -47,15 +52,7 @@ class ArticleType extends AbstractType
                 'label'       => 'Catégorie',
                 'required'    => false,
                 'placeholder' => 'Choisir une catégorie',
-                'choices'     => [
-                    'PC Gamer'       => 'pc_gamer',
-                    'PC Bureautique' => 'pc_bureautique',
-                    'PC Portable'    => 'pc_portable',
-                    'Accessoires'    => 'accessoires',
-                    'Coques'         => 'coque',
-                    'Film Hydrogel'  => 'film_hydrogel',
-                    'Téléphones'     => 'telephone',
-                ],
+                'choices'     => array_flip($this->categoryRepo->getSlugLabelMap()),
             ])
             ->add('isNew', CheckboxType::class, [
                 'label'    => 'Article neuf',

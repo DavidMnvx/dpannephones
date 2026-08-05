@@ -7,6 +7,7 @@ use App\Entity\Cart;
 use App\Entity\CartItem;
 use App\Entity\Commande;
 use App\Entity\CommandeItem;
+use App\Repository\CategoryRepository;
 use App\Repository\PromoCodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,10 +19,13 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/boutique')]
 class BoutiqueController extends AbstractController
 {
+    /** @deprecated Les catégories sont désormais en base (table category, admin /admin/categories). */
     const CATEGORIES = [
-        'pc_gamer'       => 'PC Gamer',
-        'pc_bureautique' => 'PC Bureautique',
-        'pc_portable'    => 'PC Portable',
+        'pc_gamer'             => 'PC Gamer',
+        'pc_gamer_occasion'    => "PC Gamer d'occasion",
+        'pc_bureautique'       => 'PC Bureautique',
+        'pc_portable'          => 'PC Portable',
+        'pc_portable_occasion' => "PC Portable d'occasion",
         'accessoires'    => 'Accessoires',
         'coque'          => 'Coques',
         'film_hydrogel'  => 'Film Hydrogel',
@@ -29,19 +33,20 @@ class BoutiqueController extends AbstractController
     ];
 
     #[Route('/', name: 'boutique_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $em, SessionInterface $session, Request $request): Response
+    public function index(EntityManagerInterface $em, SessionInterface $session, Request $request, CategoryRepository $categoryRepo): Response
     {
-        $categorie = $request->query->get('categorie');
-        $brand     = $request->query->get('brand');
+        $categorie  = $request->query->get('categorie');
+        $brand      = $request->query->get('brand');
+        $categories = $categoryRepo->getSlugLabelMap();
 
-        if ($categorie && array_key_exists($categorie, self::CATEGORIES)) {
+        if ($categorie && array_key_exists($categorie, $categories)) {
             $articles = $em->getRepository(Article::class)->findBy(['categorie' => $categorie], ['id' => 'DESC']);
         } else {
             $categorie = null;
             $articles  = $em->getRepository(Article::class)->findBy([], ['id' => 'DESC']);
 
             // Ordre stable : regroupés par catégorie (ordre de CATEGORIES), les plus récents d'abord
-            $rank = array_flip(array_keys(self::CATEGORIES));
+            $rank = array_flip(array_keys($categories));
             usort($articles, function (Article $a, Article $b) use ($rank) {
                 $ra = $rank[$a->getCategorie()] ?? PHP_INT_MAX;
                 $rb = $rank[$b->getCategorie()] ?? PHP_INT_MAX;
@@ -88,7 +93,9 @@ class BoutiqueController extends AbstractController
             'cart'             => $cartItems,
             'cartTotal'        => $cartTotal,
             'currentCategorie' => $categorie,
-            'categories'       => self::CATEGORIES,
+            'categories'       => $categories,
+            'categoryIcons'    => $categoryRepo->getSlugIconMap(),
+            'categoryTemplates' => $categoryRepo->getSlugSpecsTemplateMap(),
             'categoryCounts'   => $categoryCounts,
             'availableBrands'  => $availableBrands,
             'currentBrand'     => $brand,
@@ -100,7 +107,8 @@ class BoutiqueController extends AbstractController
         Article $article,
         EntityManagerInterface $em,
         SessionInterface $session,
-        \App\Repository\ReviewRepository $reviewRepo
+        \App\Repository\ReviewRepository $reviewRepo,
+        CategoryRepository $categoryRepo
     ): Response
     {
         $cart = $this->getCurrentCart($em, $session);
@@ -113,7 +121,7 @@ class BoutiqueController extends AbstractController
         return $this->render('boutique/show.html.twig', [
             'article'           => $article,
             'cart'              => $cart ? $cart->getItems() : [],
-            'categories'        => self::CATEGORIES,
+            'categories'        => $categoryRepo->getSlugLabelMap(),
             'articleReviews'    => $articleReviews,
             'articleAvgRating'  => $articleAvgRating,
             'articleRatingDist' => $articleRatingDist,
@@ -129,7 +137,9 @@ class BoutiqueController extends AbstractController
         // un même article en blanc et en noir = deux lignes distinctes du panier
         $options = [];
         $model = $request->query->get('model');
-        if ($model && in_array($article->getCategorie(), ['film_hydrogel', 'coque'], true)) {
+        $catTemplate = $em->getRepository(\App\Entity\Category::class)
+            ->findOneBy(['slug' => $article->getCategorie()])?->getSpecsTemplate() ?? $article->getCategorie();
+        if ($model && in_array($catTemplate, ['film_hydrogel', 'coque'], true)) {
             $options['model'] = $model;
         }
         $color = $request->query->get('color');

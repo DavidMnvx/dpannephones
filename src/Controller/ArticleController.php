@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Photo;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Route('/admin/articles')]
 class ArticleController extends AbstractController
 {
+    public function __construct(private CategoryRepository $categoryRepo)
+    {
+    }
+
     /**
      * Mapping centralisé : catégorie → [clé JSON specs => nom champ formulaire]
      * Source unique de vérité pour new() et edit().
@@ -121,6 +126,7 @@ class ArticleController extends AbstractController
     public function index(ArticleRepository $articleRepository): Response
     {
         return $this->render('admin/article/index.html.twig', [
+            'categoriesMap' => $this->categoryRepo->getSlugLabelMap(),
             'articles' => $articleRepository->findAll(),
         ]);
     }
@@ -144,6 +150,7 @@ class ArticleController extends AbstractController
         }
 
         return $this->render('admin/article/new.html.twig', [
+            'categoryTemplates' => $this->categoryRepo->getSlugSpecsTemplateMap(),
             'form'    => $form->createView(),
             'article' => $article,
             'colors'         => $em->getRepository(\App\Entity\ProductColor::class)->findAllOrdered(),
@@ -174,6 +181,7 @@ class ArticleController extends AbstractController
         }
 
         return $this->render('admin/article/edit.html.twig', [
+            'categoryTemplates' => $this->categoryRepo->getSlugSpecsTemplateMap(),
             'form'    => $form->createView(),
             'article' => $article,
             'colors'         => $em->getRepository(\App\Entity\ProductColor::class)->findAllOrdered(),
@@ -184,6 +192,15 @@ class ArticleController extends AbstractController
     #[Route('/{id}/delete', name: 'admin_article_delete', methods: ['POST', 'GET'])]
     public function delete(Article $article, EntityManagerInterface $em): Response
     {
+        // L'article peut être référencé par des paniers en cours et des avis :
+        // sans ce nettoyage, la contrainte SQL bloque la suppression (erreur 500).
+        $em->createQuery('DELETE FROM App\Entity\CartItem ci WHERE ci.article = :a')
+           ->setParameter('a', $article)->execute();
+        $em->createQuery('UPDATE App\Entity\Review r SET r.article = NULL WHERE r.article = :a')
+           ->setParameter('a', $article)->execute();
+        // Les commandes passées gardent leur trace : commande_item.article passe à NULL
+        // automatiquement (SET NULL) et le nom snapshot reste.
+
         $em->remove($article);
         $em->flush();
         $this->addFlash('success', 'Article supprimé.');
@@ -397,7 +414,12 @@ class ArticleController extends AbstractController
     private function extractSpecsFromForm($form, Article $article): void
     {
         $categorie = $form->get('categorie')->getData();
-        $mapping   = self::SPECS_MAPPING[$categorie] ?? [];
+        // Le gabarit de champs techniques est défini par la catégorie (admin > Catégories)
+        $template = $this->categoryRepo->findOneBy(['slug' => (string) $categorie])?->getSpecsTemplate();
+        $mapping  = self::SPECS_MAPPING[$template ?? '']
+            ?? self::SPECS_MAPPING[$categorie]
+            ?? self::SPECS_MAPPING[str_replace('_occasion', '', (string) $categorie)]
+            ?? [];
 
         // 1. On part des specs existantes (pour préserver les clés custom hors mapping)
         $existingSpecs = $article->getSpecs() ?? [];

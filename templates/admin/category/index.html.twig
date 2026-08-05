@@ -1,0 +1,208 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'categories' %}
+
+{% block admin_content %}
+
+<style>
+    .cat-admin-form {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr 1.2fr auto;
+        gap: 12px;
+        align-items: end;
+    }
+    @media (max-width: 900px) { .cat-admin-form { grid-template-columns: 1fr 1fr; } }
+    .cat-admin-form label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #5c6670;
+        margin-bottom: 6px;
+    }
+    .cat-admin-form input, .cat-admin-form select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1.5px solid #dde3ea;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+    }
+    .cat-admin-table td { vertical-align: middle; }
+    .cat-admin-table .inline-input {
+        padding: 7px 10px;
+        border: 1px solid #dde3ea;
+        border-radius: 7px;
+        font-size: 13px;
+        background: white;
+    }
+    .cat-icon-preview {
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        background: #eef4f9;
+        color: rgb(9,71,113);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+    }
+    .cat-slug-code {
+        font-family: monospace;
+        font-size: 11.5px;
+        color: #8a94a0;
+    }
+    .cat-tier-badge {
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 20px;
+        padding: 2px 9px;
+        background: #f4f7fa;
+        color: #5c6670;
+    }
+    .btn-cat-save {
+        background: rgb(9,71,113); color: white; border: none;
+        border-radius: 7px; padding: 8px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer;
+    }
+    .btn-cat-delete {
+        background: white; color: #dc2626; border: 1px solid #fecaca;
+        border-radius: 7px; padding: 8px 12px; font-size: 12.5px; cursor: pointer;
+    }
+    .btn-cat-delete:hover { background: #fef2f2; }
+</style>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+        <div class="admin-page-title">Catégories boutique</div>
+        <div class="admin-page-subtitle">Ajoutez une catégorie : elle apparaît aussitôt dans la boutique, le formulaire article et les options de livraison.</div>
+    </div>
+</div>
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label == 'warning' ? 'warning' : 'success' }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{# ── Ajout ── #}
+<div class="admin-card" style="margin-bottom:24px;">
+    <h3><i class="fas fa-plus"></i> Nouvelle catégorie</h3>
+    <form method="post" action="{{ path('admin_categories_new') }}" class="cat-admin-form">
+        <div>
+            <label>Nom affiché *</label>
+            <input type="text" name="label" placeholder="Ex. Consoles de jeu" required>
+        </div>
+        <div>
+            <label>Icône</label>
+            <select name="icon">
+                {% for cls, iconLabel in iconChoices %}
+                    <option value="{{ cls }}">{{ iconLabel }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>Livraison</label>
+            <select name="shipping_tier">
+                <option value="1">Petit colis (lettre / relais)</option>
+                <option value="2">Colis suivi (téléphone…)</option>
+                <option value="3">Volumineux (PC portable…)</option>
+                <option value="4">Très volumineux (PC fixe)</option>
+            </select>
+        </div>
+        <div>
+            <label>Champs techniques du formulaire</label>
+            <select name="specs_template">
+                <option value="">Aucun (nom, prix, photos)</option>
+                {% for key, tplLabel in specsTemplates %}
+                    <option value="{{ key }}">Comme : {{ tplLabel }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn-admin-submit" style="white-space:nowrap;">
+                <i class="fas fa-plus mr-1"></i> Ajouter
+            </button>
+        </div>
+    </form>
+</div>
+
+{# ── Liste ── #}
+<div class="admin-card">
+    <h3><i class="fas fa-tags"></i> Catégories existantes
+        <span style="font-weight:400;color:#adb5bd;">({{ categories|length }})</span>
+    </h3>
+
+    <table class="table cat-admin-table">
+        <thead>
+            <tr>
+                <th style="width:50px;"></th>
+                <th>Nom</th>
+                <th>Livraison</th>
+                <th>Champs techniques</th>
+                <th style="width:80px;">Ordre</th>
+                <th>Articles</th>
+                <th style="width:160px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+                {% set nb = articleCounts[category.slug] ?? 0 %}
+                <tr>
+                    <form method="post" action="{{ path('admin_categories_edit', {id: category.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('edit-category-' ~ category.id) }}">
+                    <td><span class="cat-icon-preview"><i class="{{ category.icon }}"></i></span></td>
+                    <td>
+                        <input type="text" name="label" value="{{ category.label }}" class="inline-input" style="width:180px;">
+                        <div class="cat-slug-code">{{ category.slug }}</div>
+                    </td>
+                    <td>
+                        <select name="shipping_tier" class="inline-input">
+                            <option value="1" {{ category.shippingTier == 1 ? 'selected' }}>Petit colis</option>
+                            <option value="2" {{ category.shippingTier == 2 ? 'selected' }}>Colis suivi</option>
+                            <option value="3" {{ category.shippingTier == 3 ? 'selected' }}>Volumineux</option>
+                            <option value="4" {{ category.shippingTier == 4 ? 'selected' }}>Très volumineux</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="specs_template" class="inline-input">
+                            <option value="">Aucun</option>
+                            {% for key, tplLabel in specsTemplates %}
+                                <option value="{{ key }}" {{ category.specsTemplate == key ? 'selected' }}>{{ tplLabel }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="icon" value="{{ category.icon }}">
+                    </td>
+                    <td><input type="number" name="position" value="{{ category.position }}" class="inline-input" style="width:70px;"></td>
+                    <td>
+                        {% if nb > 0 %}
+                            <span class="cat-tier-badge">{{ nb }}</span>
+                        {% else %}
+                            <span style="color:#c2cad2;">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button type="submit" class="btn-cat-save" title="Enregistrer les modifications">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </form>
+                        <form method="post" action="{{ path('admin_categories_delete', {id: category.id}) }}" style="display:inline;"
+                              onsubmit="return confirm('Supprimer la catégorie {{ category.label|e('js') }} ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-category-' ~ category.id) }}">
+                            <button type="submit" class="btn-cat-delete" {{ nb > 0 ? 'disabled title="Des articles utilisent cette catégorie"' : 'title="Supprimer"' }}>
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p style="font-size:12px;color:#8a94a0;margin:8px 0 0;">
+        <i class="fas fa-info-circle mr-1"></i>
+        « Champs techniques » détermine quels champs apparaissent dans le formulaire d'article pour cette catégorie
+        (ex. « Comme : PC Gamer » affiche processeur, carte graphique, RAM…). L'ordre contrôle la position dans les menus de la boutique.
+    </p>
+</div>
+
+{% endblock %}
