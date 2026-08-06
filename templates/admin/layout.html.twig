@@ -279,6 +279,7 @@
     #sidebar .nav-link .fa-clock          { background: linear-gradient(135deg, #0ea5e9, #0284c7) !important; }
     #sidebar .nav-link .fa-cog            { background: linear-gradient(135deg, #64748b, #475569) !important; }
     #sidebar .nav-link .fa-palette        { background: linear-gradient(135deg, #f472b6, #ec4899) !important; }
+    #sidebar .nav-link .fa-layer-group    { background: linear-gradient(135deg, #84cc16, #65a30d) !important; }
 
     /* Séparateur avant Paramètres */
     #sidebar .nav-item[style*="border-top"] {
@@ -399,10 +400,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="admin-nav-link {{ active_section|default('') == 'categories' ? 'active' : '' }}"
+                    <a class="nav-link {{ active_section is defined and active_section == 'categories' ? 'active' : '' }}"
                        href="{{ path('admin_categories_index') }}">
-                        <i class="fas fa-tags"></i> Catégories boutique
+                        <i class="fas fa-layer-group"></i> Catégories boutique
                     </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ active_section is defined and active_section == 'colors' ? 'active' : '' }}"
                        href="{{ path('admin_colors_index') }}">
                         <i class="fas fa-palette"></i> Couleurs
