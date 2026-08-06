@@ -2452,6 +2452,66 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
    ═══════════════════════════════════════════════════ */
 .boutique-fullwidth { width: 100%; }
 
+/* Aperçu du panier sticky à droite (visible seulement si le panier n'est pas vide) */
+.boutique-fullwidth--with-cart {
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+}
+
+.boutique-fullwidth--with-cart .products-area {
+    flex: 1;
+    min-width: 0;
+}
+
+.side-cart {
+    width: 252px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+}
+
+.side-cart-link {
+    display: block;
+    text-align: center;
+    font-size: 12.5px;
+    color: rgb(9, 71, 113);
+    text-decoration: none;
+    margin-top: 9px;
+}
+
+.side-cart-link:hover { text-decoration: underline; color: #0a5a8a; }
+
+@media (max-width: 992px) {
+    .side-cart { display: none; }
+    .boutique-fullwidth--with-cart { display: block; }
+}
+
+/* Badge "Nouveau" sur les cartes de la section Nouveautés */
+.badge-arrival {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    background: #e8f1fb;
+    color: #1a56db;
+    border: 1px solid #c9dcf5;
+    font-size: 10.5px;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 2px 9px;
+}
+
+.product-img-wrap { position: relative; }
+
+/* Sous-titre en ligne d'un titre de section */
+.cat-section-sub-inline {
+    font-size: 12px;
+    font-weight: 400;
+    color: #9aa4af;
+    margin-left: 4px;
+}
+
 .cat-topbar-wrap {
     display: flex;
     align-items: center;

@@ -6,6 +6,9 @@
 <div class="product-card">
     <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-img-link">
         <div class="product-img-wrap">
+            {% if isNewArrival|default(false) %}
+                <span class="badge-arrival">Nouveau</span>
+            {% endif %}
             {% if article.image %}
                 <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
             {% else %}

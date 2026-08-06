@@ -4,8 +4,9 @@
 
 {% block body %}
 
-{# Bannière image classique — remplacée par le carrousel commercial quand des articles sont à la une #}
-{% if not (currentCategorie is null and featuredArticles|default([])|length > 0) %}
+{# Bannière image classique — uniquement sur l'accueil, en repli quand aucun article n'est à la une.
+   Les pages catégorie commencent directement (cohérence de navigation). #}
+{% if currentCategorie is null and featuredArticles|default([])|length == 0 %}
 <div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
@@ -146,9 +147,9 @@
         {% endif %}
     </p>
 
-    <div class="boutique-fullwidth">
+    <div class="boutique-fullwidth {{ cart is not empty ? 'boutique-fullwidth--with-cart' : '' }}">
 
-        {# Grille produits — pleine largeur #}
+        {# Grille produits #}
         <div class="products-area">
 
             {# ══════════════════════════════════════════════
@@ -377,6 +378,24 @@
                     </div>
                 {% elseif currentCategorie is null %}
 
+                    {# ── Nouveautés : les derniers articles ajoutés ── #}
+                    {% if latestArticles|default([])|length > 0 %}
+                        <section class="cat-section">
+                            <div class="cat-section-head">
+                                <h2 class="cat-section-title">
+                                    <i class="fas fa-bolt"></i>
+                                    Nouveautés
+                                    <span class="cat-section-sub-inline">Ils viennent d'arriver en boutique</span>
+                                </h2>
+                            </div>
+                            <div class="cat-section-row">
+                                {% for article in latestArticles %}
+                                    {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie, isNewArrival: true}) }}
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endif %}
+
                     {# ── Accueil : une section par catégorie, rangée défilante + "Voir tout" ── #}
                     {% for slug, label in categories %}
                         {% set catArticles = articles|filter(a => a.categorie == slug) %}
@@ -427,7 +446,54 @@
 
         </div>
 
-        {# Ligne livraison discrète sous les produits #}
+        {# ── Aperçu du panier en cours (sticky, masqué si vide) ── #}
+        {% if cart is not empty %}
+            <aside class="side-cart">
+                <div class="mini-cart">
+                    <div class="mini-cart-header">
+                        <i class="fas fa-shopping-cart"></i> Mon panier
+                        <span class="mini-cart-count">{{ cart|length }}</span>
+                    </div>
+                    <div class="mini-cart-body">
+                        {% for cartItem in cart %}
+                            <div class="mini-cart-item">
+                                <div class="mini-cart-thumb">
+                                    {% if cartItem.article.image %}
+                                        <img src="{{ asset('uploads/images/' ~ cartItem.article.image) }}" alt="{{ cartItem.article.name }}">
+                                    {% else %}
+                                        <i class="fas fa-image"></i>
+                                    {% endif %}
+                                </div>
+                                <span class="mini-cart-item-name">{{ cartItem.article.name }}{% if cartItem.options and cartItem.options.color is defined %} · {{ cartItem.options.color }}{% endif %}</span>
+                                <div class="mini-qty-ctrl">
+                                    <a href="{{ path('cart_decrement', {id: cartItem.id}) }}" class="mini-qty-btn" title="Retirer un">
+                                        {% if cartItem.quantity == 1 %}<i class="fas fa-trash-alt" style="font-size:9px;"></i>{% else %}<i class="fas fa-minus"></i>{% endif %}
+                                    </a>
+                                    <span class="mini-qty-val">{{ cartItem.quantity }}</span>
+                                    <a href="{{ path('cart_increment', {id: cartItem.id}) }}" class="mini-qty-btn" title="Ajouter un">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mini-cart-footer">
+                        <div class="mini-cart-total">
+                            <span>Total</span>
+                            <span class="mini-cart-total-amount">{{ cartTotal|number_format(2, ',', ' ') }} €</span>
+                        </div>
+                        <a href="{{ path('checkout_shipping') }}" class="btn-voir-panier">
+                            <i class="fas fa-lock mr-1"></i> Commander
+                        </a>
+                        <a href="{{ path('cart_index') }}" class="side-cart-link">Aller au panier</a>
+                    </div>
+                </div>
+            </aside>
+        {% endif %}
+
+    </div>
+
+    {# Ligne livraison discrète sous les produits #}
         <div class="delivery-line">
             <div class="delivery-line-item">
                 <i class="fas fa-shipping-fast"></i>
@@ -447,7 +513,6 @@
             </div>
         </div>
 
-    </div>
 
     {# Bloc rassurant #}
     <div class="reassurance-strip">

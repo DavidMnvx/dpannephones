@@ -93,8 +93,14 @@ class BoutiqueController extends AbstractController
             ? $em->getRepository(Article::class)->findBy(['isFeatured' => true], ['id' => 'DESC'], 6)
             : [];
 
+        // Section "Nouveautés" : les derniers articles ajoutés (accueil uniquement)
+        $latestArticles = $categorie === null
+            ? $em->getRepository(Article::class)->findBy([], ['id' => 'DESC'], 8)
+            : [];
+
         return $this->render('boutique/index.html.twig', [
             'featuredArticles' => $featuredArticles,
+            'latestArticles'   => $latestArticles,
             'articles'         => $articles,
             'cart'             => $cartItems,
             'cartTotal'        => $cartTotal,
