@@ -4,7 +4,8 @@
 
 {% block body %}
 
-{# Bannière #}
+{# Bannière image classique — remplacée par le carrousel commercial quand des articles sont à la une #}
+{% if not (currentCategorie is null and featuredArticles|default([])|length > 0) %}
 <div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
@@ -15,6 +16,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <div style="width:80%;margin:0 auto 60px;padding:0 16px;">
 
@@ -46,25 +48,95 @@
 
     <div class="boutique-header-row">
         <div class="boutique-page-title">Boutique</div>
-        <a href="{{ path('cart_index') }}" class="cart-pill">
-            <i class="fas fa-shopping-cart"></i>
-            Panier{% if cart is not empty %} · {{ cart|length }} <span class="cart-pill-total">{{ cartTotal|number_format(2, ',', ' ') }} €</span>{% endif %}
-        </a>
     </div>
 
-    {# ── Filtre mobile catégories (visible ≤992px) ── #}
-    <div class="mobile-cat-bar">
-        <a href="{{ path('boutique_index') }}" class="mobile-cat-pill {{ currentCategorie is null ? 'active' : '' }}">
+    {# ── Barre de catégories horizontale (tous écrans) — ordre géré dans Admin > Catégories ── #}
+    <div class="cat-topbar-wrap">
+    <div class="cat-topbar">
+        <a href="{{ path('boutique_index') }}" class="cat-topbar-pill {{ currentCategorie is null ? 'active' : '' }}">
             <i class="fas fa-th-large"></i> Tous
+            <span class="cat-topbar-count">{{ categoryCounts['__all__'] ?? 0 }}</span>
         </a>
         {% for slug, label in categories %}
             <a href="{{ path('boutique_index', {categorie: slug}) }}"
-               class="mobile-cat-pill {{ currentCategorie == slug ? 'active' : '' }}">
-                <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i>
-                {{ label }}
+               class="cat-topbar-pill {{ currentCategorie == slug ? 'active' : '' }}">
+                <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i> {{ label }}
+                {% if categoryCounts[slug] is defined and categoryCounts[slug] > 0 %}
+                    <span class="cat-topbar-count">{{ categoryCounts[slug] }}</span>
+                {% endif %}
             </a>
         {% endfor %}
     </div>
+    <a href="{{ path('cart_index') }}" class="cat-topbar-cart">
+        <i class="fas fa-shopping-cart"></i>
+        Panier{% if cart is not empty %} · {{ cart|length }}{% endif %}
+    </a>
+    </div>
+
+    {# ── Bannière commerciale : articles à la une (accueil uniquement) ── #}
+    {% if currentCategorie is null and featuredArticles|default([])|length > 0 %}
+        <div class="feat-banner" id="featBanner">
+            {% for article in featuredArticles %}
+                <div class="feat-slide {{ loop.first ? 'feat-slide--active' : '' }}">
+                    <div class="feat-slide-text">
+                        <span class="feat-badge"><i class="fas fa-star mr-1"></i>À la une</span>
+                        <p class="feat-title">{{ article.name }}</p>
+                        <p class="feat-sub">
+                            {{ article.description|length > 110 ? article.description|slice(0, 110) ~ '…' : article.description }}
+                        </p>
+                        <div class="feat-cta-row">
+                            <span class="feat-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
+                            <a href="{{ path('boutique_show', {id: article.id}) }}" class="feat-btn">
+                                Découvrir <i class="fas fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="feat-slide-img">
+                        {% if article.image %}
+                            <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                        {% else %}
+                            <i class="fas fa-image"></i>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% if featuredArticles|length > 1 %}
+                <button type="button" class="feat-arrow feat-arrow--prev" aria-label="Article précédent"><i class="fas fa-chevron-left"></i></button>
+                <button type="button" class="feat-arrow feat-arrow--next" aria-label="Article suivant"><i class="fas fa-chevron-right"></i></button>
+                <div class="feat-dots">
+                    {% for article in featuredArticles %}
+                        <button type="button" class="feat-dot {{ loop.first ? 'feat-dot--active' : '' }}" data-index="{{ loop.index0 }}" aria-label="Aller à l'article {{ loop.index }}"></button>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        <script>
+        (function() {
+            var banner = document.getElementById('featBanner');
+            if (!banner) return;
+            var slides = banner.querySelectorAll('.feat-slide');
+            if (slides.length < 2) return;
+            var dots = banner.querySelectorAll('.feat-dot');
+            var current = 0, timer = null;
+
+            function show(i) {
+                current = (i + slides.length) % slides.length;
+                slides.forEach(function(s, k) { s.classList.toggle('feat-slide--active', k === current); });
+                dots.forEach(function(d, k) { d.classList.toggle('feat-dot--active', k === current); });
+            }
+            function restart() {
+                if (timer) clearInterval(timer);
+                timer = setInterval(function() { show(current + 1); }, 5000);
+            }
+            banner.querySelector('.feat-arrow--prev').addEventListener('click', function() { show(current - 1); restart(); });
+            banner.querySelector('.feat-arrow--next').addEventListener('click', function() { show(current + 1); restart(); });
+            dots.forEach(function(d) {
+                d.addEventListener('click', function() { show(parseInt(d.dataset.index, 10)); restart(); });
+            });
+            restart();
+        })();
+        </script>
+    {% endif %}
 
     <p class="boutique-page-sub">
         {% if currentCategorie %}
@@ -74,28 +146,9 @@
         {% endif %}
     </p>
 
-    <div class="boutique-layout">
+    <div class="boutique-fullwidth">
 
-        {# Sidebar catégories #}
-        <aside class="cat-sidebar">
-            <div class="cat-sidebar-title">Catégories</div>
-            <a href="{{ path('boutique_index') }}" class="cat-link {{ currentCategorie is null ? 'active' : '' }}">
-                <i class="fas fa-th-large"></i> Tous les articles
-                <span class="cat-count">{{ categoryCounts['__all__'] ?? 0 }}</span>
-            </a>
-            {% for slug, label in categories %}
-                <a href="{{ path('boutique_index', {categorie: slug}) }}"
-                   class="cat-link {{ currentCategorie == slug ? 'active' : '' }}">
-                    <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i>
-                    {{ label }}
-                    {% if categoryCounts[slug] is defined and categoryCounts[slug] > 0 %}
-                        <span class="cat-count">{{ categoryCounts[slug] }}</span>
-                    {% endif %}
-                </a>
-            {% endfor %}
-        </aside>
-
-        {# Grille produits #}
+        {# Grille produits — pleine largeur #}
         <div class="products-area">
 
             {# ══════════════════════════════════════════════
@@ -374,93 +427,25 @@
 
         </div>
 
-        {# Colonne droite : mini-panier + livraison (équilibre avec la sidebar gauche) #}
-        <div class="boutique-right-col">
-
-            <aside class="mini-cart">
-                <div class="mini-cart-header">
-                    <i class="fas fa-shopping-cart"></i> Panier
-                    {% if cart is not empty %}
-                        <span class="mini-cart-count">{{ cart|length }}</span>
-                    {% endif %}
-                </div>
-                <div class="mini-cart-body">
-                    {% if cart is empty %}
-                        <div class="mini-cart-empty">
-                            <i class="fas fa-shopping-basket" style="font-size:24px;display:block;margin-bottom:10px;"></i>
-                            Panier vide
-                        </div>
-                    {% else %}
-                        {% for cartItem in cart %}
-                            <div class="mini-cart-item">
-                                <div class="mini-cart-thumb">
-                                    {% if cartItem.article.image %}
-                                        <img src="{{ asset('uploads/images/' ~ cartItem.article.image) }}" alt="{{ cartItem.article.name }}">
-                                    {% else %}
-                                        <i class="fas fa-image"></i>
-                                    {% endif %}
-                                </div>
-                                <span class="mini-cart-item-name">{{ cartItem.article.name }}{% if cartItem.options and cartItem.options.color is defined %} · {{ cartItem.options.color }}{% endif %}</span>
-                                <div class="mini-qty-ctrl">
-                                    <a href="{{ path('cart_decrement', {id: cartItem.id}) }}" class="mini-qty-btn" title="Retirer un">
-                                        {% if cartItem.quantity == 1 %}<i class="fas fa-trash-alt" style="font-size:9px;"></i>{% else %}<i class="fas fa-minus"></i>{% endif %}
-                                    </a>
-                                    <span class="mini-qty-val">{{ cartItem.quantity }}</span>
-                                    <a href="{{ path('cart_increment', {id: cartItem.id}) }}" class="mini-qty-btn" title="Ajouter un">
-                                        <i class="fas fa-plus"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="mini-cart-footer">
-                    {% if cart is not empty %}
-                        <div class="mini-cart-total">
-                            <span>Total</span>
-                            <span class="mini-cart-total-amount">{{ cartTotal|number_format(2, ',', ' ') }} €</span>
-                        </div>
-                    {% endif %}
-                    <a href="{{ path('cart_index') }}" class="btn-voir-panier">
-                        <i class="fas fa-arrow-right mr-1"></i> Voir le panier
-                    </a>
-                </div>
-            </aside>
-
-            <div class="delivery-cards">
-                <div class="delivery-cards-title">Livraison</div>
-                <div class="delivery-card">
-                    <div class="delivery-card-icon"><i class="fas fa-shipping-fast"></i></div>
-                    <div class="delivery-card-info">
-                        <strong>Colissimo</strong>
-                        <span>2–3 jours ouvrés</span>
-                    </div>
-                </div>
-                <div class="delivery-card">
-                    <div class="delivery-card-icon"><i class="fas fa-bolt"></i></div>
-                    <div class="delivery-card-info">
-                        <strong>Chronopost</strong>
-                        <span>Express 24h</span>
-                    </div>
-                </div>
-                <div class="delivery-card">
-                    <div class="delivery-card-icon"><i class="fas fa-map-marker-alt"></i></div>
-                    <div class="delivery-card-info">
-                        <strong>Mondial Relay</strong>
-                        <span>3–5 jours · Point relais</span>
-                    </div>
-                </div>
-                <div class="delivery-card delivery-card--free">
-                    <div class="delivery-card-icon delivery-card-icon--free"><i class="fas fa-store"></i></div>
-                    <div class="delivery-card-info">
-                        <strong>Retrait boutique</strong>
-                        <span>Pélissanne · sous 24h</span>
-                    </div>
-                    <span class="delivery-card-free-badge">Gratuit</span>
-                </div>
+        {# Ligne livraison discrète sous les produits #}
+        <div class="delivery-line">
+            <div class="delivery-line-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span><strong>Colissimo</strong> 2–3 jours ouvrés</span>
             </div>
-
-        </div>{# fin boutique-right-col #}
+            <div class="delivery-line-item">
+                <i class="fas fa-bolt"></i>
+                <span><strong>Chronopost</strong> Express 24h</span>
+            </div>
+            <div class="delivery-line-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span><strong>Mondial Relay</strong> Point relais</span>
+            </div>
+            <div class="delivery-line-item delivery-line-item--free">
+                <i class="fas fa-store"></i>
+                <span><strong>Retrait boutique</strong> Gratuit à Pélissanne</span>
+            </div>
+        </div>
 
     </div>
 

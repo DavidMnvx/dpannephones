@@ -2447,6 +2447,267 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
     text-decoration: underline;
 }
 
+/* ═══════════════════════════════════════════════════
+   BOUTIQUE — barre de catégories horizontale + bannière commerciale
+   ═══════════════════════════════════════════════════ */
+.boutique-fullwidth { width: 100%; }
+
+.cat-topbar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid #e9edf2;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(15,30,50,0.04);
+    padding: 10px 12px;
+    margin-bottom: 18px;
+}
+
+.cat-topbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cfd9e2 transparent;
+}
+
+.cat-topbar::-webkit-scrollbar { height: 5px; }
+.cat-topbar::-webkit-scrollbar-thumb { background: #cfd9e2; border-radius: 999px; }
+
+.cat-topbar-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #5c6670;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.cat-topbar-pill i { font-size: 12px; color: #aab4bf; transition: color 0.15s; }
+
+.cat-topbar-pill:hover {
+    background: #f4f8fb;
+    color: rgb(9, 71, 113);
+    text-decoration: none;
+}
+.cat-topbar-pill:hover i { color: rgb(9, 71, 113); }
+
+.cat-topbar-pill.active {
+    background: rgb(9, 71, 113);
+    color: white;
+    font-weight: 500;
+}
+.cat-topbar-pill.active i { color: #b8d4e8; }
+
+.cat-topbar-count {
+    font-size: 11px;
+    color: #9aa4af;
+}
+.cat-topbar-pill.active .cat-topbar-count { color: #b8d4e8; }
+
+.cat-topbar-cart {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border: 1px solid #d8dfe6;
+    border-radius: 999px;
+    font-size: 13px;
+    color: #2c3a48;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.cat-topbar-cart i { color: rgb(9, 71, 113); font-size: 13px; }
+
+.cat-topbar-cart:hover {
+    border-color: rgb(9, 71, 113);
+    color: rgb(9, 71, 113);
+    text-decoration: none;
+}
+
+/* ── Bannière commerciale "À la une" ── */
+.feat-banner {
+    position: relative;
+    background: linear-gradient(120deg, #0a3a5e, rgb(9, 71, 113) 55%, #0d5c94);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 26px;
+    min-height: 240px;
+}
+
+.feat-slide {
+    display: none;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 34px 72px 42px;
+    min-height: 240px;
+}
+
+.feat-slide--active {
+    display: grid;
+    animation: feat-fade-in 0.45s ease;
+}
+
+@keyframes feat-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.feat-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,0.14);
+    color: #cfe4f5;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    padding: 4px 12px;
+    margin-bottom: 12px;
+}
+
+.feat-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+}
+
+.feat-sub {
+    font-size: 14px;
+    color: #b5d4f4;
+    line-height: 1.6;
+    margin: 0 0 18px;
+    max-width: 520px;
+}
+
+.feat-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.feat-price {
+    font-size: 26px;
+    font-weight: 700;
+    color: white;
+}
+
+.feat-btn {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    color: rgb(9, 71, 113);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 11px 22px;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.feat-btn:hover {
+    color: rgb(9, 71, 113);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.feat-slide-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feat-slide-img img {
+    max-width: 100%;
+    max-height: 210px;
+    border-radius: 12px;
+    object-fit: contain;
+    background: white;
+    padding: 8px;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+.feat-slide-img > i {
+    font-size: 64px;
+    color: rgba(255,255,255,0.25);
+}
+
+.feat-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.16);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    z-index: 2;
+}
+
+.feat-arrow:hover { background: rgba(255,255,255,0.3); }
+.feat-arrow--prev { left: 16px; }
+.feat-arrow--next { right: 16px; }
+
+.feat-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 2;
+}
+
+.feat-dot {
+    width: 9px;
+    height: 5px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(255,255,255,0.35);
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s;
+}
+
+.feat-dot--active {
+    width: 20px;
+    background: white;
+}
+
+@media (max-width: 860px) {
+    .feat-slide {
+        grid-template-columns: 1fr;
+        padding: 26px 52px 46px;
+        text-align: center;
+    }
+    .feat-sub { margin-left: auto; margin-right: auto; }
+    .feat-cta-row { justify-content: center; }
+    .feat-slide-img img { max-height: 150px; }
+    .feat-title { font-size: 21px; }
+}
+
 /* ── Accroche de réassurance en tête de catégorie (éditable dans l'admin) ── */
 .cat-accroche {
     display: flex;

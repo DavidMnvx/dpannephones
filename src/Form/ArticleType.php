@@ -58,6 +58,10 @@ class ArticleType extends AbstractType
                 'label'    => 'Article neuf',
                 'required' => false,
             ])
+            ->add('isFeatured', CheckboxType::class, [
+                'label'    => 'Mettre en avant dans la bannière de la boutique',
+                'required' => false,
+            ])
             ->add('photos', FileType::class, [
                 'label'       => "Photos de l'article",
                 'mapped'      => false,

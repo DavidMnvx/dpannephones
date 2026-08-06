@@ -33,6 +33,10 @@ class Article
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $isNew = null;
 
+    /** Article mis en avant dans la bannière commerciale de la boutique */
+    #[ORM\Column(name: 'is_featured', options: ['default' => false])]
+    private bool $isFeatured = false;
+
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $categorie = null;
 
@@ -126,6 +130,17 @@ class Article
     public function getIsNew(): ?bool
     {
         return $this->isNew;
+    }
+
+    public function isFeatured(): bool
+    {
+        return $this->isFeatured;
+    }
+
+    public function setIsFeatured(bool $isFeatured): static
+    {
+        $this->isFeatured = $isFeatured;
+        return $this;
     }
 
     public function setIsNew(?bool $isNew): static

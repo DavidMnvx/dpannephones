@@ -88,7 +88,13 @@ class BoutiqueController extends AbstractController
             $cartTotal += $item->getArticle()->getPrice() * $item->getQuantity();
         }
 
+        // Articles "à la une" pour la bannière commerciale (accueil uniquement)
+        $featuredArticles = $categorie === null
+            ? $em->getRepository(Article::class)->findBy(['isFeatured' => true], ['id' => 'DESC'], 6)
+            : [];
+
         return $this->render('boutique/index.html.twig', [
+            'featuredArticles' => $featuredArticles,
             'articles'         => $articles,
             'cart'             => $cartItems,
             'cartTotal'        => $cartTotal,
