@@ -87,7 +87,7 @@
             {% for article in featuredArticles %}
                 <div class="feat-slide {{ loop.first ? 'feat-slide--active' : '' }}">
                     <div class="feat-slide-text">
-                        <span class="feat-badge"><i class="fas fa-star mr-1"></i>À la une</span>
+                        <span class="feat-badge"><i class="fas fa-star"></i>À la une</span>
                         <p class="feat-title">{{ article.name }}</p>
                         <p class="feat-sub">
                             {{ article.description|length > 110 ? article.description|slice(0, 110) ~ '…' : article.description }}

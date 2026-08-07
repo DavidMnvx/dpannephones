@@ -2646,7 +2646,7 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
     display: inline-flex;
     align-items: center;
     line-height: 1;
-    gap: 6px;
+    gap: 7px;
     background: rgba(255,255,255,0.14);
     color: #cfe4f5;
     font-size: 11px;
@@ -2656,6 +2656,13 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
     border-radius: 999px;
     padding: 4px 12px;
     margin-bottom: 12px;
+}
+
+.feat-badge i {
+    font-size: 10px;
+    line-height: 1;
+    display: inline-block;
+    transform: translateY(0.5px);
 }
 
 .feat-title {

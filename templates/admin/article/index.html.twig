@@ -90,6 +90,12 @@
                         <span class="{{ article.isNew ? 'badge-new' : 'badge-occasion' }}">
                             {{ article.isNew ? 'Neuf' : 'Occasion' }}
                         </span>
+                        {% if article.isFeatured %}
+                            <span title="Mis en avant dans la bannière de la boutique"
+                                  style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:10.5px;font-weight:600;border-radius:20px;padding:3px 8px;margin-left:4px;white-space:nowrap;">
+                                <i class="fas fa-star" style="font-size:9px;line-height:1;"></i> À la une
+                            </span>
+                        {% endif %}
                     </td>
                     <td>
                         <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
