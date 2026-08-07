@@ -593,8 +593,9 @@
 
 </div>
 
-{# ══ Modals sélection modèle (hydrogel + coques) ══ #}
-{% for article in articles %}
+{# ══ Modals sélection modèle (hydrogel + coques) ══
+   Fusion avec la section Occasions de l'accueil : ses articles ne sont plus dans `articles` #}
+{% for article in articles|merge(occasionArticles|default([])) %}
 {% if article.categorie in ['film_hydrogel', 'coque'] %}
 {# Fallback : si aucun brand_models mais un ancien compatible_models existe, on le range sous "Modèles compatibles" #}
 {% set brandModels = article.specs.brand_models ?? {} %}

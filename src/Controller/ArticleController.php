@@ -468,7 +468,31 @@ class ArticleController extends AbstractController
             unset($specs['compatible_models']);
         }
 
-        // 4. On fusionne : nouvelles valeurs du form + anciennes clés custom non couvertes
+        // 4. Saisies faites sous une autre catégorie : on les récupère aussi, pour ne
+        //    rien perdre quand l'admin change de catégorie en cours de route. Les clés
+        //    du gabarit courant restent sous l'autorité exclusive de ses propres champs
+        //    (sinon vider un champ ne le supprimerait plus) — sauf à la création, où
+        //    rien n'a pu être vidé.
+        $isCreation = $article->getId() === null;
+        foreach (self::SPECS_MAPPING as $otherMapping) {
+            foreach ($otherMapping as $specKey => $fieldName) {
+                if (isset($specs[$specKey]) || !$form->has($fieldName)) {
+                    continue;
+                }
+                if (!$isCreation && array_key_exists($specKey, $mapping)) {
+                    continue;
+                }
+                $val = $form->get($fieldName)->getData();
+                if ($val instanceof \App\Entity\ProductColor) {
+                    $val = $val->getName();
+                }
+                if ($val !== null && $val !== '') {
+                    $specs[$specKey] = $val;
+                }
+            }
+        }
+
+        // 5. On fusionne : nouvelles valeurs du form + anciennes clés custom non couvertes
         $merged = array_merge($preservedCustom, $specs);
 
         $article->setSpecs($merged ?: null);

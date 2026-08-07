@@ -46,10 +46,15 @@ class BoutiqueController extends AbstractController
                 ->orderBy('a.id', 'DESC')
                 ->getQuery()->getResult();
         } elseif ($categorie && array_key_exists($categorie, $categories)) {
-            $articles = $em->getRepository(Article::class)->findBy(['categorie' => $categorie], ['id' => 'DESC']);
+            // Un article d'occasion vit uniquement dans le rayon Occasions :
+            // il disparaît de sa catégorie d'origine dès qu'il passe "D'occasion"
+            $articles = $em->getRepository(Article::class)->findBy(
+                ['categorie' => $categorie, 'isNew' => true],
+                ['id' => 'DESC']
+            );
         } else {
             $categorie = null;
-            $articles  = $em->getRepository(Article::class)->findBy([], ['id' => 'DESC']);
+            $articles  = $em->getRepository(Article::class)->findBy(['isNew' => true], ['id' => 'DESC']);
 
             // Ordre stable : regroupés par catégorie (ordre de CATEGORIES), les plus récents d'abord
             $rank = array_flip(array_keys($categories));
@@ -60,10 +65,11 @@ class BoutiqueController extends AbstractController
             });
         }
 
-        // Compteurs par catégorie pour la sidebar
+        // Compteurs par catégorie (articles neufs — les occasions sont comptées à part)
         $categoryCounts = ['__all__' => 0];
         foreach ($em->getRepository(Article::class)->createQueryBuilder('a')
                      ->select('a.categorie AS cat, COUNT(a.id) AS nb')
+                     ->where('a.isNew = :vrai')->setParameter('vrai', true)
                      ->groupBy('a.categorie')->getQuery()->getArrayResult() as $row) {
             $categoryCounts[$row['cat'] ?? ''] = (int) $row['nb'];
             $categoryCounts['__all__'] += (int) $row['nb'];
@@ -72,6 +78,7 @@ class BoutiqueController extends AbstractController
             ->select('COUNT(a.id)')
             ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
             ->getQuery()->getSingleScalarResult();
+        $categoryCounts['__all__'] += $categoryCounts['occasions'];
 
         // Filtre par marque (téléphones uniquement)
         $availableBrands = [];
@@ -103,9 +110,10 @@ class BoutiqueController extends AbstractController
             ? $em->getRepository(Article::class)->findBy(['isFeatured' => true], ['id' => 'DESC'], 6)
             : [];
 
-        // Section "Nouveautés" : les derniers articles ajoutés (accueil uniquement)
+        // Section "Nouveautés" : les derniers articles neufs ajoutés (accueil uniquement —
+        // les occasions ont leur propre section juste en dessous)
         $latestArticles = $categorie === null
-            ? $em->getRepository(Article::class)->findBy([], ['id' => 'DESC'], 8)
+            ? $em->getRepository(Article::class)->findBy(['isNew' => true], ['id' => 'DESC'], 8)
             : [];
 
         // Section "Occasions" de l'accueil (mêmes articles que le rayon, limités)
