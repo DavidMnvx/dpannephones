@@ -54,9 +54,15 @@ class ArticleType extends AbstractType
                 'placeholder' => 'Choisir une catégorie',
                 'choices'     => array_flip($this->categoryRepo->getSlugLabelMap()),
             ])
-            ->add('isNew', CheckboxType::class, [
-                'label'    => 'Article neuf',
-                'required' => false,
+            ->add('isNew', ChoiceType::class, [
+                'label'    => "État de l'article",
+                'choices'  => [
+                    'Neuf'        => true,
+                    "D'occasion"  => false,
+                ],
+                'expanded' => true,
+                'multiple' => false,
+                'help'     => "Un article d'occasion apparaît automatiquement dans le rayon « Occasions » de la boutique, en plus de sa catégorie.",
             ])
             ->add('isFeatured', CheckboxType::class, [
                 'label'    => 'Mettre en avant dans la bannière de la boutique',
