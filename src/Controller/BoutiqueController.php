@@ -39,7 +39,13 @@ class BoutiqueController extends AbstractController
         $brand      = $request->query->get('brand');
         $categories = $categoryRepo->getSlugLabelMap();
 
-        if ($categorie && array_key_exists($categorie, $categories)) {
+        if ($categorie === 'occasions') {
+            // Rayon transversal : tout le matériel d'occasion, tous rayons confondus
+            $articles = $em->getRepository(Article::class)->createQueryBuilder('a')
+                ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
+                ->orderBy('a.id', 'DESC')
+                ->getQuery()->getResult();
+        } elseif ($categorie && array_key_exists($categorie, $categories)) {
             $articles = $em->getRepository(Article::class)->findBy(['categorie' => $categorie], ['id' => 'DESC']);
         } else {
             $categorie = null;
@@ -62,6 +68,10 @@ class BoutiqueController extends AbstractController
             $categoryCounts[$row['cat'] ?? ''] = (int) $row['nb'];
             $categoryCounts['__all__'] += (int) $row['nb'];
         }
+        $categoryCounts['occasions'] = (int) $em->getRepository(Article::class)->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
+            ->getQuery()->getSingleScalarResult();
 
         // Filtre par marque (téléphones uniquement)
         $availableBrands = [];
@@ -98,9 +108,24 @@ class BoutiqueController extends AbstractController
             ? $em->getRepository(Article::class)->findBy([], ['id' => 'DESC'], 8)
             : [];
 
+        // Section "Occasions" de l'accueil (mêmes articles que le rayon, limités)
+        $occasionArticles = $categorie === null
+            ? $em->getRepository(Article::class)->createQueryBuilder('a')
+                ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
+                ->orderBy('a.id', 'DESC')->setMaxResults(8)
+                ->getQuery()->getResult()
+            : [];
+
+        // Libellé de la catégorie affichée ("occasions" est un rayon virtuel, hors table)
+        $currentCategorieLabel = $categorie === 'occasions'
+            ? 'Occasions'
+            : ($categories[$categorie] ?? null);
+
         return $this->render('boutique/index.html.twig', [
             'featuredArticles' => $featuredArticles,
             'latestArticles'   => $latestArticles,
+            'occasionArticles' => $occasionArticles,
+            'currentCategorieLabel' => $currentCategorieLabel,
             'articles'         => $articles,
             'cart'             => $cartItems,
             'cartTotal'        => $cartTotal,

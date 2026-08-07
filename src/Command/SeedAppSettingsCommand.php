@@ -205,6 +205,16 @@ class SeedAppSettingsCommand extends Command
             'sortOrder'   => 50,
         ],
 
+        [
+            'key'         => 'boutique_accroche_occasions',
+            'label'       => 'Accroche — Occasions',
+            'description' => 'Phrase affichée au-dessus du rayon Occasions (matériel non neuf, tous rayons confondus). Laissez vide pour ne rien afficher.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => "Du matériel révisé et garanti par notre atelier — la qualité D'panne Phones, à prix doux.",
+            'category'    => 'boutique_accroche',
+            'sortOrder'   => 60,
+        ],
+
         // ═══════════════════════════════════════════════════════════════
         // 🚚 LIVRAISON
         // ═══════════════════════════════════════════════════════════════
