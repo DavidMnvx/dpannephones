@@ -357,6 +357,23 @@
                     {% endif %}
                 {% endif %}
 
+                {# Sous-catégories du rayon Occasions #}
+                {% if currentCategorie == 'occasions' and occasionTypeCounts|default({})|length > 0 %}
+                    <div class="brand-filter-bar">
+                        <span class="brand-filter-label"><i class="fas fa-filter mr-1"></i>Matériel :</span>
+                        <a href="{{ path('boutique_index', {categorie: 'occasions'}) }}"
+                           class="brand-pill {{ currentOccasionType is null ? 'brand-pill--active' : '' }}">
+                            Tout
+                        </a>
+                        {% for slug, nb in occasionTypeCounts %}
+                            <a href="{{ path('boutique_index', {categorie: 'occasions', type: slug}) }}"
+                               class="brand-pill {{ currentOccasionType == slug ? 'brand-pill--active' : '' }}">
+                                {{ categories[slug] }} <span class="brand-pill-count">{{ nb }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 {# Filtre marques #}
                 {% if currentCategorie == 'telephone' and availableBrands is not empty %}
                     <div class="brand-filter-bar">
@@ -449,6 +466,45 @@
                     {% endfor %}
 
                     {# Articles sans catégorie connue #}
+                    {% set orphans = articles|filter(a => a.categorie is null or categories[a.categorie] is not defined) %}
+                    {% if orphans|length > 0 %}
+                        <section class="cat-section">
+                            <div class="cat-section-head">
+                                <h2 class="cat-section-title"><i class="fas fa-box"></i> Autres <span class="cat-section-count">{{ orphans|length }}</span></h2>
+                            </div>
+                            <div class="cat-section-row">
+                                {% for article in orphans %}
+                                    {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endif %}
+
+                {% elseif currentCategorie == 'occasions' and currentOccasionType|default(null) is null %}
+
+                    {# ── Rayon Occasions : une section par type de matériel ── #}
+                    {% for slug, nb in occasionTypeCounts %}
+                        {% set catArticles = articles|filter(a => a.categorie == slug) %}
+                        <section class="cat-section">
+                            <div class="cat-section-head">
+                                <h2 class="cat-section-title">
+                                    <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i>
+                                    {{ categories[slug] }}
+                                    <span class="cat-section-count">{{ nb }}</span>
+                                </h2>
+                                <a href="{{ path('boutique_index', {categorie: 'occasions', type: slug}) }}" class="cat-section-more">
+                                    Voir tout <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                            <div class="cat-section-row">
+                                {% for article in catArticles %}
+                                    {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
+                                {% endfor %}
+                            </div>
+                        </section>
+                    {% endfor %}
+
+                    {# Articles d'occasion dont la catégorie n'existe plus #}
                     {% set orphans = articles|filter(a => a.categorie is null or categories[a.categorie] is not defined) %}
                     {% if orphans|length > 0 %}
                         <section class="cat-section">

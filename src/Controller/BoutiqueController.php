@@ -39,12 +39,32 @@ class BoutiqueController extends AbstractController
         $brand      = $request->query->get('brand');
         $categories = $categoryRepo->getSlugLabelMap();
 
+        // Sous-catégorie du rayon Occasions (?type=telephone, ?type=pc_gamer…)
+        $occasionType       = $request->query->get('type');
+        $occasionTypeCounts = [];
+
         if ($categorie === 'occasions') {
             // Rayon transversal : tout le matériel d'occasion, tous rayons confondus
             $articles = $em->getRepository(Article::class)->createQueryBuilder('a')
                 ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
                 ->orderBy('a.id', 'DESC')
                 ->getQuery()->getResult();
+
+            // Sous-catégories = la catégorie d'origine des articles d'occasion
+            foreach ($categories as $slug => $label) {
+                $nb = count(array_filter($articles, fn (Article $a) => $a->getCategorie() === $slug));
+                if ($nb > 0) {
+                    $occasionTypeCounts[$slug] = $nb;
+                }
+            }
+            if ($occasionType !== null && isset($occasionTypeCounts[$occasionType])) {
+                $articles = array_values(array_filter(
+                    $articles,
+                    fn (Article $a) => $a->getCategorie() === $occasionType
+                ));
+            } else {
+                $occasionType = null;
+            }
         } elseif ($categorie && array_key_exists($categorie, $categories)) {
             // Un article d'occasion vit uniquement dans le rayon Occasions :
             // il disparaît de sa catégorie d'origine dès qu'il passe "D'occasion"
@@ -144,6 +164,8 @@ class BoutiqueController extends AbstractController
             'categoryCounts'   => $categoryCounts,
             'availableBrands'  => $availableBrands,
             'currentBrand'     => $brand,
+            'occasionTypeCounts'  => $occasionTypeCounts,
+            'currentOccasionType' => $occasionType,
         ]);
     }
 
