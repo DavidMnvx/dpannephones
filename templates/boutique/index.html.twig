@@ -150,7 +150,9 @@
         {% if currentCategorie %}
             {{ currentCategorieLabel }} — {{ articles|length }} article{{ articles|length > 1 ? 's' : '' }} disponible{{ articles|length > 1 ? 's' : '' }}
         {% else %}
-            Tous nos articles — {{ articles|length }} article{{ articles|length > 1 ? 's' : '' }} disponible{{ articles|length > 1 ? 's' : '' }}
+            {# Total du catalogue (neuf + occasion), cohérent avec le compteur "Tous" de la barre #}
+            {% set totalCatalogue = categoryCounts['__all__']|default(articles|length) %}
+            Tous nos articles — {{ totalCatalogue }} article{{ totalCatalogue > 1 ? 's' : '' }} disponible{{ totalCatalogue > 1 ? 's' : '' }}
         {% endif %}
     </p>
 

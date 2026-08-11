@@ -86,7 +86,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="cart-price">{{ cartItem.article.price }} €</td>
+                                    <td class="cart-price">{{ cartItem.article.price|number_format(2, ',', ' ') }} €</td>
                                     <td>
                                         <div class="cart-qty-ctrl">
                                             <a href="{{ path('cart_decrement', {id: cartItem.id}) }}"
@@ -106,7 +106,7 @@
                                             </a>
                                         </div>
                                     </td>
-                                    <td class="cart-price">{{ (cartItem.article.price * cartItem.quantity)|number_format(2, '.', ' ') }} €</td>
+                                    <td class="cart-price">{{ (cartItem.article.price * cartItem.quantity)|number_format(2, ',', ' ') }} €</td>
                                     <td>
                                         <a href="{{ path('cart_remove', {id: cartItem.id}) }}" class="btn-remove" onclick="return confirm('Retirer cet article ?')">
                                             <i class="fas fa-trash-alt"></i>

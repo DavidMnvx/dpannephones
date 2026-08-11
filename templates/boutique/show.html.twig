@@ -59,19 +59,9 @@
 
 {% block body %}
 
-{# Bannière #}
-<div id="carouselExampleIndicators2" class="carousel slide mb-4" data-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset(site_image('banner_boutique', 'images/baner/Boutique.png')) }}" alt="Boutique">
-            <div class="carousel-caption">
-                <h5 id="uneRep">Notre Boutique</h5>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div style="width:90%;max-width:1200px;margin:0 auto 60px;padding:0 16px;">
+{# Pas de bannière générique ici : le client vient voir SON produit, on va droit au but.
+   Marge basse généreuse pour que le widget d'avis flottant ne recouvre pas la fin de page. #}
+<div style="width:90%;max-width:1200px;margin:28px auto 120px;padding:0 16px;">
 
     {# Fil d'Ariane #}
     <nav class="article-breadcrumb">
@@ -456,7 +446,7 @@
                     {% else %}
                         <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart-detail">
                             <i class="fas fa-cart-plus"></i>
-                            Ajouter au panier — D'Panne Phones
+                            Ajouter au panier
                         </a>
                     {% endif %}
 

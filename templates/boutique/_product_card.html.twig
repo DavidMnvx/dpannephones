@@ -35,7 +35,8 @@
         <div class="product-name">
             <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-name-link">{{ article.name }}</a>
         </div>
-        <p class="product-desc">{{ article.description }}</p>
+        {# Tronqué côté Twig : le line-clamp CSS est neutralisé par le contexte flex des cartes #}
+        <p class="product-desc">{{ article.description|length > 120 ? article.description|slice(0, 120) ~ '…' : article.description }}</p>
 
         {# Specs détaillées uniquement sur la page de la catégorie — cartes compactes sur l'accueil #}
         {% set catTpl = categoryTemplates[article.categorie]|default(article.categorie) %}
@@ -107,7 +108,7 @@
         {% endif %}
 
         <div class="product-footer">
-            <span class="product-price">{{ article.price }} €</span>
+            <span class="product-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
 
             {% if article.categorie == 'film_hydrogel' %}
                 <a href="{{ path('boutique_index', {categorie: 'film_hydrogel'}) }}" class="btn-cart btn-cart--hydrogel">

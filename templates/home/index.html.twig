@@ -140,7 +140,7 @@
                     <span class="articles-ticker-noimg"><i class="fas fa-image"></i></span>
                 {% endif %}
                 <span class="articles-ticker-name">{{ article.name }}</span>
-                <span class="articles-ticker-price">{{ article.price }} €</span>
+                <span class="articles-ticker-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
             </a>
             {% endfor %}
             {% for article in dernierArticles %}
@@ -152,7 +152,7 @@
                     <span class="articles-ticker-noimg"><i class="fas fa-image"></i></span>
                 {% endif %}
                 <span class="articles-ticker-name">{{ article.name }}</span>
-                <span class="articles-ticker-price">{{ article.price }} €</span>
+                <span class="articles-ticker-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
             </a>
             {% endfor %}
         </div>
@@ -384,7 +384,7 @@
                 </div>
                 <div class="product-name">{{ article.name }}</div>
                 <div class="product-footer">
-                    <span class="product-price">{{ article.price }} €</span>
+                    <span class="product-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
                     {% if article.categorie is defined and article.categorie == 'film_hydrogel' %}
                         <a href="{{ path('boutique_index', {categorie: 'film_hydrogel'}) }}" class="btn-cart btn-cart--hydrogel">
                             <i class="fas fa-shield-alt"></i> Découvrir

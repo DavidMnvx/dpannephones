@@ -9,7 +9,7 @@
         <img src="{{ asset('uploads/images/' ~ article.imageFilename) }}" alt="{{ article.name }}">
     {% endif %}
     <p>{{ article.description }}</p>
-    <p>{{ article.price }} €</p>
+    <p>{{ article.price|number_format(2, ',', ' ') }} €</p>
     <p>{% if article.isNew %}Neuf{% else %}D'occasion{% endif %}</p>
     <a href="{{ path('boutique_edit', {id: article.id}) }}">Modifier</a>
     <form method="post" action="{{ path('boutique_delete', {id: article.id}) }}" onsubmit="return confirm('Êtes-vous sûr ?');">
