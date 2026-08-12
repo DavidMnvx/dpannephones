@@ -555,6 +555,54 @@
 {% endif %}{# fin bloc avis clients #}
 
 {# ═══════════════════════════════════════════════
+   DERNIERS CONSEILS — rubrique Conseils & Actualités
+   (n'apparaît que s'il y a des articles publiés)
+═══════════════════════════════════════════════ #}
+{% if derniersConseils|default([]) is not empty %}
+<div class="home-section-divider"></div>
+<section class="home-conseils reveal">
+    <div class="home-conseils-head">
+        <h2 class="home-conseils-title"><i class="fas fa-newspaper"></i> Nos derniers conseils</h2>
+        <p class="home-conseils-sub">Réparation, entretien, bons plans : les conseils de l'atelier.</p>
+    </div>
+    <div class="blog-grid blog-grid--home">
+        {% for post in derniersConseils %}
+            <article class="blog-card">
+                <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-card-imglink">
+                    {% if post.image %}
+                        <img src="{{ asset('uploads/images/' ~ post.image) }}" alt="{{ post.title }}" loading="lazy">
+                    {% else %}
+                        <div class="blog-card-noimg"><i class="fas fa-newspaper"></i></div>
+                    {% endif %}
+                </a>
+                <div class="blog-card-body">
+                    {% if post.topicLabel %}
+                        <span class="blog-topic">{{ post.topicLabel }}</span>
+                    {% endif %}
+                    <h3 class="blog-card-title">
+                        <a href="{{ path('blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
+                    </h3>
+                    <p class="blog-card-excerpt">
+                        {% set resume = post.excerpt ?: post.content %}
+                        {{ resume|length > 120 ? resume|slice(0, 120) ~ '…' : resume }}
+                    </p>
+                    <div class="blog-card-foot">
+                        <span class="blog-date"><i class="far fa-calendar-alt"></i> {{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '' }}</span>
+                        <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-readmore">Lire <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+    <div class="home-conseils-more">
+        <a href="{{ path('blog_index') }}">
+            Tous nos conseils &amp; actualités <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+</section>
+{% endif %}
+
+{# ═══════════════════════════════════════════════
    AUTO-CAROUSEL AVIS MOBILE — Script discret
    Sur mobile (≤ 768px), on duplique les cards pour un défilement
    infini fluide. Sur desktop, grille normale (pas d'animation).

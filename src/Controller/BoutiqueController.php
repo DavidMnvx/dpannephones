@@ -39,15 +39,33 @@ class BoutiqueController extends AbstractController
         $brand      = $request->query->get('brand');
         $categories = $categoryRepo->getSlugLabelMap();
 
+        // Tri (?tri=prix_asc|prix_desc, défaut : plus récents), recherche (?q=), page (?page=)
+        $sort   = $request->query->get('tri');
+        $search = trim((string) $request->query->get('q', ''));
+        $page   = max(1, $request->query->getInt('page', 1));
+        $orderBy = match ($sort) {
+            'prix_asc'  => ['price' => 'ASC'],
+            'prix_desc' => ['price' => 'DESC'],
+            default     => ['id' => 'DESC'],
+        };
+
         // Sous-catégorie du rayon Occasions (?type=telephone, ?type=pc_gamer…)
         $occasionType       = $request->query->get('type');
         $occasionTypeCounts = [];
 
-        if ($categorie === 'occasions') {
+        if ($search !== '') {
+            // Mode recherche : tout le catalogue (neuf + occasion), toutes catégories
+            $categorie = null;
+            $articles = $em->getRepository(Article::class)->createQueryBuilder('a')
+                ->where('a.name LIKE :q OR a.description LIKE :q')
+                ->setParameter('q', '%' . $search . '%')
+                ->orderBy('a.' . array_key_first($orderBy), $orderBy[array_key_first($orderBy)])
+                ->getQuery()->getResult();
+        } elseif ($categorie === 'occasions') {
             // Rayon transversal : tout le matériel d'occasion, tous rayons confondus
             $articles = $em->getRepository(Article::class)->createQueryBuilder('a')
                 ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
-                ->orderBy('a.id', 'DESC')
+                ->orderBy('a.' . array_key_first($orderBy), $orderBy[array_key_first($orderBy)])
                 ->getQuery()->getResult();
 
             // Sous-catégories = la catégorie d'origine des articles d'occasion
@@ -70,7 +88,7 @@ class BoutiqueController extends AbstractController
             // il disparaît de sa catégorie d'origine dès qu'il passe "D'occasion"
             $articles = $em->getRepository(Article::class)->findBy(
                 ['categorie' => $categorie, 'isNew' => true],
-                ['id' => 'DESC']
+                $orderBy
             );
         } else {
             $categorie = null;
@@ -116,6 +134,17 @@ class BoutiqueController extends AbstractController
             }
         }
 
+        // Pagination — uniquement sur les vues en grille (catégorie, occasions filtrées, recherche).
+        // L'accueil garde ses rangées par section, limitées côté template.
+        $perPage      = 24;
+        $totalResults = count($articles);
+        $totalPages   = 1;
+        if ($search !== '' || ($categorie !== null && ($categorie !== 'occasions' || $occasionType !== null))) {
+            $totalPages = max(1, (int) ceil($totalResults / $perPage));
+            $page       = min($page, $totalPages);
+            $articles   = array_slice(is_array($articles) ? $articles : iterator_to_array($articles), ($page - 1) * $perPage, $perPage);
+        }
+
         $cart = $this->getCurrentCart($em, $session);
 
         // Calcul total mini-panier
@@ -125,19 +154,22 @@ class BoutiqueController extends AbstractController
             $cartTotal += $item->getArticle()->getPrice() * $item->getQuantity();
         }
 
+        // Sections de l'accueil (jamais en mode recherche)
+        $isAccueil = $categorie === null && $search === '';
+
         // Articles "à la une" pour la bannière commerciale (accueil uniquement)
-        $featuredArticles = $categorie === null
+        $featuredArticles = $isAccueil
             ? $em->getRepository(Article::class)->findBy(['isFeatured' => true], ['id' => 'DESC'], 6)
             : [];
 
         // Section "Nouveautés" : les derniers articles neufs ajoutés (accueil uniquement —
         // les occasions ont leur propre section juste en dessous)
-        $latestArticles = $categorie === null
+        $latestArticles = $isAccueil
             ? $em->getRepository(Article::class)->findBy(['isNew' => true], ['id' => 'DESC'], 8)
             : [];
 
         // Section "Occasions" de l'accueil (mêmes articles que le rayon, limités)
-        $occasionArticles = $categorie === null
+        $occasionArticles = $isAccueil
             ? $em->getRepository(Article::class)->createQueryBuilder('a')
                 ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
                 ->orderBy('a.id', 'DESC')->setMaxResults(8)
@@ -166,6 +198,11 @@ class BoutiqueController extends AbstractController
             'currentBrand'     => $brand,
             'occasionTypeCounts'  => $occasionTypeCounts,
             'currentOccasionType' => $occasionType,
+            'currentSort'   => $sort,
+            'searchQuery'   => $search,
+            'currentPage'   => $page,
+            'totalPages'    => $totalPages,
+            'totalResults'  => $totalResults,
         ]);
     }
 

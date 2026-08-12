@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ArticleRepository;
+use App\Repository\BlogPostRepository;
 use App\Repository\ReviewRepository;
 use App\Service\StaticReviewsProvider;
 use Psr\Log\LoggerInterface;
@@ -16,6 +17,7 @@ class HomeController extends AbstractController
         private StaticReviewsProvider $reviewsProvider,
         private ArticleRepository     $articleRepository,
         private ReviewRepository      $reviewRepository,
+        private BlogPostRepository    $blogPostRepository,
         private LoggerInterface       $logger,
     ) {}
 
@@ -34,7 +36,11 @@ class HomeController extends AbstractController
         // Derniers articles pour la bande défilante
         $dernierArticles = $this->articleRepository->findBy([], ['id' => 'DESC'], 10);
 
+        // Derniers conseils publiés (rubrique Conseils & Actualités)
+        $derniersConseils = $this->blogPostRepository->findPublished(3);
+
         return $this->render('home/index.html.twig', [
+            'derniersConseils'    => $derniersConseils,
             'reviews'             => $reviews,
             'clientReviews'       => $clientReviews,
             'rating'              => $rating,

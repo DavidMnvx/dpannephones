@@ -17347,6 +17347,93 @@ textarea.contact-input.is-invalid {
 }
 
 /* ═══════════════════════════════════════════════════
+   BOUTIQUE — recherche, tri, pagination
+   ═══════════════════════════════════════════════════ */
+.cat-topbar-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f4f7fa;
+    border: 1.5px solid #e2e9f0;
+    border-radius: 999px;
+    padding: 7px 15px;
+    margin-left: 10px;
+    flex-shrink: 0;
+    transition: border-color 0.15s, background 0.15s;
+}
+.cat-topbar-search:focus-within {
+    border-color: rgb(9, 71, 113);
+    background: #fff;
+}
+.cat-topbar-search i { color: #8a96a3; font-size: 12.5px; }
+.cat-topbar-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 13.5px;
+    color: #1b2e45;
+    width: 120px;
+}
+@media (max-width: 860px) {
+    .cat-topbar-search input { width: 84px; }
+}
+
+.sort-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 9px;
+    margin: 2px 0 16px;
+    font-size: 13px;
+    color: #7d8896;
+}
+.sort-bar label { margin: 0; font-weight: 600; }
+.sort-bar label i { margin-right: 4px; color: #a9b4bf; }
+.sort-bar select {
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #1b2e45;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 10px;
+    cursor: pointer;
+}
+.sort-bar select:focus { outline: none; border-color: rgb(9, 71, 113); }
+
+.shop-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    margin: 30px 0 6px;
+    flex-wrap: wrap;
+}
+.shop-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1.5px solid #dee2e6;
+    background: #fff;
+    color: #1b2e45;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+}
+.shop-page:hover { border-color: rgb(9, 71, 113); color: rgb(9, 71, 113); text-decoration: none; }
+.shop-page--active {
+    background: rgb(9, 71, 113);
+    border-color: rgb(9, 71, 113);
+    color: #fff;
+}
+.shop-page--nav { font-size: 12px; }
+
+/* ═══════════════════════════════════════════════════
    CONSEILS & ACTUALITÉS (blog)
    ═══════════════════════════════════════════════════ */
 .blog-wrap {
@@ -17517,6 +17604,37 @@ textarea.contact-input.is-invalid {
     .blog-article-title { font-size: 24px; }
     .blog-article-content { font-size: 15px; }
 }
+
+/* ── Section "Nos derniers conseils" sur la page d'accueil ── */
+.home-conseils {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 46px 16px 54px;
+}
+.home-conseils-head { text-align: center; margin-bottom: 26px; }
+.home-conseils-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #1b2e45;
+}
+.home-conseils-title i { color: rgb(9, 71, 113); margin-right: 10px; }
+.home-conseils-sub { font-size: 14px; color: #7d8896; margin-top: 6px; }
+.blog-grid--home { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.home-conseils-more { text-align: center; margin-top: 26px; }
+.home-conseils-more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: rgb(9, 71, 113);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 11px 22px;
+    border-radius: 9px;
+    text-decoration: none;
+}
+.home-conseils-more a:hover { background: rgb(12, 88, 138); color: #fff; text-decoration: none; }
 
 /* ═══════════════════════════════════════════════════
    BANDEAU COOKIES (tarteaucitron) — aux couleurs du site

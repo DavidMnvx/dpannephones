@@ -59,22 +59,28 @@
             <span class="cat-topbar-count">{{ categoryCounts['__all__'] ?? 0 }}</span>
         </a>
         {% for slug, label in categories %}
+            {# Une catégorie sans article ne s'affiche pas — elle réapparaît dès le premier article #}
+            {% if categoryCounts[slug]|default(0) > 0 %}
             <a href="{{ path('boutique_index', {categorie: slug}) }}"
                class="cat-topbar-pill {{ currentCategorie == slug ? 'active' : '' }}">
                 <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i> {{ label }}
-                {% if categoryCounts[slug] is defined and categoryCounts[slug] > 0 %}
-                    <span class="cat-topbar-count">{{ categoryCounts[slug] }}</span>
-                {% endif %}
+                <span class="cat-topbar-count">{{ categoryCounts[slug] }}</span>
             </a>
+            {% endif %}
         {% endfor %}
+        {% if categoryCounts['occasions']|default(0) > 0 %}
         <a href="{{ path('boutique_index', {categorie: 'occasions'}) }}"
            class="cat-topbar-pill cat-topbar-pill--occasion {{ currentCategorie == 'occasions' ? 'active' : '' }}">
             <i class="fas fa-recycle"></i> Occasions
-            {% if categoryCounts['occasions']|default(0) > 0 %}
-                <span class="cat-topbar-count">{{ categoryCounts['occasions'] }}</span>
-            {% endif %}
+            <span class="cat-topbar-count">{{ categoryCounts['occasions'] }}</span>
         </a>
+        {% endif %}
     </div>
+    <form method="get" action="{{ path('boutique_index') }}" class="cat-topbar-search" role="search">
+        <i class="fas fa-search"></i>
+        <input type="search" name="q" value="{{ searchQuery|default('') }}"
+               placeholder="Rechercher…" aria-label="Rechercher un produit">
+    </form>
     <a href="{{ path('cart_index') }}" class="cat-topbar-cart">
         <i class="fas fa-shopping-cart"></i>
         Panier{% if cart is not empty %} · {{ cart|length }}{% endif %}
@@ -147,8 +153,10 @@
     {% endif %}
 
     <p class="boutique-page-sub">
-        {% if currentCategorie %}
-            {{ currentCategorieLabel }} — {{ articles|length }} article{{ articles|length > 1 ? 's' : '' }} disponible{{ articles|length > 1 ? 's' : '' }}
+        {% if searchQuery|default('') %}
+            Résultats pour «&nbsp;{{ searchQuery }}&nbsp;» — {{ totalResults }} article{{ totalResults > 1 ? 's' : '' }} trouvé{{ totalResults > 1 ? 's' : '' }}
+        {% elseif currentCategorie %}
+            {{ currentCategorieLabel }} — {{ totalResults|default(articles|length) }} article{{ totalResults|default(articles|length) > 1 ? 's' : '' }} disponible{{ totalResults|default(articles|length) > 1 ? 's' : '' }}
         {% else %}
             {# Total du catalogue (neuf + occasion), cohérent avec le compteur "Tous" de la barre #}
             {% set totalCatalogue = categoryCounts['__all__']|default(articles|length) %}
@@ -393,16 +401,34 @@
                     </div>
                 {% endif %}
 
+                {# Barre de tri — vues en grille uniquement #}
+                {% if (currentCategorie is not null or searchQuery|default('')) and articles is not empty %}
+                    <div class="sort-bar">
+                        <label for="sortSelect"><i class="fas fa-sort-amount-down"></i> Trier&nbsp;:</label>
+                        <select id="sortSelect"
+                                onchange="var u=new URL(location);u.searchParams.set('tri',this.value);u.searchParams.delete('page');location=u;">
+                            <option value="recents" {{ currentSort|default(null) not in ['prix_asc', 'prix_desc'] ? 'selected' }}>Plus récents</option>
+                            <option value="prix_asc" {{ currentSort|default(null) == 'prix_asc' ? 'selected' }}>Prix croissant</option>
+                            <option value="prix_desc" {{ currentSort|default(null) == 'prix_desc' ? 'selected' }}>Prix décroissant</option>
+                        </select>
+                    </div>
+                {% endif %}
+
                 {% if articles is empty %}
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
-                        <p style="font-size:16px;font-weight:600;color:#6c757d;margin-bottom:6px;">Aucun article pour le moment.</p>
-                        <small>Revenez bientôt ou consultez une autre catégorie.</small><br><br>
+                        {% if searchQuery|default('') %}
+                            <p style="font-size:16px;font-weight:600;color:#6c757d;margin-bottom:6px;">Aucun résultat pour «&nbsp;{{ searchQuery }}&nbsp;».</p>
+                            <small>Essayez un autre terme, ou parcourez les catégories.</small><br><br>
+                        {% else %}
+                            <p style="font-size:16px;font-weight:600;color:#6c757d;margin-bottom:6px;">Aucun article pour le moment.</p>
+                            <small>Revenez bientôt ou consultez une autre catégorie.</small><br><br>
+                        {% endif %}
                         <a href="{{ path('boutique_index') }}" style="display:inline-flex;align-items:center;gap:7px;margin-top:6px;background:rgb(9,71,113);color:white;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">
                             <i class="fas fa-arrow-left"></i> Voir tout
                         </a>
                     </div>
-                {% elseif currentCategorie is null %}
+                {% elseif currentCategorie is null and searchQuery|default('') == '' %}
 
                     {# ── Nouveautés : les derniers articles ajoutés ── #}
                     {% if latestArticles|default([])|length > 0 %}
@@ -459,7 +485,7 @@
                                     </a>
                                 </div>
                                 <div class="cat-section-row">
-                                    {% for article in catArticles %}
+                                    {% for article in catArticles|slice(0, 10) %}
                                         {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
                                     {% endfor %}
                                 </div>
@@ -527,6 +553,29 @@
                             {{ include('boutique/_product_card.html.twig', {article: article, currentCategorie: currentCategorie}) }}
                         {% endfor %}
                     </div>
+                {% endif %}
+
+                {# Pagination (les filtres et le tri sont conservés dans l'URL) #}
+                {% if totalPages|default(1) > 1 %}
+                    <nav class="shop-pagination" aria-label="Pages de résultats">
+                        {% if currentPage > 1 %}
+                            <a class="shop-page shop-page--nav" href="{{ path('boutique_index', app.request.query.all|merge({page: currentPage - 1})) }}" aria-label="Page précédente">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        {% endif %}
+                        {% for p in 1..totalPages %}
+                            {% if p == currentPage %}
+                                <span class="shop-page shop-page--active">{{ p }}</span>
+                            {% else %}
+                                <a class="shop-page" href="{{ path('boutique_index', app.request.query.all|merge({page: p})) }}">{{ p }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if currentPage < totalPages %}
+                            <a class="shop-page shop-page--nav" href="{{ path('boutique_index', app.request.query.all|merge({page: currentPage + 1})) }}" aria-label="Page suivante">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
                 {% endif %}
             {% endif %}
 
