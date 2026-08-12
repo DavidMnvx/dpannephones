@@ -4,7 +4,13 @@ framework:
     #csrf_protection: true
 
     # Note that the session will be started ONLY if you read or write from it.
-    session: true
+    # Session : expire à la fermeture du navigateur, ou après 2 h d'inactivité.
+    # La connexion longue durée passe par la case « Rester connecté » du login.
+    session:
+        cookie_lifetime: 0
+        gc_maxlifetime: 7200
+        cookie_secure: auto
+        cookie_samesite: lax
 
     #esi: true
     #fragments: true

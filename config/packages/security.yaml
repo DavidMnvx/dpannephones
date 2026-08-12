@@ -27,11 +27,14 @@ security:
                 target: home
             entry_point: form_login
 
+            # « Rester connecté » : uniquement si la case du formulaire est cochée.
+            # Sans elle, la session expire à la fermeture du navigateur ou après
+            # 2 h d'inactivité (framework.yaml) — important pour le back-office.
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 604800
                 path: /
-                always_remember_me: true
+                always_remember_me: false
 
             # Protection anti brute-force sur le login :
             #  - max 5 tentatives ratées en 1 minute par IP
