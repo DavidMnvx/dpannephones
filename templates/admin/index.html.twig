@@ -1,4 +1,5 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'dashboard' %}
 
 {% block stylesheets %}
 {{ parent() }}
@@ -181,218 +182,36 @@
     /* ══════════════════════════════════════════════════════════════
        SIDEBAR — refresh 2026 : pills arrondies + vignettes colorées
        ══════════════════════════════════════════════════════════════ */
-    #sidebar {
-        padding: 0 10px 20px !important;
-    }
-    .sidebar-header {
-        padding: 22px 10px 14px !important;
-        font-size: 11px !important;
-        letter-spacing: 2px !important;
-        color: #7d8896 !important;
-        border-bottom: none !important;
-        margin-bottom: 6px !important;
-    }
-    #sidebar .nav {
-        gap: 2px;
-    }
-    #sidebar .nav-link {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-        padding: 10px 12px !important;
-        font-size: 14.5px !important;
-        font-weight: 500 !important;
-        color: #d0d7de !important;
-        border-left: none !important;
-        border-radius: 10px !important;
-        margin: 1px 0 !important;
-        transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease !important;
-        text-decoration: none !important;
-        position: relative;
-    }
-    #sidebar .nav-link:hover {
-        background-color: rgba(255,255,255,0.07) !important;
-        color: #ffffff !important;
-        transform: translateX(3px);
-    }
-    #sidebar .nav-link.active {
-        background: linear-gradient(90deg, rgba(74,159,212,0.35), rgba(74,159,212,0.10)) !important;
-        color: #ffffff !important;
-        box-shadow: inset 0 0 0 1px rgba(74,159,212,0.25), 0 3px 10px rgba(9,71,113,0.35);
-    }
-    #sidebar .nav-link.active::before {
-        content: '';
-        position: absolute;
-        left: -10px;
-        top: 22%;
-        bottom: 22%;
-        width: 3px;
-        background: #4a9fd4;
-        border-radius: 0 3px 3px 0;
-    }
-    #sidebar .nav-link i {
-        width: 32px !important;
-        height: 32px !important;
-        text-align: center !important;
-        font-size: 14px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border-radius: 8px !important;
-        color: #ffffff !important;
-        flex-shrink: 0;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-    #sidebar .nav-link:hover i {
-        transform: scale(1.10) rotate(-4deg);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.30);
-    }
 
-    #sidebar .nav-link .fa-tachometer-alt { background: linear-gradient(135deg, #10b981, #059669) !important; }
-    #sidebar .nav-link .fa-chart-line     { background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important; }
-    #sidebar .nav-link .fa-tags           { background: linear-gradient(135deg, #ec4899, #db2777) !important; }
-    #sidebar .nav-link .fa-mobile-alt     { background: linear-gradient(135deg, #06b6d4, #0891b2) !important; }
-    #sidebar .nav-link .fa-tools          { background: linear-gradient(135deg, #f97316, #ea580c) !important; }
-    #sidebar .nav-link .fa-shopping-bag   { background: linear-gradient(135deg, #3b82f6, #2563eb) !important; }
-    #sidebar .nav-link .fa-receipt        { background: linear-gradient(135deg, #14b8a6, #0d9488) !important; }
-    #sidebar .nav-link .fa-ticket-alt     { background: linear-gradient(135deg, #22c55e, #16a34a) !important; }
-    #sidebar .nav-link .fa-users          { background: linear-gradient(135deg, #6366f1, #4f46e5) !important; }
-    #sidebar .nav-link .fa-handshake      { background: linear-gradient(135deg, #eab308, #ca8a04) !important; }
-    #sidebar .nav-link .fa-share-alt      { background: linear-gradient(135deg, #60a5fa, #3b82f6) !important; }
-    #sidebar .nav-link .fa-images         { background: linear-gradient(135deg, #a855f7, #9333ea) !important; }
-    #sidebar .nav-link .fa-google         { background: linear-gradient(135deg, #ea4335, #c2372a) !important; }
-    #sidebar .nav-link .fa-star-half-alt  { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; }
-    #sidebar .nav-link .fa-clock          { background: linear-gradient(135deg, #0ea5e9, #0284c7) !important; }
-    #sidebar .nav-link .fa-cog            { background: linear-gradient(135deg, #64748b, #475569) !important; }
-    #sidebar .nav-link .fa-palette        { background: linear-gradient(135deg, #f472b6, #ec4899) !important; }
 
-    #sidebar .nav-item[style*="border-top"] {
-        margin-top: 16px !important;
-        padding-top: 16px !important;
-        border-top: 1px solid rgba(255,255,255,0.08) !important;
-    }
-    .sidebar-notif-badge {
-        background: #dc2626 !important;
-        color: white !important;
-        font-size: 11px !important;
-        font-weight: 700 !important;
-        padding: 2px 7px !important;
-        border-radius: 10px !important;
-        margin-left: auto;
-        min-width: 20px;
-        text-align: center;
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 {% endblock %}
 
-{% block body %}
-<div class="container-fluid p-0">
-    <div class="row no-gutters">
-
-        {# Sidebar — liens simples, pas de listes imbriquées #}
-        <nav id="sidebar" class="col-md-2 d-md-block">
-            <div class="sidebar-header">Navigation</div>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showContent('dashboard')">
-                        <i class="fas fa-tachometer-alt"></i> Tableau de bord
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_stats') }}">
-                        <i class="fas fa-chart-line"></i> Statistiques
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showContent('marques')">
-                        <i class="fas fa-tags"></i> Marques
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showContent('modeles')">
-                        <i class="fas fa-mobile-alt"></i> Modèles
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="showContent('reparations')">
-                        <i class="fas fa-tools"></i> Réparations
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_article_index') }}">
-                        <i class="fas fa-shopping-bag"></i> Articles boutique
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_commandes') }}">
-                        <i class="fas fa-receipt"></i> Commandes
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_promos') }}">
-                        <i class="fas fa-ticket-alt" style="color:#16a34a;"></i> Codes promo
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_clients') }}">
-                        <i class="fas fa-users"></i> Clients
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_partenaires') }}">
-                        <i class="fas fa-handshake"></i> Partenaires
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_social_links') }}">
-                        <i class="fas fa-share-alt" style="color:#3b82f6;"></i> Réseaux sociaux
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_site_images') }}">
-                        <i class="fas fa-images"></i> Images du site
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_google_reviews') }}">
-                        <i class="fab fa-google"></i> Avis Google
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_client_reviews') }}">
-                        <i class="fas fa-star-half-alt" style="color:#f59e0b;"></i> Avis clients
-                        {% set pendingCount = admin_pending_reviews_count() %}
-                        {% if pendingCount > 0 %}
-                            <span class="sidebar-notif-badge" title="{{ pendingCount }} avis en attente de modération">{{ pendingCount }}</span>
-                        {% endif %}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_colors_index') }}">
-                        <i class="fas fa-palette"></i> Couleurs
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_popular_phones_index') }}">
-                        <i class="fas fa-mobile-alt"></i> Téléphones populaires
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('admin_horaires') }}">
-                        <i class="fas fa-clock"></i> Horaires d'ouverture
-                    </a>
-                </li>
-                <li class="nav-item" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
-                    <a class="nav-link" href="{{ path('admin_settings') }}">
-                        <i class="fas fa-cog"></i> Paramètres
-                    </a>
-                </li>
-            </ul>
-        </nav>
-
-        {# Contenu principal #}
-        <main id="admin-main" class="col-md-10">
+{% block admin_content %}
 
             {# Bannière de bienvenue #}
             <div class="admin-welcome">
@@ -1275,9 +1094,6 @@
                 </div>
 
             </div>
-        </main>
-    </div>
-</div>
 
 {% block javascripts %}
 {{ parent() }}

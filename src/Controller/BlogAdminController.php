@@ -111,6 +111,20 @@ class BlogAdminController extends AbstractController
         ]);
     }
 
+    /**
+     * Aperçu d'un article (même en brouillon) : rendu exactement comme sur le
+     * site public, avec un bandeau d'avertissement. Réservé aux admins.
+     */
+    #[Route('/{id}/apercu', name: 'admin_blog_preview', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function preview(BlogPost $post): Response
+    {
+        return $this->render('blog/show.html.twig', [
+            'post'       => $post,
+            'otherPosts' => [],
+            'preview'    => true,
+        ]);
+    }
+
     #[Route('/{id}/delete', name: 'admin_blog_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
     public function delete(BlogPost $post, Request $request, EntityManagerInterface $em): Response
     {

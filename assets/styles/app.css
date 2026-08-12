@@ -17374,8 +17374,14 @@ textarea.contact-input.is-invalid {
     color: #1b2e45;
     width: 120px;
 }
-@media (max-width: 860px) {
-    .cat-topbar-search input { width: 84px; }
+/* Mobile : la barre passe sur deux lignes — pills en haut,
+   recherche (pleine largeur) + panier en dessous */
+@media (max-width: 700px) {
+    .cat-topbar-wrap { flex-wrap: wrap; }
+    .cat-topbar { order: 1; flex: 1 1 100%; }
+    .cat-topbar-search { order: 2; flex: 1 1 auto; margin-left: 0; }
+    .cat-topbar-search input { width: 100%; flex: 1; }
+    .cat-topbar-cart { order: 3; flex-shrink: 0; }
 }
 
 .sort-bar {

@@ -79,9 +79,10 @@
                         {% else %}—{% endif %}
                     </td>
                     <td style="white-space:nowrap;">
-                        {% if post.isPublished %}
-                            <a href="{{ path('blog_show', {slug: post.slug}) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Voir</a>
-                        {% endif %}
+                        <a href="{{ path('admin_blog_preview', {id: post.id}) }}" target="_blank"
+                           class="btn btn-sm btn-outline-secondary" title="Voir l'article tel qu'il apparaîtra sur le site">
+                            <i class="fas fa-eye"></i> Aperçu
+                        </a>
                         <a href="{{ path('admin_blog_edit', {id: post.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
                         <form method="post" action="{{ path('admin_blog_delete', {id: post.id}) }}" style="display:inline;"
                               onsubmit="return confirm('Supprimer cet article ?');">
