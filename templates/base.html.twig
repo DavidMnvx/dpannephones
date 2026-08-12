@@ -99,7 +99,9 @@
            Si pas de GOOGLE_ANALYTICS_ID configuré, Tarteaucitron n'affiche rien.
            ─────────────────────────────────────────────────── #}
         {% if google_analytics_id and app.environment == 'prod' %}
-        <script src="https://cdn.jsdelivr.net/gh/AmauriC/tarteaucitron.js@V1.17.0/tarteaucitron.min.js"></script>
+        {# Tag en minuscule impératif : @V1.17.0 renvoyait un 404 silencieux,
+           donc jamais de bandeau ni de mesure GA depuis la mise en ligne #}
+        <script src="https://cdn.jsdelivr.net/gh/AmauriC/tarteaucitron.js@v1.17.0/tarteaucitron.min.js"></script>
         <script>
             tarteaucitron.init({
                 "privacyUrl": "{{ path('legal_confidentialite') }}",
