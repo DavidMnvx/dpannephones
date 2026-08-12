@@ -188,10 +188,12 @@
                     </li>
                     {% endif %}
 
-                    {# Le Blog — Conseils & Actualités #}
+                    {# Le Blog — masqué si page désactivée #}
+                    {% if page_enabled('blog') %}
                     <li class="nav-item {{ currentPath starts with '/blog' ? 'active' : '' }}">
                         <a class="nav-link" href="{{ path('blog_index') }}">Blog</a>
                     </li>
+                    {% endif %}
 
                     {# Contact — masqué si désactivée #}
                     {% if page_enabled('contact') %}

@@ -17657,7 +17657,38 @@ textarea.contact-input.is-invalid {
 .blog-readmore { color: rgb(9, 71, 113); font-weight: 600; text-decoration: none; }
 .blog-readmore:hover { text-decoration: underline; color: rgb(9, 71, 113); }
 
-/* ── Page article ── */
+/* ── Page article : fond léger, article détouré en carte ── */
+.blog-article-bg {
+    background:
+        radial-gradient(1100px 420px at 85% -60px, rgba(9, 71, 113, 0.07), transparent 60%),
+        linear-gradient(180deg, #f2f6fa 0%, #f8fafc 60%, #ffffff 100%);
+    padding-bottom: 30px;
+}
+.blog-article-bg .blog-wrap--article { margin-top: 0; padding-top: 24px; }
+
+.blog-article {
+    background: #fff;
+    border: 1px solid #e6ecf2;
+    border-radius: 18px;
+    box-shadow: 0 10px 38px rgba(9, 31, 51, 0.07);
+    padding: 38px 46px 34px;
+    position: relative;
+    overflow: hidden;
+}
+/* Liseré techno en tête de carte */
+.blog-article::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, rgb(9, 71, 113) 0%, #38bdf8 55%, #16a34a 100%);
+}
+@media (max-width: 640px) {
+    .blog-article { padding: 24px 20px 22px; border-radius: 14px; }
+}
+
 .blog-article-head { margin-bottom: 20px; }
 .blog-article-title { font-size: 30px; font-weight: 700; color: #1b2e45; line-height: 1.25; margin: 8px 0 10px; }
 .blog-article-meta { display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; color: #8a96a3; }

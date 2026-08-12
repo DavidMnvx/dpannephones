@@ -53,6 +53,15 @@ class SeedAppSettingsCommand extends Command
             'sortOrder'   => 20,
         ],
         [
+            'key'         => 'page_blog_enabled',
+            'label'       => 'Page Blog activée',
+            'description' => 'Si décoché : /blog redirige vers l\'accueil pour les visiteurs et le lien disparaît du menu. L\'admin continue de la voir.',
+            'type'        => AppSetting::TYPE_BOOL,
+            'default'     => '1',
+            'category'    => 'site',
+            'sortOrder'   => 25,
+        ],
+        [
             'key'         => 'page_reparations_enabled',
             'label'       => 'Page Réparations activée',
             'description' => 'Si décoché : /reparations (et ses sous-pages) sont indisponibles. Pratique si le catalogue de tarifs n\'est pas encore rempli.',

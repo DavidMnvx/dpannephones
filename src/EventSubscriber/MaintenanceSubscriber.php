@@ -73,6 +73,7 @@ class MaintenanceSubscriber implements EventSubscriberInterface
      */
     private const PAGE_TOGGLES = [
         '/boutique'         => 'page_boutique_enabled',
+        '/blog'             => 'page_blog_enabled',
         '/reparations'      => 'page_reparations_enabled',
         '/ordinateur'       => 'page_ordinateur_enabled',
         '/partenaires'      => 'page_partenaires_enabled',

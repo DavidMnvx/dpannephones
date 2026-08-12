@@ -7,12 +7,15 @@
 
 {% block body %}
 
-{# Bannière modifiable dans Admin > Images du site #}
-<div class="blog-banner">
-    <img src="{{ asset(site_image('banner_blog', 'images/baner/Boutique.png')) }}" alt="Le Blog D'panne Phones">
-    <div class="blog-banner-caption">
-        <h1>Le Blog</h1>
-        <p>Conseils &amp; actualités de l'atelier</p>
+{# Bannière — même gabarit que les autres pages du site, image gérée dans Admin > Images du site #}
+<div id="carouselBlog" class="carousel slide mb-4" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_blog', 'images/baner/Boutique.png')) }}" alt="Le Blog D'panne Phones">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Le Blog</h5>
+            </div>
+        </div>
     </div>
 </div>
 
