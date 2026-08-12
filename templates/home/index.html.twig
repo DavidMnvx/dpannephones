@@ -272,8 +272,8 @@
 
 
 {# ═══════════════════════════════════════════════
-   DERNIERS CONSEILS — rubrique Conseils & Actualités
-   (n'apparaît que s'il y a des articles publiés)
+   DERNIERS CONSEILS — bannière commerciale (style boutique)
+   avec les articles du blog en rotation automatique
 ═══════════════════════════════════════════════ #}
 {% if derniersConseils|default([]) is not empty %}
 <div class="home-section-divider"></div>
@@ -282,45 +282,77 @@
         <h2 class="home-conseils-title"><i class="fas fa-newspaper"></i> Nos derniers conseils</h2>
         <p class="home-conseils-sub">Réparation, entretien, bons plans : les conseils de l'atelier.</p>
     </div>
-    <div class="home-conseils-carousel">
-        <button type="button" class="hc-arrow hc-arrow--prev" aria-label="Articles précédents" onclick="document.getElementById('hcRow').scrollBy({left: -340, behavior: 'smooth'})"><i class="fas fa-chevron-left"></i></button>
-        <div class="home-conseils-row" id="hcRow">
+
+    <div class="feat-banner feat-banner--blog" id="featBannerBlog">
         {% for post in derniersConseils %}
-            <article class="blog-card">
-                <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-card-imglink">
-                    {% if post.image %}
-                        <img src="{{ asset('uploads/images/' ~ post.image) }}" alt="{{ post.title }}" loading="lazy">
-                    {% else %}
-                        <div class="blog-card-noimg"><i class="fas fa-newspaper"></i></div>
-                    {% endif %}
-                </a>
-                <div class="blog-card-body">
-                    {% if post.topicLabel %}
-                        <span class="blog-topic">{{ post.topicLabel }}</span>
-                    {% endif %}
-                    <h3 class="blog-card-title">
-                        <a href="{{ path('blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
-                    </h3>
-                    <p class="blog-card-excerpt">
+            <div class="feat-slide {{ loop.first ? 'feat-slide--active' : '' }}">
+                <div class="feat-slide-text">
+                    <span class="feat-badge"><i class="fas fa-newspaper"></i>{{ post.topicLabel ?? 'Le Blog' }}</span>
+                    <p class="feat-title">{{ post.title }}</p>
+                    <p class="feat-sub">
                         {% set resume = post.excerpt ?: post.content %}
-                        {{ resume|length > 120 ? resume|slice(0, 120) ~ '…' : resume }}
+                        {{ resume|length > 130 ? resume|slice(0, 130) ~ '…' : resume }}
                     </p>
-                    <div class="blog-card-foot">
-                        <span class="blog-date"><i class="far fa-calendar-alt"></i> {{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '' }}</span>
-                        <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-readmore">Lire <i class="fas fa-arrow-right"></i></a>
+                    <div class="feat-cta-row">
+                        <span class="feat-blog-date"><i class="far fa-calendar-alt mr-1"></i>{{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '' }}</span>
+                        <a href="{{ path('blog_show', {slug: post.slug}) }}" class="feat-btn">
+                            Lire l'article <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
                     </div>
                 </div>
-            </article>
+                <div class="feat-slide-img">
+                    {% if post.image %}
+                        <img src="{{ asset('uploads/images/' ~ post.image) }}" alt="{{ post.title }}">
+                    {% else %}
+                        <i class="fas fa-newspaper"></i>
+                    {% endif %}
+                </div>
+            </div>
         {% endfor %}
-        </div>
-        <button type="button" class="hc-arrow hc-arrow--next" aria-label="Articles suivants" onclick="document.getElementById('hcRow').scrollBy({left: 340, behavior: 'smooth'})"><i class="fas fa-chevron-right"></i></button>
+
+        {% if derniersConseils|length > 1 %}
+            <button type="button" class="feat-arrow feat-arrow--prev" aria-label="Article précédent"><i class="fas fa-chevron-left"></i></button>
+            <button type="button" class="feat-arrow feat-arrow--next" aria-label="Article suivant"><i class="fas fa-chevron-right"></i></button>
+            <div class="feat-dots">
+                {% for post in derniersConseils %}
+                    <button type="button" class="feat-dot {{ loop.first ? 'feat-dot--active' : '' }}" data-index="{{ loop.index0 }}" aria-label="Aller à l'article {{ loop.index }}"></button>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
+
     <div class="home-conseils-more">
         <a href="{{ path('blog_index') }}">
             Tous nos conseils &amp; actualités <i class="fas fa-arrow-right ml-1"></i>
         </a>
     </div>
 </section>
+<script>
+(function() {
+    var banner = document.getElementById('featBannerBlog');
+    if (!banner) return;
+    var slides = banner.querySelectorAll('.feat-slide');
+    if (slides.length < 2) return;
+    var dots = banner.querySelectorAll('.feat-dot');
+    var current = 0, timer = null;
+
+    function show(i) {
+        current = (i + slides.length) % slides.length;
+        slides.forEach(function(s, k) { s.classList.toggle('feat-slide--active', k === current); });
+        dots.forEach(function(d, k) { d.classList.toggle('feat-dot--active', k === current); });
+    }
+    function restart() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(function() { show(current + 1); }, 5000);
+    }
+    banner.querySelector('.feat-arrow--prev').addEventListener('click', function() { show(current - 1); restart(); });
+    banner.querySelector('.feat-arrow--next').addEventListener('click', function() { show(current + 1); restart(); });
+    dots.forEach(function(d) {
+        d.addEventListener('click', function() { show(parseInt(d.dataset.index, 10)); restart(); });
+    });
+    restart();
+})();
+</script>
 {% endif %}
 
 {# ═══════════════════════════════════════════════

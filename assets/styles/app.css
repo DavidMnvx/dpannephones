@@ -17806,6 +17806,13 @@ textarea.contact-input.is-invalid {
 .home-conseils-sub { font-size: 14px; color: #7d8896; margin-top: 6px; }
 .blog-grid--home { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 
+/* Bannière blog de l'accueil : la date remplace le prix dans la rangée CTA */
+.feat-blog-date {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13.5px;
+    font-weight: 500;
+}
+
 /* Carrousel des conseils sur l'accueil */
 .home-conseils-carousel {
     display: flex;
