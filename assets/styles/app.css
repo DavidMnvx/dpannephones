@@ -17567,8 +17567,8 @@ textarea.contact-input.is-invalid {
     transition: box-shadow 0.18s;
 }
 .blog-featured:hover { box-shadow: 0 14px 40px rgba(9, 31, 51, 0.12); text-decoration: none; color: inherit; }
-.blog-featured-img { min-height: 300px; background: #f4f7fa; }
-.blog-featured-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.blog-featured-img { position: relative; min-height: 300px; background: #f4f7fa; overflow: hidden; }
+.blog-featured-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .blog-featured-body {
     padding: 30px 34px;
     display: flex;
@@ -17621,8 +17621,22 @@ textarea.contact-input.is-invalid {
     box-shadow: 0 10px 30px rgba(9, 31, 51, 0.1);
     transform: translateY(-2px);
 }
-.blog-card-imglink { display: block; aspect-ratio: 16 / 9; background: #f4f7fa; }
-.blog-card-imglink img { width: 100%; height: 100%; object-fit: cover; }
+/* Image en absolu dans une boîte au ratio fixe : toutes les cartes ont
+   exactement la même hauteur d'image, quel que soit le format du fichier */
+.blog-card-imglink {
+    display: block;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #f4f7fa;
+    overflow: hidden;
+}
+.blog-card-imglink img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 .blog-card-noimg {
     width: 100%; height: 100%;
     display: flex; align-items: center; justify-content: center;

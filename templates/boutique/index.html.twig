@@ -405,8 +405,10 @@
                 {% if (currentCategorie is not null or searchQuery|default('')) and articles is not empty %}
                     <div class="sort-bar">
                         <label for="sortSelect"><i class="fas fa-sort-amount-down"></i> Trier&nbsp;:</label>
+                        {# window.URL impératif : dans un handler inline, "URL" nu se résout
+                           en document.URL (une chaîne) → "URL is not a constructor" #}
                         <select id="sortSelect"
-                                onchange="var u=new URL(location);u.searchParams.set('tri',this.value);u.searchParams.delete('page');location=u;">
+                                onchange="var u=new window.URL(window.location.href);u.searchParams.set('tri',this.value);u.searchParams.delete('page');window.location.assign(u.toString());">
                             <option value="recents" {{ currentSort|default(null) not in ['prix_asc', 'prix_desc'] ? 'selected' }}>Plus récents</option>
                             <option value="prix_asc" {{ currentSort|default(null) == 'prix_asc' ? 'selected' }}>Prix croissant</option>
                             <option value="prix_desc" {{ currentSort|default(null) == 'prix_desc' ? 'selected' }}>Prix décroissant</option>

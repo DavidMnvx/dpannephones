@@ -44,8 +44,9 @@
         </form>
         <div class="sort-bar" style="margin:0;">
             <label for="blogSort"><i class="fas fa-sort-amount-down"></i> Trier&nbsp;:</label>
+            {# window.URL impératif : "URL" nu = document.URL (chaîne) dans un handler inline #}
             <select id="blogSort"
-                    onchange="var u=new URL(location);u.searchParams.set('tri',this.value);location=u;">
+                    onchange="var u=new window.URL(window.location.href);u.searchParams.set('tri',this.value);window.location.assign(u.toString());">
                 <option value="recents" {{ currentSort|default(null) not in ['anciens', 'alpha'] ? 'selected' }}>Plus récents</option>
                 <option value="anciens" {{ currentSort|default(null) == 'anciens' ? 'selected' }}>Plus anciens</option>
                 <option value="alpha" {{ currentSort|default(null) == 'alpha' ? 'selected' }}>Titre A → Z</option>
