@@ -1,0 +1,11 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'blog' %}
+
+{% block admin_content %}
+<div style="margin-bottom:24px;">
+    <div class="admin-page-title">Nouvel article</div>
+    <div class="admin-page-subtitle">Conseils &amp; Actualités — enregistrez en brouillon puis publiez quand c'est prêt.</div>
+</div>
+
+{{ include('admin/blog/_form.html.twig') }}
+{% endblock %}

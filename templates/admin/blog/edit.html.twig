@@ -1,0 +1,18 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'blog' %}
+
+{% block admin_content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+        <div class="admin-page-title">Modifier l'article</div>
+        <div class="admin-page-subtitle">{{ post.title }}</div>
+    </div>
+    {% if post.isPublished %}
+        <a href="{{ path('blog_show', {slug: post.slug}) }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-external-link-alt mr-1"></i> Voir sur le site
+        </a>
+    {% endif %}
+</div>
+
+{{ include('admin/blog/_form.html.twig') }}
+{% endblock %}

@@ -273,6 +273,7 @@
     #sidebar .nav-link .fa-users          { background: linear-gradient(135deg, #6366f1, #4f46e5) !important; }
     #sidebar .nav-link .fa-handshake      { background: linear-gradient(135deg, #eab308, #ca8a04) !important; }
     #sidebar .nav-link .fa-share-alt      { background: linear-gradient(135deg, #60a5fa, #3b82f6) !important; }
+    #sidebar .nav-link .fa-newspaper      { background: linear-gradient(135deg, #f59e0b, #d97706) !important; }
     #sidebar .nav-link .fa-images         { background: linear-gradient(135deg, #a855f7, #9333ea) !important; }
     #sidebar .nav-link .fa-google         { background: linear-gradient(135deg, #ea4335, #c2372a) !important; }
     #sidebar .nav-link .fa-star-half-alt  { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; }
@@ -403,6 +404,12 @@
                     <a class="nav-link {{ active_section is defined and active_section == 'categories' ? 'active' : '' }}"
                        href="{{ path('admin_categories_index') }}">
                         <i class="fas fa-layer-group"></i> Catégories boutique
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'blog' ? 'active' : '' }}"
+                       href="{{ path('admin_blog_index') }}">
+                        <i class="fas fa-newspaper"></i> Conseils &amp; Actus
                     </a>
                 </li>
                 <li class="nav-item">

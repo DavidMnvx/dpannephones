@@ -1,0 +1,40 @@
+{{ form_start(form, {attr: {class: 'article-form', novalidate: 'novalidate'}}) }}
+
+<div class="admin-card">
+    <h3><i class="fas fa-pen"></i> Contenu</h3>
+    {{ form_row(form.title) }}
+    <div class="row">
+        <div class="col-md-6">{{ form_row(form.topic) }}</div>
+        <div class="col-md-6">{{ form_row(form.imageFile) }}</div>
+    </div>
+    {% if post is defined and post.image %}
+        <div style="margin:-6px 0 16px;">
+            <img src="{{ asset('uploads/images/' ~ post.image) }}" alt=""
+                 style="max-width:220px;border-radius:10px;border:1px solid #e9edf2;">
+            <div style="font-size:11.5px;color:#adb5bd;margin-top:4px;">Image actuelle — en choisir une nouvelle la remplace.</div>
+        </div>
+    {% endif %}
+    {{ form_row(form.excerpt) }}
+    {{ form_row(form.content) }}
+</div>
+
+<div class="admin-card" style="margin-top:22px;">
+    <h3><i class="fab fa-google"></i> Référencement (SEO)</h3>
+    {{ form_row(form.slug) }}
+    {{ form_row(form.seoTitle) }}
+    {{ form_row(form.metaDescription) }}
+</div>
+
+<div class="admin-card" style="margin-top:22px;">
+    <h3><i class="fas fa-toggle-on"></i> Publication</h3>
+    {{ form_row(form.isPublished) }}
+</div>
+
+<div style="margin-top:22px;display:flex;gap:10px;align-items:center;">
+    <button type="submit" class="btn-admin-submit">
+        <i class="fas fa-save mr-1"></i> Enregistrer
+    </button>
+    <a href="{{ path('admin_blog_index') }}" style="font-size:13.5px;color:#6c757d;">Annuler</a>
+</div>
+
+{{ form_end(form) }}

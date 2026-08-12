@@ -227,6 +227,19 @@ class SeedAppSettingsCommand extends Command
             'category'    => 'livraison',
             'sortOrder'   => 10,
         ],
+
+        // ═══════════════════════════════════════════════════════════════
+        // 📰 CONSEILS & ACTUALITÉS
+        // ═══════════════════════════════════════════════════════════════
+        [
+            'key'         => 'blog_api_token',
+            'label'       => 'Jeton API de dépôt de brouillons (agents IA)',
+            'description' => 'Clé secrète permettant à un agent IA ou un script de déposer des brouillons d\'articles via POST /api/blog/drafts (header X-Blog-Token). Les brouillons ne sont JAMAIS publiés automatiquement : relecture et publication depuis Admin > Conseils & Actualités. Générée automatiquement ; videz le champ pour en régénérer une.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => '', // générée à la première visite de Admin > Conseils & Actualités
+            'category'    => 'blog',
+            'sortOrder'   => 10,
+        ],
     ];
 
     public function __construct(private EntityManagerInterface $em)

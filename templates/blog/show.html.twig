@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ post.seoTitle ?: post.title }} — D'panne Phones{% endblock %}
+{% block meta_description %}{{ post.metaDescription ?: (post.excerpt ?: post.title) }}{% endblock %}
+{% block og_title %}{{ post.seoTitle ?: post.title }}{% endblock %}
+{% block og_description %}{{ post.metaDescription ?: (post.excerpt ?: post.title) }}{% endblock %}
+
+{% block body %}
+<div class="blog-wrap blog-wrap--article">
+
+    <nav class="article-breadcrumb">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="bc-sep">›</span>
+        <a href="{{ path('blog_index') }}">Conseils &amp; Actualités</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current">{{ post.title }}</span>
+    </nav>
+
+    <article class="blog-article">
+        <header class="blog-article-head">
+            {% if post.topicLabel %}
+                <span class="blog-topic">{{ post.topicLabel }}</span>
+            {% endif %}
+            <h1 class="blog-article-title">{{ post.title }}</h1>
+            <div class="blog-article-meta">
+                <span><i class="far fa-calendar-alt"></i>
+                    Publié le {{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '' }}</span>
+                <span><i class="fas fa-store"></i> Par l'atelier D'panne Phones, Pélissanne</span>
+            </div>
+        </header>
+
+        {% if post.image %}
+            <figure class="blog-article-cover">
+                <img src="{{ asset('uploads/images/' ~ post.image) }}" alt="{{ post.title }}">
+            </figure>
+        {% endif %}
+
+        <div class="blog-article-content">
+            {{ post.content|blog_content }}
+        </div>
+
+        <aside class="blog-article-cta">
+            <div>
+                <strong>Un appareil à réparer, ou envie de matériel reconditionné ?</strong>
+                <p>Notre atelier de Pélissanne vous accueille sans rendez-vous — diagnostic gratuit.</p>
+            </div>
+            <div class="blog-article-cta-actions">
+                <a href="{{ path('reparations_home') }}" class="blog-cta-btn"><i class="fas fa-tools"></i> Réparation</a>
+                <a href="{{ path('boutique_index', {categorie: 'occasions'}) }}" class="blog-cta-btn blog-cta-btn--alt"><i class="fas fa-recycle"></i> Nos occasions</a>
+            </div>
+        </aside>
+    </article>
+
+    {% if otherPosts is not empty %}
+        <section class="blog-others">
+            <h2 class="blog-others-title">À lire aussi</h2>
+            <div class="blog-others-row">
+                {% for other in otherPosts %}
+                    <a href="{{ path('blog_show', {slug: other.slug}) }}" class="blog-other-card">
+                        {% if other.image %}
+                            <img src="{{ asset('uploads/images/' ~ other.image) }}" alt="{{ other.title }}" loading="lazy">
+                        {% else %}
+                            <div class="blog-card-noimg blog-card-noimg--sm"><i class="fas fa-newspaper"></i></div>
+                        {% endif %}
+                        <span>{{ other.title }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+</div>
+
+{# Données structurées pour Google #}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": {{ post.title|json_encode|raw }},
+    "description": {{ (post.metaDescription ?: post.excerpt ?: post.title)|json_encode|raw }},
+    {% if post.image %}"image": {{ absolute_url(asset('uploads/images/' ~ post.image))|json_encode|raw }},{% endif %}
+    "datePublished": "{{ post.publishedAt ? post.publishedAt|date('c') : '' }}",
+    "dateModified": "{{ post.updatedAt ? post.updatedAt|date('c') : '' }}",
+    "author": { "@type": "Organization", "name": "D'panne Phones" },
+    "publisher": { "@type": "Organization", "name": "D'panne Phones" }
+}
+</script>
+{% endblock %}

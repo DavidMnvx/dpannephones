@@ -1,0 +1,122 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'blog' %}
+
+{% block admin_content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+        <div class="admin-page-title">Conseils &amp; Actualités</div>
+        <div class="admin-page-subtitle">Articles du blog — visibles sur <a href="{{ path('blog_index') }}" target="_blank">/conseils</a> une fois publiés.</div>
+    </div>
+    <a href="{{ path('admin_blog_new') }}" class="btn-admin-submit" style="text-decoration:none;">
+        <i class="fas fa-plus mr-1"></i> Nouvel article
+    </a>
+</div>
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+{% for message in app.flashes('warning') %}
+    <div class="alert alert-warning alert-dismissible fade show">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ message }}
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+{% endfor %}
+
+<div class="admin-card">
+    <h3><i class="fas fa-newspaper"></i> Articles
+        <span style="font-weight:400;color:#adb5bd;">({{ posts|length }})</span>
+    </h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Titre</th>
+                <th>Thème</th>
+                <th>Statut</th>
+                <th>Publié le</th>
+                <th>Source</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in posts %}
+                <tr>
+                    <td>
+                        {% if post.image %}
+                            <img src="{{ asset('uploads/images/' ~ post.image) }}" width="46" height="46"
+                                 style="border-radius:8px;object-fit:cover;">
+                        {% else %}
+                            <div style="width:46px;height:46px;background:#f0f2f5;border-radius:8px;
+                                        display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-newspaper" style="color:#dee2e6;"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ post.title }}</strong>
+                        <div style="font-size:11.5px;color:#adb5bd;">/conseils/{{ post.slug }}</div>
+                    </td>
+                    <td>{{ post.topicLabel ?? '—' }}</td>
+                    <td>
+                        {% if post.isPublished %}
+                            <span style="background:#dcfce7;color:#15803d;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">En ligne</span>
+                        {% else %}
+                            <span style="background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">Brouillon</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '—' }}</td>
+                    <td>
+                        {% if post.source %}
+                            <span title="Déposé via l'API de brouillons"
+                                  style="background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;">
+                                <i class="fas fa-robot" style="font-size:10px;"></i> {{ post.source }}
+                            </span>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td style="white-space:nowrap;">
+                        {% if post.isPublished %}
+                            <a href="{{ path('blog_show', {slug: post.slug}) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Voir</a>
+                        {% endif %}
+                        <a href="{{ path('admin_blog_edit', {id: post.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
+                        <form method="post" action="{{ path('admin_blog_delete', {id: post.id}) }}" style="display:inline;"
+                              onsubmit="return confirm('Supprimer cet article ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-blog-' ~ post.id) }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">
+                    Aucun article pour le moment — cliquez sur « Nouvel article » pour écrire le premier.
+                </td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ── Encart : connecter un agent IA ── #}
+<div class="admin-card" style="margin-top:22px;">
+    <h3><i class="fas fa-robot"></i> Connecter un agent IA (dépôt de brouillons)</h3>
+    <p style="font-size:13.5px;color:#6c757d;line-height:1.6;">
+        Un agent IA (assistant, script, automatisation…) peut déposer des articles via l'API.
+        Ils arrivent <strong>toujours en brouillon</strong> : rien n'est publié sans votre relecture.
+    </p>
+    <div style="background:#f8f9fb;border:1px solid #e9edf2;border-radius:10px;padding:14px 16px;font-size:12.5px;">
+        <div style="margin-bottom:8px;"><strong>Adresse :</strong> <code>POST {{ absolute_url(path('api_blog_draft_create')) }}</code></div>
+        <div style="margin-bottom:8px;"><strong>En-tête :</strong> <code>X-Blog-Token: {{ apiToken }}</code></div>
+        <div><strong>Corps JSON :</strong>
+            <code>{"title": "…", "content": "…", "excerpt": "…", "topic": "reparation", "seo_title": "…", "meta_description": "…", "source": "mon-agent"}</code>
+        </div>
+    </div>
+    <p style="font-size:12px;color:#adb5bd;margin-top:10px;margin-bottom:0;">
+        <i class="fas fa-shield-alt mr-1"></i> Gardez ce jeton secret — il se change dans Admin &gt; Paramètres (videz le champ pour en régénérer un).
+        Thèmes acceptés : <code>reparation, telephones, pc, gaming, batteries, securite, occasion, local, tendances</code>.
+    </p>
+</div>
+
+{% endblock %}

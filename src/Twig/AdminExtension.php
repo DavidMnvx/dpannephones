@@ -60,7 +60,83 @@ class AdminExtension extends AbstractExtension
     {
         return [
             new TwigFilter('rich_description', [$this, 'formatRichDescription'], ['is_safe' => ['html']]),
+            new TwigFilter('blog_content', [$this, 'formatBlogContent'], ['is_safe' => ['html']]),
         ];
+    }
+
+    /**
+     * Rendu du contenu des articles « Conseils & Actualités ».
+     *
+     * Même philosophie que rich_description (texte structuré, HTML échappé),
+     * avec en plus : « ## Mon sous-titre » => <h2> explicite, et les liens
+     * markdown « [texte](url) » => <a> (externe = nouvel onglet). Les liens
+     * internes (produits, catégories, services) restent dans l'onglet.
+     */
+    public function formatBlogContent(?string $text): string
+    {
+        if (!$text || trim($text) === '') {
+            return '';
+        }
+
+        $linkify = function (string $escaped): string {
+            return preg_replace_callback(
+                '/\[([^\]]+)\]\((https?:\/\/[^\s)]+|\/[^\s)]*)\)/u',
+                function ($m) {
+                    $href = htmlspecialchars($m[2], ENT_QUOTES);
+                    $ext  = str_starts_with($m[2], 'http') && !str_contains($m[2], 'dpannephones.fr');
+                    $attr = $ext ? ' target="_blank" rel="noopener"' : '';
+                    return '<a href="' . $href . '"' . $attr . '>' . $m[1] . '</a>';
+                },
+                $escaped
+            );
+        };
+
+        $blocks  = [];
+        $current = [];
+        foreach (preg_split('/\R/u', $text) as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                if ($current) { $blocks[] = $current; $current = []; }
+            } else {
+                $current[] = $line;
+            }
+        }
+        if ($current) {
+            $blocks[] = $current;
+        }
+
+        $html = '';
+        foreach ($blocks as $block) {
+            // Sous-titres explicites : chaque ligne "## ..." du bloc devient un h2
+            if (preg_match('/^##\s+/u', $block[0])) {
+                foreach ($block as $l) {
+                    if (preg_match('/^##\s+(.+)$/u', $l, $m)) {
+                        $html .= '<h2>' . htmlspecialchars($m[1], ENT_QUOTES) . '</h2>';
+                    } else {
+                        $html .= '<p>' . $linkify(htmlspecialchars($l, ENT_QUOTES)) . '</p>';
+                    }
+                }
+                continue;
+            }
+
+            $isList = count(array_filter($block, fn ($l) => preg_match('/^[\*\-•]\s+/u', $l))) === count($block);
+
+            if ($isList) {
+                $html .= '<ul>';
+                foreach ($block as $l) {
+                    $html .= '<li>' . $linkify(htmlspecialchars(preg_replace('/^[\*\-•]\s+/u', '', $l), ENT_QUOTES)) . '</li>';
+                }
+                $html .= '</ul>';
+            } elseif (count($block) === 1 && mb_strlen($block[0]) <= 65
+                      && !preg_match('/[.!?;:,]$/u', $block[0]) && !str_contains($block[0], '[')) {
+                $html .= '<h2>' . htmlspecialchars($block[0], ENT_QUOTES) . '</h2>';
+            } else {
+                $escaped = array_map(fn ($l) => $linkify(htmlspecialchars($l, ENT_QUOTES)), $block);
+                $html .= '<p>' . implode('<br>', $escaped) . '</p>';
+            }
+        }
+
+        return $html;
     }
 
     /**

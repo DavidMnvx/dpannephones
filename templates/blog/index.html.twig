@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conseils & Actualités — D'panne Phones Pélissanne{% endblock %}
+{% block meta_description %}Conseils réparation, réparabilité, entretien de vos téléphones et PC — par l'atelier D'panne Phones à Pélissanne.{% endblock %}
+{% block og_title %}Conseils & Actualités — D'panne Phones{% endblock %}
+{% block og_description %}Conseils réparation, réparabilité et entretien de vos appareils, par notre atelier de Pélissanne.{% endblock %}
+
+{% block body %}
+<div class="blog-wrap">
+
+    <nav class="article-breadcrumb">
+        <a href="{{ path('home') }}">Accueil</a>
+        <span class="bc-sep">›</span>
+        <span class="bc-current">Conseils &amp; Actualités</span>
+    </nav>
+
+    <header class="blog-head">
+        <h1 class="blog-title"><i class="fas fa-newspaper"></i> Conseils &amp; Actualités</h1>
+        <p class="blog-sub">
+            Réparation, réparabilité, entretien : les conseils de notre atelier de Pélissanne
+            pour faire durer vos téléphones et vos PC.
+        </p>
+    </header>
+
+    {% if posts is empty %}
+        <div class="blog-empty">
+            <i class="fas fa-pen-nib"></i>
+            <p>Les premiers articles arrivent bientôt.</p>
+        </div>
+    {% else %}
+        <div class="blog-grid">
+            {% for post in posts %}
+                <article class="blog-card">
+                    <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-card-imglink">
+                        {% if post.image %}
+                            <img src="{{ asset('uploads/images/' ~ post.image) }}" alt="{{ post.title }}" loading="lazy">
+                        {% else %}
+                            <div class="blog-card-noimg"><i class="fas fa-newspaper"></i></div>
+                        {% endif %}
+                    </a>
+                    <div class="blog-card-body">
+                        {% if post.topicLabel %}
+                            <span class="blog-topic">{{ post.topicLabel }}</span>
+                        {% endif %}
+                        <h2 class="blog-card-title">
+                            <a href="{{ path('blog_show', {slug: post.slug}) }}">{{ post.title }}</a>
+                        </h2>
+                        <p class="blog-card-excerpt">
+                            {% set resume = post.excerpt ?: post.content %}
+                            {{ resume|length > 140 ? resume|slice(0, 140) ~ '…' : resume }}
+                        </p>
+                        <div class="blog-card-foot">
+                            <span class="blog-date">
+                                <i class="far fa-calendar-alt"></i>
+                                {{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '' }}
+                            </span>
+                            <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-readmore">
+                                Lire l'article <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

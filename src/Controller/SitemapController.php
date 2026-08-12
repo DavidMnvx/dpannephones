@@ -29,6 +29,7 @@ class SitemapController extends AbstractController
         $staticRoutes = [
             'home'                 => ['priority' => 1.0,  'freq' => 'weekly'],
             'boutique_index'       => ['priority' => 0.9,  'freq' => 'daily'],
+            'blog_index'           => ['priority' => 0.8,  'freq' => 'weekly'],
             'reparations_home'     => ['priority' => 0.9,  'freq' => 'weekly'],
             'contact'              => ['priority' => 0.6,  'freq' => 'monthly'],
             'about'                => ['priority' => 0.5,  'freq' => 'monthly'],
@@ -73,6 +74,18 @@ class SitemapController extends AbstractController
                     'lastmod'    => $today,
                     'changefreq' => 'weekly',
                     'priority'   => 0.6,
+                ];
+            } catch (\Exception $e) {}
+        }
+
+        // ─── Articles Conseils & Actualités (publiés uniquement) ───
+        foreach ($em->getRepository(\App\Entity\BlogPost::class)->findBy(['isPublished' => true]) as $post) {
+            try {
+                $urls[] = [
+                    'loc'        => $this->generateUrl('blog_show', ['slug' => $post->getSlug()], 0),
+                    'lastmod'    => ($post->getUpdatedAt() ?? $post->getPublishedAt())?->format('Y-m-d') ?? $today,
+                    'changefreq' => 'monthly',
+                    'priority'   => 0.7,
                 ];
             } catch (\Exception $e) {}
         }
