@@ -21,9 +21,29 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class BlogAdminController extends AbstractController
 {
     #[Route('/', name: 'admin_blog_index', methods: ['GET'])]
-    public function index(EntityManagerInterface $em): Response
+    public function index(Request $request, EntityManagerInterface $em): Response
     {
-        $posts = $em->getRepository(BlogPost::class)->findBy([], ['id' => 'DESC']);
+        $repo = $em->getRepository(BlogPost::class);
+
+        // Filtre par statut (?statut=publies|brouillons) + pagination
+        $statut = $request->query->get('statut');
+        $page   = max(1, $request->query->getInt('page', 1));
+        $perPage = 20;
+
+        $criteria = match ($statut) {
+            'publies'    => ['isPublished' => true],
+            'brouillons' => ['isPublished' => false],
+            default      => [],
+        };
+
+        $countAll        = $repo->count([]);
+        $countPublies    = $repo->count(['isPublished' => true]);
+        $countBrouillons = $countAll - $countPublies;
+
+        $total      = $repo->count($criteria);
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page       = min($page, $totalPages);
+        $posts      = $repo->findBy($criteria, ['id' => 'DESC'], $perPage, ($page - 1) * $perPage);
 
         // Jeton de l'API de dépôt de brouillons (agents IA) — affiché dans l'encart d'aide.
         // Généré paresseusement à la première visite (le seed le crée vide).
@@ -47,9 +67,15 @@ class BlogAdminController extends AbstractController
         }
 
         return $this->render('admin/blog/index.html.twig', [
-            'posts'       => $posts,
-            'apiToken'    => $apiToken,
-            'agentPrompt' => $promptSetting?->getRawValue() ?? '',
+            'posts'           => $posts,
+            'apiToken'        => $apiToken,
+            'agentPrompt'     => $promptSetting?->getRawValue() ?? '',
+            'currentStatut'   => in_array($statut, ['publies', 'brouillons'], true) ? $statut : null,
+            'countAll'        => $countAll,
+            'countPublies'    => $countPublies,
+            'countBrouillons' => $countBrouillons,
+            'currentPage'     => $page,
+            'totalPages'      => $totalPages,
         ]);
     }
 

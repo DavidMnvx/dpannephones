@@ -28,8 +28,24 @@
 
 <div class="admin-card">
     <h3><i class="fas fa-newspaper"></i> Articles
-        <span style="font-weight:400;color:#adb5bd;">({{ posts|length }})</span>
+        <span style="font-weight:400;color:#adb5bd;">({{ countAll|default(posts|length) }})</span>
     </h3>
+
+    {# Onglets par statut #}
+    <div class="filter-tabs">
+        <a href="{{ path('admin_blog_index') }}" style="text-decoration:none;"
+           class="filter-tab {{ currentStatut|default(null) is null ? 'active' : '' }}">
+            Tous <span class="tab-count">{{ countAll|default(0) }}</span>
+        </a>
+        <a href="{{ path('admin_blog_index', {statut: 'publies'}) }}" style="text-decoration:none;"
+           class="filter-tab {{ currentStatut|default(null) == 'publies' ? 'active' : '' }}">
+            En ligne <span class="tab-count">{{ countPublies|default(0) }}</span>
+        </a>
+        <a href="{{ path('admin_blog_index', {statut: 'brouillons'}) }}" style="text-decoration:none;"
+           class="filter-tab {{ currentStatut|default(null) == 'brouillons' ? 'active' : '' }}">
+            Brouillons <span class="tab-count">{{ countBrouillons|default(0) }}</span>
+        </a>
+    </div>
 
     <table class="table">
         <thead>
@@ -98,6 +114,20 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {# Pagination #}
+    {% if totalPages|default(1) > 1 %}
+        <div style="display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap;">
+            {% for p in 1..totalPages %}
+                {% if p == currentPage %}
+                    <span class="btn btn-sm" style="background:rgb(9,71,113);color:#fff;min-width:36px;">{{ p }}</span>
+                {% else %}
+                    <a href="{{ path('admin_blog_index', currentStatut ? {statut: currentStatut, page: p} : {page: p}) }}"
+                       class="btn btn-sm btn-outline-secondary" style="min-width:36px;">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
 
 {# ── Encart : connecter un agent IA ── #}
