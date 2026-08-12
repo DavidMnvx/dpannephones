@@ -326,15 +326,17 @@
                     <div class="coque-grid">
                         {% for article in articles %}
                             <article class="coque-card">
-                                <div class="coque-card-img">
+                                <a href="{{ path('boutique_show', {id: article.id}) }}" class="coque-card-img" style="display:block;text-decoration:none;">
                                     {% if article.image %}
                                         <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}" loading="lazy">
                                     {% else %}
                                         <div class="coque-card-noimg"><i class="fas fa-shield-alt"></i></div>
                                     {% endif %}
-                                </div>
+                                </a>
                                 <div class="coque-card-body">
-                                    <h3 class="coque-card-title">{{ article.name }}</h3>
+                                    <h3 class="coque-card-title">
+                                        <a href="{{ path('boutique_show', {id: article.id}) }}" style="color:inherit;text-decoration:none;">{{ article.name }}</a>
+                                    </h3>
                                     {% if article.description %}
                                         <p class="coque-card-desc">{{ article.description|length > 90 ? article.description|slice(0, 90) ~ '…' : article.description }}</p>
                                     {% endif %}

@@ -364,7 +364,8 @@
                 </div>
 
                 <div class="article-buy-actions">
-                    {% if article.categorie == 'film_hydrogel' %}
+                    {# Sélecteur marque → modèle : hydrogel ET coques (même mécanique) #}
+                    {% if article.categorie in ['film_hydrogel', 'coque'] %}
                         {# Récupérer les modèles par marque (brand_models) ou liste plate (compatible_models) #}
                         {% set brandModels = article.specs.brand_models ?? {} %}
                         {% set flatModels  = article.specs.compatible_models ?? [] %}
@@ -393,7 +394,7 @@
 
                                 <button type="submit" class="btn-cart-detail" id="hydrogel-submit" disabled>
                                     <i class="fas fa-shield-alt"></i>
-                                    Ajouter le film hydrogel au panier
+                                    Ajouter {{ article.categorie == 'coque' ? 'la coque' : 'le film hydrogel' }} au panier
                                 </button>
                             </form>
 
@@ -434,7 +435,7 @@
                                 </select>
                                 <button type="submit" class="btn-cart-detail">
                                     <i class="fas fa-shield-alt"></i>
-                                    Ajouter le film hydrogel au panier
+                                    Ajouter {{ article.categorie == 'coque' ? 'la coque' : 'le film hydrogel' }} au panier
                                 </button>
                             </form>
                         {% else %}
