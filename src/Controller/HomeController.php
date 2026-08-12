@@ -37,7 +37,7 @@ class HomeController extends AbstractController
         $dernierArticles = $this->articleRepository->findBy([], ['id' => 'DESC'], 10);
 
         // Derniers conseils publiés (rubrique Conseils & Actualités)
-        $derniersConseils = $this->blogPostRepository->findPublished(3);
+        $derniersConseils = $this->blogPostRepository->findPublished(6);
 
         return $this->render('home/index.html.twig', [
             'derniersConseils'    => $derniersConseils,

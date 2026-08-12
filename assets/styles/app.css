@@ -17791,6 +17791,51 @@ textarea.contact-input.is-invalid {
 .home-conseils-title i { color: rgb(9, 71, 113); margin-right: 10px; }
 .home-conseils-sub { font-size: 14px; color: #7d8896; margin-top: 6px; }
 .blog-grid--home { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+/* Carrousel des conseils sur l'accueil */
+.home-conseils-carousel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.home-conseils-row {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding: 4px 2px 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #cfd9e2 transparent;
+    flex: 1;
+    min-width: 0;
+}
+.home-conseils-row::-webkit-scrollbar { height: 6px; }
+.home-conseils-row::-webkit-scrollbar-track { background: transparent; }
+.home-conseils-row::-webkit-scrollbar-thumb { background: #cfd9e2; border-radius: 999px; }
+.home-conseils-row .blog-card {
+    flex: 0 0 315px;
+    scroll-snap-align: start;
+}
+.hc-arrow {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid #dee2e6;
+    background: #fff;
+    color: rgb(9, 71, 113);
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.hc-arrow:hover { background: rgb(9, 71, 113); border-color: rgb(9, 71, 113); color: #fff; }
+@media (max-width: 640px) {
+    .hc-arrow { display: none; } /* au doigt, le défilement suffit */
+    .home-conseils-row .blog-card { flex-basis: 270px; }
+}
 .home-conseils-more { text-align: center; margin-top: 26px; }
 .home-conseils-more a {
     display: inline-flex;
