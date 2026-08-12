@@ -34,10 +34,40 @@ class BlogAdminController extends AbstractController
         }
         $apiToken = $tokenSetting?->getRawValue();
 
+        // Prompt de l'agent IA — initialisé depuis docs/AGENT-BLOG.md (bloc central
+        // entre les deux "---") à la première visite, puis éditable dans le BO
+        $promptSetting = $em->getRepository(AppSetting::class)->findOneBy(['key' => 'blog_agent_prompt']);
+        if ($promptSetting && !$promptSetting->getRawValue()) {
+            $file = $this->getParameter('kernel.project_dir') . '/docs/AGENT-BLOG.md';
+            if (is_file($file)) {
+                $parts = explode("\n---\n", (string) file_get_contents($file));
+                $promptSetting->setRawValue(trim($parts[1] ?? $parts[0]));
+                $em->flush();
+            }
+        }
+
         return $this->render('admin/blog/index.html.twig', [
-            'posts'    => $posts,
-            'apiToken' => $apiToken,
+            'posts'       => $posts,
+            'apiToken'    => $apiToken,
+            'agentPrompt' => $promptSetting?->getRawValue() ?? '',
         ]);
+    }
+
+    #[Route('/prompt', name: 'admin_blog_prompt_save', methods: ['POST'])]
+    public function savePrompt(Request $request, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('blog-prompt', (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
+
+        $setting = $em->getRepository(AppSetting::class)->findOneBy(['key' => 'blog_agent_prompt']);
+        if ($setting) {
+            $setting->setRawValue(trim((string) $request->request->get('prompt')));
+            $em->flush();
+            $this->addFlash('success', "Prompt de l'agent IA enregistré.");
+        }
+
+        return $this->redirectToRoute('admin_blog_index');
     }
 
     #[Route('/nouveau', name: 'admin_blog_new', methods: ['GET', 'POST'])]

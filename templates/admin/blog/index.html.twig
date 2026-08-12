@@ -117,6 +117,38 @@
         <i class="fas fa-shield-alt mr-1"></i> Gardez ce jeton secret — il se change dans Admin &gt; Paramètres (videz le champ pour en régénérer un).
         Thèmes acceptés : <code>reparation, telephones, pc, gaming, batteries, securite, occasion, local, tendances</code>.
     </p>
+
+    {# ── Le prompt de l'agent : éditable + copiable avec le jeton inséré ── #}
+    <hr style="margin:20px 0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <div>
+            <strong style="font-size:14px;color:#1b2e45;"><i class="fas fa-scroll mr-1"></i> Le prompt de l'agent</strong>
+            <div style="font-size:12px;color:#adb5bd;">Les instructions à donner à votre agent IA. Modifiez, enregistrez, puis copiez-collez dans l'agent.</div>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copierPromptAgent(this)">
+            <i class="fas fa-copy mr-1"></i> Copier le prompt (jeton inclus)
+        </button>
+    </div>
+    <form method="post" action="{{ path('admin_blog_prompt_save') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('blog-prompt') }}">
+        <textarea id="agent-prompt-text" name="prompt" rows="14"
+                  style="width:100%;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.55;border:1px solid #e9edf2;border-radius:10px;padding:12px 14px;background:#fbfcfe;">{{ agentPrompt }}</textarea>
+        <button type="submit" class="btn-admin-submit" style="margin-top:10px;">
+            <i class="fas fa-save mr-1"></i> Enregistrer le prompt
+        </button>
+    </form>
+    <script>
+    function copierPromptAgent(btn) {
+        var texte = document.getElementById('agent-prompt-text').value
+            .replaceAll('{{ '{{TOKEN}}' }}', {{ apiToken|json_encode|raw }});
+        navigator.clipboard.writeText(texte).then(function() {
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i> Copié !';
+            setTimeout(function() {
+                btn.innerHTML = '<i class="fas fa-copy mr-1"></i> Copier le prompt (jeton inclus)';
+            }, 2000);
+        });
+    }
+    </script>
 </div>
 
 {% endblock %}

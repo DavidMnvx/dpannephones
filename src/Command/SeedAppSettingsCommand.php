@@ -240,6 +240,15 @@ class SeedAppSettingsCommand extends Command
             'category'    => 'blog',
             'sortOrder'   => 10,
         ],
+        [
+            'key'         => 'blog_agent_prompt',
+            'label'       => 'Prompt de l\'agent IA rédacteur',
+            'description' => 'Les instructions données à l\'agent IA qui rédige les brouillons d\'articles. Modifiable aussi directement depuis Admin > Conseils & Actus (avec bouton copier incluant le jeton).',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => '', // initialisé depuis docs/AGENT-BLOG.md à la première visite
+            'category'    => 'blog',
+            'sortOrder'   => 20,
+        ],
     ];
 
     public function __construct(private EntityManagerInterface $em)

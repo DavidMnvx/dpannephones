@@ -283,6 +283,19 @@
     #sidebar .nav-link .fa-layer-group    { background: linear-gradient(135deg, #84cc16, #65a30d) !important; }
 
     /* Séparateur avant Paramètres */
+    /* Titres de secteur de la sidebar */
+    .sidebar-section-title {
+        list-style: none;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        padding: 16px 18px 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.07);
+        margin-top: 10px;
+    }
+
     #sidebar .nav-item[style*="border-top"] {
         margin-top: 16px !important;
         padding-top: 16px !important;
@@ -312,6 +325,8 @@
         <nav id="sidebar" class="col-md-2 d-md-block">
             <div class="sidebar-header">Navigation</div>
             <ul class="nav flex-column">
+
+                {# ── Pilotage ── #}
                 <li class="nav-item">
                     <a class="nav-link {{ active_section is defined and active_section == 'dashboard' ? 'active' : '' }}"
                        href="{{ path('admin_index') }}">
@@ -324,6 +339,42 @@
                         <i class="fas fa-chart-line"></i> Statistiques
                     </a>
                 </li>
+
+                {# ── Boutique ── #}
+                <li class="sidebar-section-title">Boutique</li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'articles' ? 'active' : '' }}"
+                       href="{{ path('admin_article_index') }}">
+                        <i class="fas fa-shopping-bag"></i> Articles
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'categories' ? 'active' : '' }}"
+                       href="{{ path('admin_categories_index') }}">
+                        <i class="fas fa-layer-group"></i> Catégories
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'commandes' ? 'active' : '' }}"
+                       href="{{ path('admin_commandes') }}">
+                        <i class="fas fa-receipt"></i> Commandes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'promos' ? 'active' : '' }}"
+                       href="{{ path('admin_promos') }}">
+                        <i class="fas fa-ticket-alt" style="color:#16a34a;"></i> Codes promo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'colors' ? 'active' : '' }}"
+                       href="{{ path('admin_colors_index') }}">
+                        <i class="fas fa-palette"></i> Couleurs
+                    </a>
+                </li>
+
+                {# ── Réparation ── #}
+                <li class="sidebar-section-title">Réparation</li>
                 <li class="nav-item">
                     <a class="nav-link {{ active_section is defined and active_section == 'marques' ? 'active' : '' }}"
                        href="{{ path('admin_index') }}#marques">
@@ -343,27 +394,24 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'articles' ? 'active' : '' }}"
-                       href="{{ path('admin_article_index') }}">
-                        <i class="fas fa-shopping-bag"></i> Articles boutique
+                    <a class="nav-link {{ active_section is defined and active_section == 'popular_phones' ? 'active' : '' }}"
+                       href="{{ path('admin_popular_phones_index') }}">
+                        <i class="fas fa-fire"></i> Téléphones populaires
+                    </a>
+                </li>
+
+                {# ── Contenu du site ── #}
+                <li class="sidebar-section-title">Contenu du site</li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'blog' ? 'active' : '' }}"
+                       href="{{ path('admin_blog_index') }}">
+                        <i class="fas fa-newspaper"></i> Conseils &amp; Actus
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'commandes' ? 'active' : '' }}"
-                       href="{{ path('admin_commandes') }}">
-                        <i class="fas fa-receipt"></i> Commandes
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'promos' ? 'active' : '' }}"
-                       href="{{ path('admin_promos') }}">
-                        <i class="fas fa-ticket-alt" style="color:#16a34a;"></i> Codes promo
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'clients' ? 'active' : '' }}"
-                       href="{{ path('admin_clients') }}">
-                        <i class="fas fa-users"></i> Clients
+                    <a class="nav-link {{ active_section is defined and active_section == 'site_images' ? 'active' : '' }}"
+                       href="{{ path('admin_site_images') }}">
+                        <i class="fas fa-images"></i> Images du site
                     </a>
                 </li>
                 <li class="nav-item">
@@ -378,16 +426,13 @@
                         <i class="fas fa-share-alt" style="color:#3b82f6;"></i> Réseaux sociaux
                     </a>
                 </li>
+
+                {# ── Clients & avis ── #}
+                <li class="sidebar-section-title">Clients &amp; avis</li>
                 <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'site_images' ? 'active' : '' }}"
-                       href="{{ path('admin_site_images') }}">
-                        <i class="fas fa-images"></i> Images du site
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'google_reviews' ? 'active' : '' }}"
-                       href="{{ path('admin_google_reviews') }}">
-                        <i class="fab fa-google"></i> Avis Google
+                    <a class="nav-link {{ active_section is defined and active_section == 'clients' ? 'active' : '' }}"
+                       href="{{ path('admin_clients') }}">
+                        <i class="fas fa-users"></i> Clients
                     </a>
                 </li>
                 <li class="nav-item">
@@ -401,36 +446,21 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'categories' ? 'active' : '' }}"
-                       href="{{ path('admin_categories_index') }}">
-                        <i class="fas fa-layer-group"></i> Catégories boutique
+                    <a class="nav-link {{ active_section is defined and active_section == 'google_reviews' ? 'active' : '' }}"
+                       href="{{ path('admin_google_reviews') }}">
+                        <i class="fab fa-google"></i> Avis Google
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'blog' ? 'active' : '' }}"
-                       href="{{ path('admin_blog_index') }}">
-                        <i class="fas fa-newspaper"></i> Conseils &amp; Actus
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'colors' ? 'active' : '' }}"
-                       href="{{ path('admin_colors_index') }}">
-                        <i class="fas fa-palette"></i> Couleurs
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ active_section is defined and active_section == 'popular_phones' ? 'active' : '' }}"
-                       href="{{ path('admin_popular_phones_index') }}">
-                        <i class="fas fa-mobile-alt"></i> Téléphones populaires
-                    </a>
-                </li>
+
+                {# ── Réglages ── #}
+                <li class="sidebar-section-title">Réglages</li>
                 <li class="nav-item">
                     <a class="nav-link {{ active_section is defined and active_section == 'horaires' ? 'active' : '' }}"
                        href="{{ path('admin_horaires') }}">
                         <i class="fas fa-clock"></i> Horaires d'ouverture
                     </a>
                 </li>
-                <li class="nav-item" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+                <li class="nav-item">
                     <a class="nav-link {{ active_section is defined and active_section == 'settings' ? 'active' : '' }}"
                        href="{{ path('admin_settings') }}">
                         <i class="fas fa-cog"></i> Paramètres
