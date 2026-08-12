@@ -17345,3 +17345,100 @@ textarea.contact-input.is-invalid {
     color: #fbbf24;
     text-decoration: underline;
 }
+
+/* ═══════════════════════════════════════════════════
+   BANDEAU COOKIES (tarteaucitron) — aux couleurs du site
+   Les !important sont nécessaires : tarteaucitron injecte
+   son propre CSS après le nôtre.
+   ═══════════════════════════════════════════════════ */
+#tarteaucitronRoot div#tarteaucitronAlertBig {
+    background: #ffffff !important;
+    color: #1b2e45 !important;
+    border-radius: 14px !important;
+    border: 1px solid #e9edf2 !important;
+    box-shadow: 0 14px 44px rgba(9, 31, 51, 0.2) !important;
+    padding: 26px 28px 22px !important;
+    width: min(92vw, 560px) !important;
+    box-sizing: border-box !important;
+    font-family: inherit !important;
+}
+
+/* Voile derrière le bandeau : bleu nuit doux plutôt que noir */
+#tarteaucitronRoot #tarteaucitronBack {
+    background: #0b2237 !important;
+    opacity: 0.45 !important;
+}
+
+#tarteaucitronRoot #tarteaucitronDisclaimerAlert,
+#tarteaucitronRoot #tarteaucitronDisclaimerAlert strong {
+    color: #1b2e45 !important;
+    font-size: 14.5px !important;
+    line-height: 1.55 !important;
+    font-weight: 500 !important;
+}
+
+/* Boutons du bandeau : mêmes codes que les boutons du site */
+#tarteaucitronRoot .tarteaucitronCTAButton,
+#tarteaucitronRoot #tarteaucitronCloseAlert {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    padding: 10px 20px !important;
+    margin: 10px 5px 0 !important;
+    border: 1.5px solid transparent !important;
+    background-image: none !important;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+/* « Tout accepter » : bleu D'panne */
+#tarteaucitronRoot #tarteaucitronPersonalize2 {
+    background: rgb(9, 71, 113) !important;
+    color: #fff !important;
+}
+#tarteaucitronRoot #tarteaucitronPersonalize2:hover {
+    background: rgb(12, 88, 138) !important;
+}
+
+/* « Tout refuser » : sobre, même poids visuel qu'un bouton secondaire */
+#tarteaucitronRoot .tarteaucitronDeny {
+    background: #fff !important;
+    color: #6c757d !important;
+    border-color: #dee2e6 !important;
+}
+#tarteaucitronRoot .tarteaucitronDeny:hover {
+    border-color: #adb5bd !important;
+    color: #495057 !important;
+}
+
+/* « Personnaliser » : tertiaire discret */
+#tarteaucitronRoot #tarteaucitronCloseAlert {
+    background: #f4f7fa !important;
+    color: rgb(9, 71, 113) !important;
+    border-color: #dbe4ec !important;
+}
+#tarteaucitronRoot #tarteaucitronCloseAlert:hover {
+    background: #e9f0f6 !important;
+}
+
+/* Lien politique de confidentialité */
+#tarteaucitronRoot #tarteaucitronPrivacyUrl,
+#tarteaucitronRoot #tarteaucitronPrivacyUrlDialog {
+    color: #7d8896 !important;
+    font-size: 12.5px !important;
+    text-decoration: underline !important;
+    background: none !important;
+}
+#tarteaucitronRoot #tarteaucitronPrivacyUrl:hover,
+#tarteaucitronRoot #tarteaucitronPrivacyUrlDialog:hover {
+    color: rgb(9, 71, 113) !important;
+}
+
+/* Panneau « Personnaliser » : entête harmonisée */
+#tarteaucitronRoot #tarteaucitronClosePanel {
+    background: rgb(9, 71, 113) !important;
+    border-color: rgb(9, 71, 113) !important;
+}
+#tarteaucitronRoot .tarteaucitronH1,
+#tarteaucitronRoot .tarteaucitronH2 {
+    font-family: inherit !important;
+}
