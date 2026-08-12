@@ -49,6 +49,13 @@
             </div>
         </div>
 
+        {# Mention prix variables #}
+        <div class="rep-prix-note">
+            <i class="fas fa-tag"></i>
+            <span><strong>Prix indicatifs</strong> — le coût des pièces évolue selon nos fournisseurs et le marché :
+            le tarif définitif vous est confirmé en boutique après le diagnostic gratuit, avant toute intervention.</span>
+        </div>
+
         {# ── Réparations spécifiques au modèle ── #}
         {% if reparations is not empty %}
             <div class="rep-section">
@@ -172,6 +179,9 @@
                     <span>Total estimé TTC</span>
                     <span class="rep-devis-amount"><span id="total-price">0,00</span> €</span>
                 </div>
+                <p class="rep-devis-note">
+                    Estimation indicative — le prix définitif est confirmé en boutique avant intervention.
+                </p>
             </div>
 
             <a href="{{ path('contact') }}" class="rep-devis-cta" id="devisCta">
