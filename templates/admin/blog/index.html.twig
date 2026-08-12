@@ -5,8 +5,8 @@
 
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
     <div>
-        <div class="admin-page-title">Conseils &amp; Actualités</div>
-        <div class="admin-page-subtitle">Articles du blog — visibles sur <a href="{{ path('blog_index') }}" target="_blank">/conseils</a> une fois publiés.</div>
+        <div class="admin-page-title">Le Blog — Conseils &amp; Actualités</div>
+        <div class="admin-page-subtitle">Articles du blog — visibles sur <a href="{{ path('blog_index') }}" target="_blank">/blog</a> une fois publiés.</div>
     </div>
     <a href="{{ path('admin_blog_new') }}" class="btn-admin-submit" style="text-decoration:none;">
         <i class="fas fa-plus mr-1"></i> Nouvel article
@@ -59,7 +59,7 @@
                     </td>
                     <td>
                         <strong>{{ post.title }}</strong>
-                        <div style="font-size:11.5px;color:#adb5bd;">/conseils/{{ post.slug }}</div>
+                        <div style="font-size:11.5px;color:#adb5bd;">/blog/{{ post.slug }}</div>
                     </td>
                     <td>{{ post.topicLabel ?? '—' }}</td>
                     <td>

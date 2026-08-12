@@ -188,9 +188,9 @@
                     </li>
                     {% endif %}
 
-                    {# Conseils & Actualités #}
-                    <li class="nav-item {{ currentPath starts with '/conseils' ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('blog_index') }}">Conseils</a>
+                    {# Le Blog — Conseils & Actualités #}
+                    <li class="nav-item {{ currentPath starts with '/blog' ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ path('blog_index') }}">Blog</a>
                     </li>
 
                     {# Contact — masqué si désactivée #}

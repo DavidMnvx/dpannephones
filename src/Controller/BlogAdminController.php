@@ -17,7 +17,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 /**
  * Back-office de la rubrique « Conseils & Actualités ».
  */
-#[Route('/admin/conseils')]
+#[Route('/admin/blog')]
 class BlogAdminController extends AbstractController
 {
     #[Route('/', name: 'admin_blog_index', methods: ['GET'])]
@@ -82,7 +82,7 @@ class BlogAdminController extends AbstractController
             $em->persist($post);
             $em->flush();
             $this->addFlash('success', $post->isPublished()
-                ? 'Article publié — il est en ligne sur /conseils.'
+                ? 'Article publié — il est en ligne sur /blog.'
                 : 'Brouillon enregistré (invisible sur le site).');
 
             return $this->redirectToRoute('admin_blog_index');

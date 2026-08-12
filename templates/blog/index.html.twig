@@ -1,35 +1,103 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Conseils & Actualités — D'panne Phones Pélissanne{% endblock %}
-{% block meta_description %}Conseils réparation, réparabilité, entretien de vos téléphones et PC — par l'atelier D'panne Phones à Pélissanne.{% endblock %}
-{% block og_title %}Conseils & Actualités — D'panne Phones{% endblock %}
+{% block title %}Le Blog — Conseils & Actualités — D'panne Phones Pélissanne{% endblock %}
+{% block meta_description %}Le blog de D'panne Phones : conseils réparation, réparabilité, entretien de vos téléphones et PC — par notre atelier de Pélissanne.{% endblock %}
+{% block og_title %}Le Blog — Conseils & Actualités — D'panne Phones{% endblock %}
 {% block og_description %}Conseils réparation, réparabilité et entretien de vos appareils, par notre atelier de Pélissanne.{% endblock %}
 
 {% block body %}
+
+{# Bannière modifiable dans Admin > Images du site #}
+<div class="blog-banner">
+    <img src="{{ asset(site_image('banner_blog', 'images/baner/Boutique.png')) }}" alt="Le Blog D'panne Phones">
+    <div class="blog-banner-caption">
+        <h1>Le Blog</h1>
+        <p>Conseils &amp; actualités de l'atelier</p>
+    </div>
+</div>
+
 <div class="blog-wrap">
 
     <nav class="article-breadcrumb">
         <a href="{{ path('home') }}">Accueil</a>
         <span class="bc-sep">›</span>
-        <span class="bc-current">Conseils &amp; Actualités</span>
+        <span class="bc-current">Blog</span>
     </nav>
 
     <header class="blog-head">
-        <h1 class="blog-title"><i class="fas fa-newspaper"></i> Conseils &amp; Actualités</h1>
         <p class="blog-sub">
             Réparation, réparabilité, entretien : les conseils de notre atelier de Pélissanne
             pour faire durer vos téléphones et vos PC.
         </p>
     </header>
 
+    {# ── Recherche + tri ── #}
+    <div class="blog-toolbar">
+        <form method="get" action="{{ path('blog_index') }}" class="blog-search" role="search">
+            <i class="fas fa-search"></i>
+            <input type="search" name="q" value="{{ searchQuery|default('') }}"
+                   placeholder="Rechercher un article…" aria-label="Rechercher un article">
+            {% if currentSort|default(null) %}<input type="hidden" name="tri" value="{{ currentSort }}">{% endif %}
+        </form>
+        <div class="sort-bar" style="margin:0;">
+            <label for="blogSort"><i class="fas fa-sort-amount-down"></i> Trier&nbsp;:</label>
+            <select id="blogSort"
+                    onchange="var u=new URL(location);u.searchParams.set('tri',this.value);location=u;">
+                <option value="recents" {{ currentSort|default(null) not in ['anciens', 'alpha'] ? 'selected' }}>Plus récents</option>
+                <option value="anciens" {{ currentSort|default(null) == 'anciens' ? 'selected' }}>Plus anciens</option>
+                <option value="alpha" {{ currentSort|default(null) == 'alpha' ? 'selected' }}>Titre A → Z</option>
+            </select>
+        </div>
+    </div>
+
+    {% if searchQuery|default('') %}
+        <p class="blog-search-info">
+            {{ posts|length }} résultat{{ posts|length > 1 ? 's' : '' }} pour «&nbsp;{{ searchQuery }}&nbsp;»
+            — <a href="{{ path('blog_index') }}">tout afficher</a>
+        </p>
+    {% endif %}
+
     {% if posts is empty %}
         <div class="blog-empty">
             <i class="fas fa-pen-nib"></i>
-            <p>Les premiers articles arrivent bientôt.</p>
+            {% if searchQuery|default('') %}
+                <p>Aucun article ne correspond à cette recherche.</p>
+            {% else %}
+                <p>Les premiers articles arrivent bientôt.</p>
+            {% endif %}
         </div>
     {% else %}
+
+        {# ── À la une : le dernier article en grande carte (vue par défaut uniquement) ── #}
+        {% set vedette = null %}
+        {% if searchQuery|default('') == '' and currentSort|default(null) not in ['anciens', 'alpha'] and posts|length > 1 %}
+            {% set vedette = posts|first %}
+            <a href="{{ path('blog_show', {slug: vedette.slug}) }}" class="blog-featured">
+                <div class="blog-featured-img">
+                    {% if vedette.image %}
+                        <img src="{{ asset('uploads/images/' ~ vedette.image) }}" alt="{{ vedette.title }}">
+                    {% else %}
+                        <div class="blog-card-noimg"><i class="fas fa-newspaper"></i></div>
+                    {% endif %}
+                </div>
+                <div class="blog-featured-body">
+                    <span class="blog-featured-badge"><i class="fas fa-star"></i> Dernier article</span>
+                    {% if vedette.topicLabel %}<span class="blog-topic">{{ vedette.topicLabel }}</span>{% endif %}
+                    <h2 class="blog-featured-title">{{ vedette.title }}</h2>
+                    <p class="blog-featured-excerpt">
+                        {% set resume = vedette.excerpt ?: vedette.content %}
+                        {{ resume|length > 200 ? resume|slice(0, 200) ~ '…' : resume }}
+                    </p>
+                    <span class="blog-featured-foot">
+                        <span class="blog-date"><i class="far fa-calendar-alt"></i> {{ vedette.publishedAt ? vedette.publishedAt|date('d/m/Y') : '' }}</span>
+                        <span class="blog-readmore">Lire l'article <i class="fas fa-arrow-right"></i></span>
+                    </span>
+                </div>
+            </a>
+        {% endif %}
+
         <div class="blog-grid">
-            {% for post in posts %}
+            {% for post in posts|filter(p => p != vedette) %}
                 <article class="blog-card">
                     <a href="{{ path('blog_show', {slug: post.slug}) }}" class="blog-card-imglink">
                         {% if post.image %}

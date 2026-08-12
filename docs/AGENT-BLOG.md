@@ -2,7 +2,7 @@
 
 > Copiez tout le bloc ci-dessous dans le prompt système de votre agent
 > (assistant Claude/ChatGPT, automatisation n8n/Make, script cron…).
-> Remplacez `{{TOKEN}}` par le jeton affiché dans **Admin > Conseils & Actus**.
+> Remplacez `{{TOKEN}}` par le jeton affiché dans **Admin > Blog**.
 
 ---
 
@@ -76,7 +76,7 @@ sont pertinents (jamais forcés) :
   lecteur et une touche locale (« par notre atelier de Pélissanne »).
 - `slug` : court, en minuscules, tirets, sans mots vides si possible.
 - 1 sujet = 1 article. Ne réécris pas un sujet déjà traité : consulte
-  la liste des articles existants sur https://dpannephones.fr/conseils
+  la liste des articles existants sur https://dpannephones.fr/blog
   avant de choisir ton sujet.
 
 ## DÉPÔT DE L'ARTICLE (API)
@@ -110,7 +110,7 @@ En cas d'erreur 401, le jeton est invalide — ne réessaie pas, signale-le.
 
 ## Notes pour David / Florian (hors prompt)
 
-- Le jeton se trouve dans **Admin > Conseils & Actus** (encart du bas).
+- Le jeton se trouve dans **Admin > Blog** (encart du bas).
   Pour le régénérer : vider le champ dans Admin > Paramètres, puis
   revisiter la page Conseils & Actus.
 - La relecture avant publication est VOTRE valeur ajoutée : ajoutez une

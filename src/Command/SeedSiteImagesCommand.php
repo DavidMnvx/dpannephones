@@ -76,6 +76,13 @@ class SeedSiteImagesCommand extends Command
             'category' => 'pages_principales', 'sortOrder' => 10,
         ],
         [
+            'slug' => 'banner_blog',
+            'label' => 'Bannière — Blog',
+            'description' => 'Image en haut de la page /blog (Conseils & Actualités). Format paysage (min. 1600×400).',
+            'default' => 'images/baner/Boutique.png',
+            'category' => 'pages_principales', 'sortOrder' => 15,
+        ],
+        [
             'slug' => 'banner_reparations',
             'label' => 'Bannière — Réparations',
             'description' => 'Image en haut des pages de réparation (PC, téléphone, tablette). Format paysage (min. 1600×400).',
