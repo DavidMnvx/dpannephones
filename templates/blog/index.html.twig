@@ -7,8 +7,10 @@
 
 {% block body %}
 
-{# Bannière — même gabarit que les autres pages du site, image gérée dans Admin > Images du site #}
-<div id="carouselBlog" class="carousel slide mb-4" data-ride="carousel">
+{# Bannière — même gabarit que les autres pages du site, image gérée dans Admin > Images du site.
+   L'id carouselExampleIndicators2 est la convention du site : tout le style
+   "bannière flottante" (largeur contenue, arrondis, voile, caption) y est accroché. #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-4" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
             <img class="d-block w-100" src="{{ asset(site_image('banner_blog', 'images/baner/Boutique.png')) }}" alt="Le Blog D'panne Phones">
