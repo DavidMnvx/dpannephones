@@ -33,6 +33,7 @@ class AdminExtension extends AbstractExtension
         private SocialLinkRepository $socialLinkRepo,
         private AppSettingService $settings,
         private StaticReviewsProvider $reviewsProvider,
+        private \App\Repository\ProductColorRepository $productColorRepo,
     ) {}
 
     public function getFunctions(): array
@@ -45,7 +46,18 @@ class AdminExtension extends AbstractExtension
             new TwigFunction('google_rating', [$this, 'getGoogleRating']),
             new TwigFunction('google_reviews_count', [$this, 'getGoogleReviewsCount']),
             new TwigFunction('app_setting', [$this, 'getAppSetting']),
+            new TwigFunction('product_color', [$this, 'getProductColor']),
         ];
+    }
+
+    /**
+     * Couleur produit par id — permet aux templates d'afficher la couleur de
+     * la photo principale (specs.main_photo_color_id) même quand aucune autre
+     * photo ne porte ce coloris.
+     */
+    public function getProductColor(int|string|null $id): ?\App\Entity\ProductColor
+    {
+        return $id ? $this->productColorRepo->find((int) $id) : null;
     }
 
     /**

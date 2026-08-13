@@ -110,15 +110,15 @@
                 {% endif %}
             {% endfor %}
 
-            {# Ajouter la couleur de la photo principale si elle n'y est pas déjà #}
+            {# Ajouter la couleur de la photo principale si elle n'y est pas déjà —
+               même quand AUCUNE autre photo ne porte ce coloris (product_color()) #}
             {% if mainColorId %}
                 {% set existsInAvailable = availableColors|filter(c => c.id == mainColorId)|length > 0 %}
                 {% if not existsInAvailable %}
-                    {% for photo in article.photos %}
-                        {% if photo.color and photo.color.id == mainColorId %}
-                            {% set availableColors = availableColors|merge([{id: photo.color.id, name: photo.color.name, hex: photo.color.hex}]) %}
-                        {% endif %}
-                    {% endfor %}
+                    {% set mainColor = product_color(mainColorId) %}
+                    {% if mainColor %}
+                        {% set availableColors = availableColors|merge([{id: mainColor.id, name: mainColor.name, hex: mainColor.hex}]) %}
+                    {% endif %}
                 {% endif %}
             {% endif %}
 

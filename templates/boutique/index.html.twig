@@ -735,6 +735,14 @@
                         {% set modalColors = modalColors|merge([{id: photo.color.id, name: photo.color.name}]) %}
                     {% endif %}
                 {% endfor %}
+                {# + la couleur de la photo principale, même si elle est seule à la porter #}
+                {% set mainCid = article.specs.main_photo_color_id|default(null) %}
+                {% if mainCid and (modalColors|filter(c => c.id == mainCid)|length == 0) %}
+                    {% set mainColor = product_color(mainCid) %}
+                    {% if mainColor %}
+                        {% set modalColors = modalColors|merge([{id: mainColor.id, name: mainColor.name}]) %}
+                    {% endif %}
+                {% endif %}
 
                 <p class="hydrogel-modal-hint"><i class="fas fa-info-circle mr-1"></i>Sélectionnez la marque puis le modèle de votre smartphone{{ modalColors|length > 0 ? ', et la couleur' : '' }}.</p>
 
