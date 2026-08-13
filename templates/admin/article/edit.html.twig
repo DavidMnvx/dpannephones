@@ -314,6 +314,17 @@
     }
     #photoPicker .photo-thumb { display: flex; flex-direction: column; aspect-ratio: auto; }
     #photoPicker .photo-thumb > img { aspect-ratio: 1; width: 100%; }
+    #photoPicker .photo-thumb-colorsel {
+        width: 100%;
+        border: none;
+        border-top: 1px solid #e5e8ec;
+        background: #fbfcfe;
+        font-size: 11px;
+        color: #47525e;
+        padding: 4px 6px;
+        cursor: pointer;
+    }
+    #photoPicker .photo-thumb-colorsel:focus { outline: none; background: #f0f4f8; }
     #photoPicker .photo-row {
         border: 1px solid #edf0f3; border-radius: 12px;
         padding: 16px; margin-bottom: 14px; background: #fbfcfd;
@@ -997,7 +1008,81 @@
             }
 
             thumb.appendChild(overlay);
+
+            // Sélecteur de coloris : déplace la photo vers une autre rangée
+            // (une photo "générique" peut ainsi devenir une photo de coloris)
+            if (opts.onChangeColor) {
+                var colorSel = document.createElement('select');
+                colorSel.className = 'photo-thumb-colorsel';
+                colorSel.title = 'Changer le coloris de cette photo';
+                var optG = document.createElement('option');
+                optG.value = '';
+                optG.textContent = 'Sans coloris';
+                colorSel.appendChild(optG);
+                allColors.forEach(function(c) {
+                    var o = document.createElement('option');
+                    o.value = String(c.id);
+                    o.textContent = c.name;
+                    if (opts.colorId === c.id) o.selected = true;
+                    colorSel.appendChild(o);
+                });
+                colorSel.addEventListener('click', function(e) { e.stopPropagation(); });
+                colorSel.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    opts.onChangeColor(colorSel.value ? parseInt(colorSel.value, 10) : null);
+                });
+                thumb.appendChild(colorSel);
+            }
+
             return thumb;
+        }
+
+        /** Déplace une photo (principale, existante ou en attente) vers un autre coloris. */
+        function moveThumb(item, newCid) {
+            newCid = newCid || null;
+            if (newCid && activeColorIds.indexOf(newCid) === -1) activeColorIds.push(newCid);
+            var newKey = keyOf(newCid);
+            var oldKey;
+
+            if (item.kind === 'main') {
+                oldKey = keyOf(mainPhotoColorId);
+                if (oldKey === newKey) return;
+                mainPhotoColorId = newCid;
+                if (mainByColor[oldKey] && mainByColor[oldKey].kind === 'main') {
+                    delete mainByColor[oldKey];
+                    promoteRow(oldKey);
+                }
+                if (!mainByColor[newKey]) mainByColor[newKey] = { kind: 'main' };
+                // La vignette de l'article suit sa photo de couverture
+                if (defaultRowKey === oldKey) defaultRowKey = newKey;
+            } else if (item.kind === 'existing') {
+                var p = item.p;
+                oldKey = keyOf(p.color_id);
+                if (oldKey === newKey) return;
+                var etaitPrincipale = mainByColor[oldKey]
+                    && mainByColor[oldKey].kind === 'existing'
+                    && String(mainByColor[oldKey].id) === String(p.id);
+                p.color_id = newCid; // AVANT promoteRow : sinon elle se re-désigne elle-même
+                if (etaitPrincipale) {
+                    delete mainByColor[oldKey];
+                    promoteRow(oldKey);
+                }
+                if (!mainByColor[newKey]) mainByColor[newKey] = { kind: 'existing', id: p.id };
+            } else if (item.kind === 'new') {
+                oldKey = keyOf(stagedColors[item.i] || null);
+                if (oldKey === newKey) return;
+                var etaitPrincipale2 = mainByColor[oldKey]
+                    && mainByColor[oldKey].kind === 'new'
+                    && mainByColor[oldKey].index === item.i;
+                stagedColors[item.i] = newCid; // AVANT promoteRow, même raison
+                if (etaitPrincipale2) {
+                    delete mainByColor[oldKey];
+                    promoteRow(oldKey);
+                }
+                if (!mainByColor[newKey]) mainByColor[newKey] = { kind: 'new', index: item.i };
+            }
+
+            render();
         }
 
         function renderAddColorSelect() {
@@ -1112,6 +1197,8 @@
                         grid.appendChild(renderThumb({
                             src: '{{ asset('uploads/images/') }}' + existingMainFilename,
                             isMain: isMain,
+                            colorId: colorId,
+                            onChangeColor: function(cid) { moveThumb({ kind: 'main' }, cid); },
                             onSetMain: function() { mainByColor[rowKey] = { kind: 'main' }; render(); },
                             onDelete: function() {
                                 markExistingDeleted('main');
@@ -1125,6 +1212,8 @@
                         grid.appendChild(renderThumb({
                             src: '{{ asset('uploads/images/') }}' + p.filename,
                             isMain: isMain,
+                            colorId: colorId,
+                            onChangeColor: function(cid) { moveThumb({ kind: 'existing', p: p }, cid); },
                             onSetMain: function() { mainByColor[rowKey] = { kind: 'existing', id: p.id }; render(); },
                             onDelete: function() { p.deleted = true; if (isMain) promoteRow(rowKey); render(); }
                         }));
@@ -1135,6 +1224,8 @@
                         grid.appendChild(renderThumb({
                             src: URL.createObjectURL(f),
                             isMain: isMain,
+                            colorId: colorId,
+                            onChangeColor: function(cid) { moveThumb({ kind: 'new', i: i }, cid); },
                             onSetMain: function() { mainByColor[rowKey] = { kind: 'new', index: i }; render(); },
                             onDelete: function() {
                                 stagedFiles.splice(i, 1);
