@@ -443,8 +443,11 @@ class ArticleController extends AbstractController
         //      "Marque: modèle1, modèle2, modèle3"
         //    Ex : "Apple: iPhone 12, iPhone 13, iPhone 14 Pro"
         //    Stocké dans specs.brand_models = { "Apple": ["iPhone 12", …], … }
-        if (in_array($categorie, ['film_hydrogel', 'coque'], true)) {
-            $sourceField = $categorie === 'coque' ? 'coque_models' : 'hydrogel_models';
+        //    Piloté par le GABARIT de la catégorie (pas son slug) : toute catégorie
+        //    créée avec le gabarit hydrogel/coque (ex. verre trempé) en profite.
+        $gabarit = $template ?? $categorie;
+        if (in_array($gabarit, ['film_hydrogel', 'coque'], true)) {
+            $sourceField = $gabarit === 'coque' ? 'coque_models' : 'hydrogel_models';
             $raw = $form->has($sourceField)
                 ? (string) ($form->get($sourceField)->getData() ?? '')
                 : '';
@@ -525,9 +528,11 @@ class ArticleController extends AbstractController
             }
         }
 
-        // Cas spécial : hydrogel & coque — reconstruire le format "Marque: modèle1, modèle2" par ligne
+        // Cas spécial : hydrogel & coque — reconstruire le format "Marque: modèle1, modèle2" par ligne.
+        // Le champ visé dépend du GABARIT de la catégorie, pas de son slug.
         $currentCategorie = $article->getCategorie();
-        $targetField = $currentCategorie === 'coque' ? 'coque_models' : 'hydrogel_models';
+        $gabarit = $this->categoryRepo->findOneBy(['slug' => (string) $currentCategorie])?->getSpecsTemplate() ?? $currentCategorie;
+        $targetField = $gabarit === 'coque' ? 'coque_models' : 'hydrogel_models';
         if ($form->has($targetField)) {
             $lines = [];
             if (isset($specs['brand_models']) && is_array($specs['brand_models'])) {

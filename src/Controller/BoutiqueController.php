@@ -226,6 +226,7 @@ class BoutiqueController extends AbstractController
             'article'           => $article,
             'cart'              => $cart ? $cart->getItems() : [],
             'categories'        => $categoryRepo->getSlugLabelMap(),
+            'categoryTemplates' => $categoryRepo->getSlugSpecsTemplateMap(),
             'articleReviews'    => $articleReviews,
             'articleAvgRating'  => $articleAvgRating,
             'articleRatingDist' => $articleRatingDist,

@@ -707,7 +707,7 @@
 {# ══ Modals sélection modèle (hydrogel + coques) ══
    Fusion avec la section Occasions de l'accueil : ses articles ne sont plus dans `articles` #}
 {% for article in articles|merge(occasionArticles|default([])) %}
-{% if article.categorie in ['film_hydrogel', 'coque'] %}
+{% if categoryTemplates[article.categorie]|default(article.categorie) in ['film_hydrogel', 'coque'] %}
 {# Fallback : si aucun brand_models mais un ancien compatible_models existe, on le range sous "Modèles compatibles" #}
 {% set brandModels = article.specs.brand_models ?? {} %}
 {% if brandModels is empty and article.specs.compatible_models is defined and article.specs.compatible_models %}

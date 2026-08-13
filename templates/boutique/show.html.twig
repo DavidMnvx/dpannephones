@@ -364,8 +364,11 @@
                 </div>
 
                 <div class="article-buy-actions">
-                    {# Sélecteur marque → modèle : hydrogel ET coques (même mécanique) #}
-                    {% if article.categorie in ['film_hydrogel', 'coque'] %}
+                    {# Sélecteur marque → modèle : piloté par le GABARIT de la catégorie
+                       (Admin > Catégories > champs techniques) — pas par son slug. Toute
+                       catégorie au gabarit hydrogel/coque (ex. verre trempé) en profite. #}
+                    {% set catTpl = categoryTemplates[article.categorie]|default(article.categorie) %}
+                    {% if catTpl in ['film_hydrogel', 'coque'] %}
                         {# Récupérer les modèles par marque (brand_models) ou liste plate (compatible_models) #}
                         {% set brandModels = article.specs.brand_models ?? {} %}
                         {% set flatModels  = article.specs.compatible_models ?? [] %}
@@ -394,7 +397,7 @@
 
                                 <button type="submit" class="btn-cart-detail" id="hydrogel-submit" disabled>
                                     <i class="fas fa-shield-alt"></i>
-                                    Ajouter {{ article.categorie == 'coque' ? 'la coque' : 'le film hydrogel' }} au panier
+                                    Ajouter {{ catTpl == 'coque' ? 'la coque' : (article.categorie == 'film_hydrogel' ? 'le film hydrogel' : 'la protection') }} au panier
                                 </button>
                             </form>
 
@@ -435,7 +438,7 @@
                                 </select>
                                 <button type="submit" class="btn-cart-detail">
                                     <i class="fas fa-shield-alt"></i>
-                                    Ajouter {{ article.categorie == 'coque' ? 'la coque' : 'le film hydrogel' }} au panier
+                                    Ajouter {{ catTpl == 'coque' ? 'la coque' : (article.categorie == 'film_hydrogel' ? 'le film hydrogel' : 'la protection') }} au panier
                                 </button>
                             </form>
                         {% else %}
@@ -636,7 +639,7 @@
 
                         </div>
 
-                    {% elseif article.categorie == 'film_hydrogel' %}
+                    {% elseif categoryTemplates[article.categorie]|default(article.categorie) == 'film_hydrogel' %}
                         {% set models = article.specs.compatible_models ?? [] %}
                         {% if models is not empty %}
                             <div class="article-spec-row article-spec-row--full">
