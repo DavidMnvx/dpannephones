@@ -335,6 +335,8 @@
     }
     #photoPicker .photo-thumb { display: flex; flex-direction: column; aspect-ratio: auto; }
     #photoPicker .photo-thumb-colorsel {
+        position: relative;
+        z-index: 2;
         width: 100%;
         border: none;
         border-top: 1px solid #e5e8ec;
@@ -345,6 +347,18 @@
         cursor: pointer;
     }
     #photoPicker .photo-thumb-colorsel:focus { outline: none; background: #f0f4f8; }
+    #photoPicker .photo-row-movecolor {
+        border: 1.5px dashed #c9d8f2;
+        border-radius: 8px;
+        background: #fff;
+        color: rgb(9,71,113);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 7px 10px;
+        cursor: pointer;
+        max-width: 210px;
+    }
+    #photoPicker .photo-row-movecolor:focus { outline: none; border-color: rgb(9,71,113); }
     #photoPicker .photo-thumb > img { aspect-ratio: 1; width: 100%; }
     /* Rangées par couleur */
     #photoPicker .photo-row {
@@ -1218,6 +1232,26 @@
                 fileInput.click();
             });
             actions.appendChild(chooseBtn);
+
+            // Bouton demandé : changer le coloris de TOUTES les photos de la rangée
+            var moveSel = document.createElement('select');
+            moveSel.className = 'photo-row-movecolor';
+            moveSel.title = 'Déplacer toutes les photos de cette rangée vers un coloris';
+            moveSel.appendChild(new Option(color ? '🎨 Déplacer vers…' : '🎨 Attribuer un coloris…', ''));
+            allColors.forEach(function(c) {
+                if (!color || c.id !== color.id) moveSel.appendChild(new Option(c.name, String(c.id)));
+            });
+            if (color) moveSel.appendChild(new Option('Sans coloris', 'generic'));
+            moveSel.addEventListener('change', function() {
+                if (!moveSel.value) return;
+                var cible = moveSel.value === 'generic' ? null : parseInt(moveSel.value, 10);
+                collectThumbsForColor(colorId).forEach(function(t) {
+                    if (t.kind === 'main') moveThumb({ kind: 'main' }, cible);
+                    else if (t.kind === 'existing') moveThumb({ kind: 'existing', p: t.p }, cible);
+                    else moveThumb({ kind: 'new', i: t.i }, cible);
+                });
+            });
+            actions.appendChild(moveSel);
 
             if (color) {
                 var removeBtn = document.createElement('button');
