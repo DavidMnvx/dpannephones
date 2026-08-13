@@ -213,6 +213,9 @@
                 // Mémorise la couleur choisie pour l'ajout au panier
                 window.selectedCartColor = colorId;
                 window.selectedCartColorName = colorName || null;
+                // Synchronise l'étape 3 du sélecteur d'achat (coques/hydrogel)
+                var colorStep = document.getElementById('hydrogel-color');
+                if (colorStep) colorStep.value = colorName || '';
                 syncColorToCartControls();
             }
 
@@ -391,6 +394,17 @@
                                 <select id="hydrogel-model" name="model" class="hydrogel-select" required disabled>
                                     <option value="">— Choisir d'abord une marque —</option>
                                 </select>
+
+                                {# Étape 3 — Couleur (si l'article a des coloris) : suit les photos #}
+                                {% if availableColors|length > 0 %}
+                                    <select id="hydrogel-color" name="color" class="hydrogel-select" required
+                                            onchange="var o = this.options[this.selectedIndex]; if (this.value && o.dataset.cid) { filterByColor(parseInt(o.dataset.cid, 10), this.value); }">
+                                        <option value="">— Choisir une couleur —</option>
+                                        {% for c in availableColors %}
+                                            <option value="{{ c.name }}" data-cid="{{ c.id }}">{{ c.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% endif %}
 
                                 {# Dataset JSON pour le JS #}
                                 <script id="hydrogel-data" type="application/json">{{ brandModels|json_encode|raw }}</script>

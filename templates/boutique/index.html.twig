@@ -728,7 +728,15 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="hydrogel-modal-hint"><i class="fas fa-info-circle mr-1"></i>Sélectionnez la marque puis le modèle de votre smartphone.</p>
+                {# Coloris de l'article (photos par couleur) — étape 3 du choix #}
+                {% set modalColors = [] %}
+                {% for photo in article.photos %}
+                    {% if photo.color and (modalColors|filter(c => c.id == photo.color.id)|length == 0) %}
+                        {% set modalColors = modalColors|merge([{id: photo.color.id, name: photo.color.name}]) %}
+                    {% endif %}
+                {% endfor %}
+
+                <p class="hydrogel-modal-hint"><i class="fas fa-info-circle mr-1"></i>Sélectionnez la marque puis le modèle de votre smartphone{{ modalColors|length > 0 ? ', et la couleur' : '' }}.</p>
 
                 <form method="get" action="{{ path('cart_add', {id: article.id}) }}" id="hydrogel-form-{{ article.id }}">
 
@@ -749,13 +757,27 @@
                         <option value="">— Choisir d'abord une marque —</option>
                     </select>
 
+                    {% if modalColors|length > 0 %}
+                        <label class="hydrogel-label mt-3">
+                            <span class="hydrogel-step-badge">3</span> Couleur
+                        </label>
+                        <select name="color" class="hydrogel-select" required>
+                            <option value="">— Choisir une couleur —</option>
+                            {% for c in modalColors %}
+                                <option value="{{ c.name }}">{{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                    {% endif %}
+
                     <script id="hdata-{{ article.id }}" type="application/json">{{ brandModels|json_encode|raw }}</script>
                 </form>
             </div>
             <div class="modal-footer hydrogel-modal-footer">
                 <button type="button" class="btn btn-outline-secondary btn-sm" data-dismiss="modal">Annuler</button>
+                {# requestSubmit (et non submit) : déclenche la validation HTML,
+                   la couleur obligatoire ne peut pas être sautée #}
                 <button type="button" id="hsubmit-{{ article.id }}" class="btn-cart btn-cart--hydrogel" disabled
-                        onclick="document.getElementById('hydrogel-form-{{ article.id }}').submit()">
+                        onclick="document.getElementById('hydrogel-form-{{ article.id }}').requestSubmit()">
                     <i class="fas fa-shield-alt"></i> Ajouter au panier
                 </button>
             </div>
