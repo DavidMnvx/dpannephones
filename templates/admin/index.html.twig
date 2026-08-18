@@ -334,6 +334,87 @@
                         </div>
                     </div>
 
+                    {# ═══ Rangée 2 — pilotage : chiffre du mois, blog, catalogue, catégories, promos ═══ #}
+                    <div class="row mb-4">
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ path('admin_commandes') }}" style="text-decoration:none;">
+                                <div class="dash-card dash-card--ca">
+                                    <i class="fas fa-euro-sign"></i>
+                                    <h4>CA du mois</h4>
+                                    <p><strong style="color:#1b2e45;">{{ caMois|number_format(0, ',', ' ') }} €</strong>
+                                       · {{ nbCommandesMois }} commande{{ nbCommandesMois > 1 ? 's' : '' }}</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ path('admin_blog_index') }}" style="text-decoration:none;">
+                                <div class="dash-card dash-card--blog {{ nbBlogBrouillons > 0 ? 'dash-card--blog-pending' : '' }}">
+                                    {% if nbBlogBrouillons > 0 %}
+                                        <span class="dash-card-badge">{{ nbBlogBrouillons }}</span>
+                                    {% endif %}
+                                    <i class="fas fa-newspaper"></i>
+                                    <h4>Blog</h4>
+                                    <p>
+                                        {{ nbBlogPublies }} en ligne
+                                        {% if nbBlogBrouillons > 0 %}
+                                            · <strong style="color:#d97706;">{{ nbBlogBrouillons }} à relire</strong>
+                                        {% endif %}
+                                        {% if dernierBlog %}
+                                            <br><span style="font-size:11px;">Dernier : {{ dernierBlog.publishedAt|date('d/m') }}</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ path('admin_article_index') }}" style="text-decoration:none;">
+                                <div class="dash-card dash-card--catalogue">
+                                    {% if nbArticlesSansPhoto > 0 %}
+                                        <span class="dash-card-badge" title="Articles sans photo">{{ nbArticlesSansPhoto }}</span>
+                                    {% endif %}
+                                    <i class="fas fa-boxes"></i>
+                                    <h4>Catalogue</h4>
+                                    <p>{{ nbArticlesNeufs }} neuf{{ nbArticlesNeufs > 1 ? 's' : '' }} · {{ nbArticlesOccasion }} occasion{{ nbArticlesOccasion > 1 ? 's' : '' }}
+                                       <br><span style="font-size:11px;">
+                                           <i class="fas fa-star" style="font-size:9px;display:inline;margin:0;color:#f59e0b;"></i> {{ nbArticlesFeatured }} à la une
+                                           {% if nbArticlesSansPhoto > 0 %} · <strong style="color:#d97706;">{{ nbArticlesSansPhoto }} sans photo</strong>{% endif %}
+                                       </span></p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ path('admin_categories_index') }}" style="text-decoration:none;">
+                                <div class="dash-card dash-card--categories">
+                                    <i class="fas fa-layer-group"></i>
+                                    <h4>Catégories</h4>
+                                    <p>{{ nbCategories }} au total
+                                        {% if nbCategoriesVides > 0 %}
+                                            <br><span style="font-size:11px;color:#8a94a0;">{{ nbCategoriesVides }} vide{{ nbCategoriesVides > 1 ? 's' : '' }} (masquée{{ nbCategoriesVides > 1 ? 's' : '' }} en boutique)</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ path('admin_promos') }}" style="text-decoration:none;">
+                                <div class="dash-card dash-card--promos">
+                                    <i class="fas fa-ticket-alt"></i>
+                                    <h4>Codes promo</h4>
+                                    <p>{{ nbPromosActifs }} actif{{ nbPromosActifs > 1 ? 's' : '' }}</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <a href="{{ path('blog_index') }}" target="_blank" style="text-decoration:none;">
+                                <div class="dash-card dash-card--site">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <h4>Voir le site</h4>
+                                    <p>Boutique &amp; blog en ligne</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+
                     {# ═══ Widget — Avis en attente de modération ═══ #}
                     {% if nbReviewsPending > 0 %}
                     <div class="row mb-4">

@@ -249,6 +249,45 @@ class AdminController extends AbstractController
         $bestSellers       = $commandeRepo->getBestSellers(5);
         $totalArticlesVendus = $commandeRepo->getTotalArticlesVendus();
 
+        // ── Tuiles complémentaires ──
+        // Blog : publiés / brouillons en attente de relecture
+        $blogRepo        = $entityManager->getRepository(\App\Entity\BlogPost::class);
+        $nbBlogPublies   = $blogRepo->count(['isPublished' => true]);
+        $nbBlogBrouillons = $blogRepo->count(['isPublished' => false]);
+        $dernierBlog     = $blogRepo->findOneBy(['isPublished' => true], ['publishedAt' => 'DESC']);
+
+        // Catégories boutique (et combien sont vides = invisibles sur le site)
+        $nbCategories = $entityManager->getRepository(\App\Entity\Category::class)->count([]);
+        $slugsUtilises = array_column(
+            $entityManager->getRepository(Article::class)->createQueryBuilder('a')
+                ->select('DISTINCT a.categorie AS c')->where('a.isNew = :vrai')->setParameter('vrai', true)
+                ->getQuery()->getArrayResult(),
+            'c'
+        );
+        $nbCategoriesVides = $nbCategories - count(array_filter($slugsUtilises));
+
+        // Catalogue : neuf vs occasion, articles à la une, sans photo
+        $nbArticlesNeufs    = $entityManager->getRepository(Article::class)->count(['isNew' => true]);
+        $nbArticlesOccasion = count($articles) - $nbArticlesNeufs;
+        $nbArticlesFeatured = $entityManager->getRepository(Article::class)->count(['isFeatured' => true]);
+        $nbArticlesSansPhoto = $entityManager->getRepository(Article::class)->count(['image' => null]);
+
+        // Codes promo actifs et non expirés
+        $nbPromosActifs = (int) $entityManager->getRepository(PromoCode::class)->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.isActive = :vrai')->setParameter('vrai', true)
+            ->andWhere('p.validUntil IS NULL OR p.validUntil >= :now')->setParameter('now', new \DateTime())
+            ->getQuery()->getSingleScalarResult();
+
+        // CA du mois en cours + commandes du mois
+        $moisCourant   = (int) date('n');
+        $caMois        = $commandeRepo->getTotalAnnee($annee, $moisCourant);
+        $nbCommandesMois = (int) $entityManager->getRepository(Commande::class)->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.createdAt >= :debut')->setParameter('debut', new \DateTime('first day of this month 00:00:00'))
+            ->andWhere('c.statut != :annulee')->setParameter('annulee', 'annulee')
+            ->getQuery()->getSingleScalarResult();
+
         return $this->render('admin/index.html.twig', [
             'marqueForm'    => $marqueForm->createView(),
             'modelForm'     => $modelForm->createView(),
@@ -279,6 +318,18 @@ class AdminController extends AbstractController
             'avgReviewRating'    => $avgReviewRating,
             'bestSellers'        => $bestSellers,
             'totalArticlesVendus' => $totalArticlesVendus,
+            'nbBlogPublies'      => $nbBlogPublies,
+            'nbBlogBrouillons'   => $nbBlogBrouillons,
+            'dernierBlog'        => $dernierBlog,
+            'nbCategories'       => $nbCategories,
+            'nbCategoriesVides'  => $nbCategoriesVides,
+            'nbArticlesNeufs'    => $nbArticlesNeufs,
+            'nbArticlesOccasion' => $nbArticlesOccasion,
+            'nbArticlesFeatured' => $nbArticlesFeatured,
+            'nbArticlesSansPhoto' => $nbArticlesSansPhoto,
+            'caMois'             => $caMois,
+            'nbCommandesMois'    => $nbCommandesMois,
+            'nbPromosActifs'     => $nbPromosActifs,
         ]);
     }
 

@@ -5278,6 +5278,25 @@ body.admin-body { background-color: #f0f2f5; }
 .dash-card--clients i { color: #16a34a; }
 .dash-card--clients:hover { border-color: #16a34a !important; }
 
+/* Rangée 2 du dashboard : pilotage */
+.dash-card--ca { border-color: rgba(22,163,74,0.25) !important; background: linear-gradient(135deg, #fff 70%, rgba(22,163,74,0.08)); }
+.dash-card--ca i { color: #16a34a; }
+.dash-card--ca:hover { border-color: #16a34a !important; }
+.dash-card--blog { border-color: rgba(245,158,11,0.22) !important; background: linear-gradient(135deg, #fff 70%, rgba(245,158,11,0.07)); }
+.dash-card--blog i { color: #d97706; }
+.dash-card--blog:hover { border-color: #d97706 !important; }
+.dash-card--blog-pending { border-color: #f59e0b !important; }
+.dash-card--catalogue i { color: #2563eb; }
+.dash-card--catalogue:hover { border-color: #2563eb !important; }
+.dash-card--categories i { color: #65a30d; }
+.dash-card--categories:hover { border-color: #65a30d !important; }
+.dash-card--promos i { color: #16a34a; }
+.dash-card--promos:hover { border-color: #16a34a !important; }
+.dash-card--site { border-style: dashed !important; }
+.dash-card--site i { color: #8a94a0; }
+.dash-card--site:hover { border-color: rgb(9,71,113) !important; }
+.dash-card--site:hover i { color: rgb(9,71,113); }
+
 
 /* -------------------------------------------------------------
    ADMIN — Formulaires
