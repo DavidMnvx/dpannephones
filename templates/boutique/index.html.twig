@@ -49,6 +49,12 @@
 
     <div class="boutique-header-row">
         <div class="boutique-page-title">Boutique</div>
+        {# Recherche : sur la ligne du titre, à droite — la barre de catégories reste fine #}
+        <form method="get" action="{{ path('boutique_index') }}" class="boutique-search" role="search">
+            <i class="fas fa-search"></i>
+            <input type="search" name="q" value="{{ searchQuery|default('') }}"
+                   placeholder="Rechercher un produit…" aria-label="Rechercher un produit">
+        </form>
     </div>
 
     {# ── Barre de catégories — ordre et FAMILLES gérés dans Admin > Catégories.
@@ -144,11 +150,6 @@
         if (e.key === 'Escape') document.querySelectorAll('.cat-fam.open').forEach(function(f) { f.classList.remove('open'); });
     });
     </script>
-    <form method="get" action="{{ path('boutique_index') }}" class="cat-topbar-search" role="search">
-        <i class="fas fa-search"></i>
-        <input type="search" name="q" value="{{ searchQuery|default('') }}"
-               placeholder="Rechercher…" aria-label="Rechercher un produit">
-    </form>
     <a href="{{ path('cart_index') }}" class="cat-topbar-cart">
         <i class="fas fa-shopping-cart"></i>
         Panier{% if cart is not empty %} · {{ cart|length }}{% endif %}

@@ -17508,16 +17508,37 @@ textarea.contact-input.is-invalid {
     color: #1b2e45;
     width: 120px;
 }
-/* La barre sur deux lignes à tous les écrans : les catégories occupent
-   toute la largeur (elles respirent, le menu « Plus » reste visible),
-   recherche + panier alignés à droite en dessous. */
-.cat-topbar-wrap { flex-wrap: wrap; row-gap: 8px; }
-.cat-topbar { order: 1; flex: 1 1 100%; }
-.cat-topbar-search { order: 2; margin-left: auto; }
-.cat-topbar-cart { order: 3; flex-shrink: 0; }
-@media (max-width: 700px) {
-    .cat-topbar-search { flex: 1 1 auto; margin-left: 0; }
-    .cat-topbar-search input { width: 100%; flex: 1; }
+/* Barre fine sur une ligne : catégories (familles) + panier.
+   La recherche vit sur la ligne du titre « Boutique » (.boutique-search). */
+.cat-topbar-wrap { flex-wrap: nowrap; }
+.cat-topbar { flex: 1 1 auto; }
+.cat-topbar-cart { flex-shrink: 0; }
+
+/* Recherche à droite du titre de la boutique */
+.boutique-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #fff;
+    border: 1.5px solid #e2e9f0;
+    border-radius: 999px;
+    padding: 9px 16px;
+    min-width: 260px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.boutique-search:focus-within { border-color: rgb(9, 71, 113); box-shadow: 0 0 0 3px rgba(9, 71, 113, 0.08); }
+.boutique-search i { color: #8a96a3; font-size: 13px; }
+.boutique-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    color: #1b2e45;
+    flex: 1;
+    width: 100%;
+}
+@media (max-width: 640px) {
+    .boutique-search { min-width: 0; flex: 1 1 100%; }
 }
 
 .sort-bar {
