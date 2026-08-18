@@ -36,6 +36,14 @@ class CategoryAdminController extends AbstractController
         'fas fa-keyboard'     => 'Clavier',
         'fas fa-mouse'        => 'Souris',
         'fas fa-tv'           => 'TV / Écran',
+        'fas fa-hdd'          => 'Disque dur (stockage)',
+        'fas fa-sd-card'      => 'Carte SD / clé',
+        'fas fa-memory'       => 'Barrette RAM',
+        'fas fa-microchip'    => 'Composant / puce',
+        'fas fa-gem'          => 'Verre trempé',
+        'fas fa-battery-full' => 'Batterie',
+        'fab fa-usb'          => 'Câble USB',
+        'fas fa-volume-up'    => 'Enceinte / son',
         'fas fa-box'          => 'Boîte (générique)',
     ];
 
