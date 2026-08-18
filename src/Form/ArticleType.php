@@ -51,8 +51,9 @@ class ArticleType extends AbstractType
             ->add('categorie', ChoiceType::class, [
                 'label'       => 'Catégorie',
                 'required'    => false,
-                'placeholder' => 'Choisir une catégorie',
-                'choices'     => array_flip($this->categoryRepo->getSlugLabelMap()),
+                'placeholder' => 'Choisir une famille / catégorie',
+                'choices'     => $this->buildCategoryChoices(),
+                'help'        => 'Les catégories sont regroupées par famille (Admin > Catégories). Une catégorie seule apparaît directement dans la liste.',
             ])
             ->add('isNew', ChoiceType::class, [
                 'label'    => "État de l'article",
@@ -662,6 +663,38 @@ class ArticleType extends AbstractType
                 ],
             ])
         ;
+    }
+
+    /**
+     * Choix de catégorie groupés par famille (optgroup) — même logique que la
+     * barre de la boutique : ['PC' => ['PC Gamer' => 'pc_gamer', …], 'Coques' => 'coque', …].
+     * Les catégories seules restent au premier niveau, dans l'ordre admin.
+     */
+    private function buildCategoryChoices(): array
+    {
+        $labels   = $this->categoryRepo->getSlugLabelMap();
+        $families = $this->categoryRepo->getSlugFamilyMap();
+
+        $choices = [];
+        foreach ($labels as $slug => $label) {
+            $family = $families[$slug] ?? null;
+            if ($family) {
+                $choices[$family] ??= [];
+                $choices[$family][$label] = $slug;
+            } else {
+                $choices[$label] = $slug;
+            }
+        }
+
+        // Une "famille" à un seul membre : on l'aplatit (pas d'optgroup pour un seul choix)
+        foreach ($choices as $key => $value) {
+            if (is_array($value) && count($value) === 1) {
+                unset($choices[$key]);
+                $choices[array_key_first($value)] = reset($value);
+            }
+        }
+
+        return $choices;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
