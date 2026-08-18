@@ -222,7 +222,11 @@ class PaymentController extends AbstractController
         $userId = $this->getUser()?->getId();
 
         $checkoutParams = [
-            'payment_method_types' => ['card'],
+            // Pas de 'payment_method_types' : Checkout applique alors automatiquement les
+            // moyens de paiement activés dans le dashboard Stripe (Réglages > Moyens de
+            // paiement) — carte, PayPal, Alma (3-4x), Apple/Google Pay… Activer/désactiver
+            // là-bas suffit, aucun changement de code. Stripe n'affiche que ceux qui sont
+            // éligibles au montant et à la devise du panier.
             'line_items'           => $lineItems,
             'mode'                 => 'payment',
             'customer_email'       => $this->getUser()?->getEmail(),
@@ -292,8 +296,12 @@ class PaymentController extends AbstractController
         }
 
         if ($stripeSession->payment_status !== 'paid') {
-            $this->addFlash('warning', 'Le paiement est en attente de confirmation.');
-            return $this->redirectToRoute('cart_index');
+            // Paiement différé (Alma, PayPal en cours…) : Stripe confirmera par webhook
+            // (async_payment_succeeded) et la commande sera créée à ce moment-là.
+            $this->addFlash('info', 'Votre paiement est en cours de confirmation par votre prestataire (PayPal, Alma…). '
+                . 'Vous recevrez votre confirmation de commande par e-mail dès validation — généralement en quelques minutes. '
+                . 'Ne relancez pas le paiement.');
+            return $this->redirectToRoute('boutique_index');
         }
 
         // Récupérer le panier depuis les métadonnées Stripe
@@ -414,7 +422,11 @@ class PaymentController extends AbstractController
             return new JsonResponse(['error' => 'Webhook error'], 400);
         }
 
-        if ($event->type === 'checkout.session.completed') {
+        // checkout.session.completed : paiement immédiat (carte, PayPal instantané…).
+        // checkout.session.async_payment_succeeded : moyens différés (Alma 3-4x, certains
+        // PayPal, virements) — la session est d'abord "completed" avec payment_status=unpaid,
+        // puis ce second événement confirme l'encaissement : c'est là qu'on crée la commande.
+        if (in_array($event->type, ['checkout.session.completed', 'checkout.session.async_payment_succeeded'], true)) {
             $stripeSession = $event->data->object;
 
             if ($stripeSession->payment_status !== 'paid') {
