@@ -57,8 +57,12 @@
        Le volet s'ouvre au survol (souris) ou au clic (tactile). ── #}
     {% set groupes = [] %}
     {% for slug, label in categories %}
-        {% if categoryCounts[slug]|default(0) > 0 %}
-            {% set fam = categoryFamilies[slug]|default(null) %}
+        {% set fam = categoryFamilies[slug]|default(null) %}
+        {# Une catégorie sans neuf mais avec de l'occasion reste visible DANS SA FAMILLE
+           (son entrée renvoie vers le rayon Occasions filtré) — seule, elle est masquée #}
+        {% set aDuNeuf = categoryCounts[slug]|default(0) > 0 %}
+        {% set aDeLOccasion = occasionCountsByCat[slug]|default(0) > 0 %}
+        {% if aDuNeuf or (fam and aDeLOccasion) %}
             {% set cle = fam ? ('fam:' ~ fam|lower) : slug %}
             {% set existant = groupes|filter(g => g.cle == cle)|first %}
             {% if existant %}
@@ -78,15 +82,17 @@
         {% for g in groupes %}
             {% if g.membres|length == 1 %}
                 {% set slug = g.membres|first %}
+                {% if categoryCounts[slug]|default(0) > 0 %}
                 <a href="{{ path('boutique_index', {categorie: slug}) }}"
                    class="cat-topbar-pill {{ currentCategorie == slug ? 'active' : '' }}">
                     <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i> {{ categories[slug] }}
                     <span class="cat-topbar-count">{{ categoryCounts[slug] }}</span>
                 </a>
+                {% endif %}
             {% else %}
-                {% set famActive = currentCategorie in g.membres %}
+                {% set famActive = currentCategorie in g.membres or (currentCategorie == 'occasions' and currentOccasionType|default(null) in g.membres) %}
                 {% set famTotal = 0 %}
-                {% for s in g.membres %}{% set famTotal = famTotal + categoryCounts[s] %}{% endfor %}
+                {% for s in g.membres %}{% set famTotal = famTotal + categoryCounts[s]|default(0) + occasionCountsByCat[s]|default(0) %}{% endfor %}
                 <div class="cat-fam {{ famActive ? 'cat-fam--active' : '' }}">
                     <button type="button" class="cat-topbar-pill cat-topbar-pill--fam {{ famActive ? 'active' : '' }}"
                             aria-haspopup="true" aria-expanded="false"
@@ -97,11 +103,23 @@
                     </button>
                     <div class="cat-fam-menu" role="menu">
                         {% for s in g.membres %}
-                            <a href="{{ path('boutique_index', {categorie: s}) }}" role="menuitem"
-                               class="{{ currentCategorie == s ? 'is-current' : '' }}">
-                                <i class="{{ categoryIcons[s]|default('fas fa-box') }}"></i> {{ categories[s] }}
-                                <span class="cat-topbar-count">{{ categoryCounts[s] }}</span>
-                            </a>
+                            {% set neufs = categoryCounts[s]|default(0) %}
+                            {% set occs = occasionCountsByCat[s]|default(0) %}
+                            {% if neufs > 0 %}
+                                <a href="{{ path('boutique_index', {categorie: s}) }}" role="menuitem"
+                                   class="{{ currentCategorie == s ? 'is-current' : '' }}">
+                                    <i class="{{ categoryIcons[s]|default('fas fa-box') }}"></i> {{ categories[s] }}
+                                    <span class="cat-topbar-count">{{ neufs }}</span>
+                                </a>
+                            {% else %}
+                                {# Occasion uniquement : on emmène vers le rayon Occasions filtré sur ce type #}
+                                <a href="{{ path('boutique_index', {categorie: 'occasions', type: s}) }}" role="menuitem"
+                                   class="cat-fam-occ {{ currentCategorie == 'occasions' and currentOccasionType|default(null) == s ? 'is-current' : '' }}">
+                                    <i class="{{ categoryIcons[s]|default('fas fa-box') }}"></i> {{ categories[s] }}
+                                    <span class="cat-fam-occ-tag">occasion</span>
+                                    <span class="cat-topbar-count">{{ occs }}</span>
+                                </a>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>

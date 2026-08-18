@@ -112,10 +112,16 @@ class BoutiqueController extends AbstractController
             $categoryCounts[$row['cat'] ?? ''] = (int) $row['nb'];
             $categoryCounts['__all__'] += (int) $row['nb'];
         }
-        $categoryCounts['occasions'] = (int) $em->getRepository(Article::class)->createQueryBuilder('a')
-            ->select('COUNT(a.id)')
-            ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
-            ->getQuery()->getSingleScalarResult();
+        // Occasions par catégorie d'origine : permet d'afficher dans un volet de famille
+        // une catégorie qui n'a QUE de l'occasion (renvoi vers le rayon Occasions filtré)
+        $occasionCountsByCat = [];
+        foreach ($em->getRepository(Article::class)->createQueryBuilder('a')
+                     ->select('a.categorie AS cat, COUNT(a.id) AS nb')
+                     ->where('a.isNew IS NULL OR a.isNew = :faux')->setParameter('faux', false)
+                     ->groupBy('a.categorie')->getQuery()->getArrayResult() as $row) {
+            $occasionCountsByCat[$row['cat'] ?? ''] = (int) $row['nb'];
+        }
+        $categoryCounts['occasions'] = array_sum($occasionCountsByCat);
         $categoryCounts['__all__'] += $categoryCounts['occasions'];
 
         // Filtre par marque (téléphones uniquement)
@@ -195,6 +201,7 @@ class BoutiqueController extends AbstractController
             'categoryTemplates' => $categoryRepo->getSlugSpecsTemplateMap(),
             'categoryFamilies' => $categoryRepo->getSlugFamilyMap(),
             'categoryCounts'   => $categoryCounts,
+            'occasionCountsByCat' => $occasionCountsByCat,
             'availableBrands'  => $availableBrands,
             'currentBrand'     => $brand,
             'occasionTypeCounts'  => $occasionTypeCounts,

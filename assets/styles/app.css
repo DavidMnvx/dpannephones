@@ -17429,6 +17429,19 @@ textarea.contact-input.is-invalid {
 .cat-fam-menu a i:first-child { width: 18px; text-align: center; color: rgb(9, 71, 113); font-size: 13px; }
 .cat-fam-menu a.is-current i:first-child { color: #b8d4e8; }
 .cat-fam-menu .cat-topbar-count { margin-left: auto; }
+/* Entrée "occasion uniquement" : renvoie vers le rayon Occasions filtré */
+.cat-fam-occ-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #15803d;
+    background: #dcfce7;
+    border-radius: 999px;
+    padding: 2px 7px;
+    margin-left: 4px;
+}
+.cat-fam-menu a.is-current .cat-fam-occ-tag { background: rgba(255,255,255,0.18); color: #bbf7d0; }
 /* La barre (défilante) et son conteneur ne doivent pas couper un volet ouvert */
 .cat-topbar:has(.cat-fam:hover), .cat-topbar:has(.cat-fam.open),
 .cat-topbar-wrap:has(.cat-fam:hover), .cat-topbar-wrap:has(.cat-fam.open) { overflow: visible; }
