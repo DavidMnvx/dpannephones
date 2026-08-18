@@ -51,21 +51,70 @@
         <div class="boutique-page-title">Boutique</div>
     </div>
 
-    {# ── Barre de catégories horizontale (tous écrans) — ordre géré dans Admin > Catégories ── #}
+    {# ── Barre de catégories — ordre géré dans Admin > Catégories.
+       Les catégories sont regroupées en FAMILLES d'après leur gabarit technique :
+       les PC (gamer/bureautique/portable) sous « PC ▾ », coques/hydrogel/verre trempé
+       sous « Protection ▾ ». Une famille à un seul membre reste une pill simple.
+       Le volet s'ouvre au survol (souris) ou au clic (tactile). ── #}
+    {% set familleDe = {
+        'pc_gamer': 'pc', 'pc_bureautique': 'pc', 'pc_portable': 'pc',
+        'coque': 'protection', 'film_hydrogel': 'protection'
+    } %}
+    {% set familleLabels = {'pc': 'PC', 'protection': 'Protection'} %}
+    {% set familleIcons  = {'pc': 'fas fa-desktop', 'protection': 'fas fa-shield-alt'} %}
+
+    {# Regroupement (ordre = ordre admin de la première catégorie de chaque famille) #}
+    {% set groupes = [] %}
+    {% for slug, label in categories %}
+        {% if categoryCounts[slug]|default(0) > 0 %}
+            {% set tpl = categoryTemplates[slug]|default(slug) %}
+            {% set fam = familleDe[tpl]|default(null) %}
+            {% set cle = fam ?: slug %}
+            {% set existant = groupes|filter(g => g.cle == cle)|first %}
+            {% if existant %}
+                {% set groupes = groupes|map(g => g.cle == cle ? g|merge({membres: g.membres|merge([slug])}) : g) %}
+            {% else %}
+                {% set groupes = groupes|merge([{cle: cle, famille: fam, membres: [slug]}]) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
     <div class="cat-topbar-wrap">
     <div class="cat-topbar">
         <a href="{{ path('boutique_index') }}" class="cat-topbar-pill {{ currentCategorie is null ? 'active' : '' }}">
             <i class="fas fa-th-large"></i> Tous
             <span class="cat-topbar-count">{{ categoryCounts['__all__'] ?? 0 }}</span>
         </a>
-        {% for slug, label in categories %}
-            {# Une catégorie sans article ne s'affiche pas — elle réapparaît dès le premier article #}
-            {% if categoryCounts[slug]|default(0) > 0 %}
-            <a href="{{ path('boutique_index', {categorie: slug}) }}"
-               class="cat-topbar-pill {{ currentCategorie == slug ? 'active' : '' }}">
-                <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i> {{ label }}
-                <span class="cat-topbar-count">{{ categoryCounts[slug] }}</span>
-            </a>
+        {% for g in groupes %}
+            {% if g.membres|length == 1 %}
+                {% set slug = g.membres|first %}
+                <a href="{{ path('boutique_index', {categorie: slug}) }}"
+                   class="cat-topbar-pill {{ currentCategorie == slug ? 'active' : '' }}">
+                    <i class="{{ categoryIcons[slug]|default('fas fa-box') }}"></i> {{ categories[slug] }}
+                    <span class="cat-topbar-count">{{ categoryCounts[slug] }}</span>
+                </a>
+            {% else %}
+                {% set famActive = currentCategorie in g.membres %}
+                {% set famTotal = 0 %}
+                {% for s in g.membres %}{% set famTotal = famTotal + categoryCounts[s] %}{% endfor %}
+                <div class="cat-fam {{ famActive ? 'cat-fam--active' : '' }}">
+                    <button type="button" class="cat-topbar-pill cat-topbar-pill--fam {{ famActive ? 'active' : '' }}"
+                            aria-haspopup="true" aria-expanded="false"
+                            onclick="var f=this.parentElement;var o=f.classList.toggle('open');this.setAttribute('aria-expanded',o);">
+                        <i class="{{ familleIcons[g.famille] }}"></i> {{ familleLabels[g.famille] }}
+                        <span class="cat-topbar-count">{{ famTotal }}</span>
+                        <i class="fas fa-chevron-down cat-fam-caret"></i>
+                    </button>
+                    <div class="cat-fam-menu" role="menu">
+                        {% for s in g.membres %}
+                            <a href="{{ path('boutique_index', {categorie: s}) }}" role="menuitem"
+                               class="{{ currentCategorie == s ? 'is-current' : '' }}">
+                                <i class="{{ categoryIcons[s]|default('fas fa-box') }}"></i> {{ categories[s] }}
+                                <span class="cat-topbar-count">{{ categoryCounts[s] }}</span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
             {% endif %}
         {% endfor %}
         {% if categoryCounts['occasions']|default(0) > 0 %}
@@ -76,6 +125,17 @@
         </a>
         {% endif %}
     </div>
+    <script>
+    // Volets famille : fermeture au clic ailleurs et à Échap (le survol est géré en CSS)
+    document.addEventListener('click', function(e) {
+        document.querySelectorAll('.cat-fam.open').forEach(function(f) {
+            if (!f.contains(e.target)) { f.classList.remove('open'); f.querySelector('button').setAttribute('aria-expanded', 'false'); }
+        });
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') document.querySelectorAll('.cat-fam.open').forEach(function(f) { f.classList.remove('open'); });
+    });
+    </script>
     <form method="get" action="{{ path('boutique_index') }}" class="cat-topbar-search" role="search">
         <i class="fas fa-search"></i>
         <input type="search" name="q" value="{{ searchQuery|default('') }}"

@@ -2527,7 +2527,7 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
 .cat-topbar {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     flex: 1;
     min-width: 0;
     overflow-x: auto;
@@ -2541,10 +2541,10 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
 .cat-topbar-pill {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 17px;
+    gap: 7px;
+    padding: 9px 14px;
     border-radius: 999px;
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 500;
     color: #48525c;
     text-decoration: none;
@@ -17353,6 +17353,68 @@ textarea.contact-input.is-invalid {
 }
 
 /* ═══════════════════════════════════════════════════
+   BOUTIQUE — familles de catégories (PC ▾, Protection ▾)
+   Volet au survol (souris) ou au clic (tactile)
+   ═══════════════════════════════════════════════════ */
+.cat-fam { position: relative; flex-shrink: 0; }
+.cat-topbar-pill--fam {
+    cursor: pointer;
+    font-family: inherit;
+    background: transparent;
+    border: 1.5px solid transparent;
+}
+.cat-topbar-pill--fam:not(.active):hover,
+.cat-fam.open .cat-topbar-pill--fam:not(.active) { background: #f0f5fa; color: rgb(9, 71, 113); }
+.cat-fam-caret { font-size: 9px; margin-left: 1px; opacity: 0.7; transition: transform 0.15s; }
+.cat-fam:hover .cat-fam-caret,
+.cat-fam.open .cat-fam-caret { transform: rotate(180deg); }
+
+.cat-fam-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding-top: 8px; /* pont invisible : la souris ne "tombe" pas entre la pill et le volet */
+    z-index: 60;
+}
+.cat-fam-menu::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 0; right: 0; bottom: 0;
+    background: #fff;
+    border: 1px solid #e6ecf2;
+    border-radius: 12px;
+    box-shadow: 0 12px 34px rgba(9, 31, 51, 0.14);
+    z-index: -1;
+}
+.cat-fam:hover .cat-fam-menu,
+.cat-fam.open .cat-fam-menu { display: block; }
+.cat-fam-menu a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 220px;
+    margin: 6px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    color: #1b2e45;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.cat-fam-menu a + a { margin-top: 0; }
+.cat-fam-menu a:hover { background: #f0f5fa; color: rgb(9, 71, 113); text-decoration: none; }
+.cat-fam-menu a.is-current { background: rgb(9, 71, 113); color: #fff; }
+.cat-fam-menu a.is-current .cat-topbar-count { color: #b8d4e8; }
+.cat-fam-menu a i:first-child { width: 18px; text-align: center; color: rgb(9, 71, 113); font-size: 13px; }
+.cat-fam-menu a.is-current i:first-child { color: #b8d4e8; }
+.cat-fam-menu .cat-topbar-count { margin-left: auto; }
+/* La barre (défilante) et son conteneur ne doivent pas couper un volet ouvert */
+.cat-topbar:has(.cat-fam:hover), .cat-topbar:has(.cat-fam.open),
+.cat-topbar-wrap:has(.cat-fam:hover), .cat-topbar-wrap:has(.cat-fam.open) { overflow: visible; }
+
+/* ═══════════════════════════════════════════════════
    RÉPARATIONS — mention prix variables
    ═══════════════════════════════════════════════════ */
 .rep-prix-note {
@@ -17406,14 +17468,16 @@ textarea.contact-input.is-invalid {
     color: #1b2e45;
     width: 120px;
 }
-/* Mobile : la barre passe sur deux lignes — pills en haut,
-   recherche (pleine largeur) + panier en dessous */
+/* La barre sur deux lignes à tous les écrans : les catégories occupent
+   toute la largeur (elles respirent, le menu « Plus » reste visible),
+   recherche + panier alignés à droite en dessous. */
+.cat-topbar-wrap { flex-wrap: wrap; row-gap: 8px; }
+.cat-topbar { order: 1; flex: 1 1 100%; }
+.cat-topbar-search { order: 2; margin-left: auto; }
+.cat-topbar-cart { order: 3; flex-shrink: 0; }
 @media (max-width: 700px) {
-    .cat-topbar-wrap { flex-wrap: wrap; }
-    .cat-topbar { order: 1; flex: 1 1 100%; }
-    .cat-topbar-search { order: 2; flex: 1 1 auto; margin-left: 0; }
+    .cat-topbar-search { flex: 1 1 auto; margin-left: 0; }
     .cat-topbar-search input { width: 100%; flex: 1; }
-    .cat-topbar-cart { order: 3; flex-shrink: 0; }
 }
 
 .sort-bar {
