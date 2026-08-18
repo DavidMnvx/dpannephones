@@ -217,24 +217,24 @@
             <div class="admin-welcome">
                 <div>
                     <h2>Tableau de bord</h2>
-                    <p>Gérez vos marques, modèles et réparations</p>
+                    <p>L'essentiel de la boutique en un coup d'œil</p>
                 </div>
                 <div class="admin-stats">
                     <div class="stat-box">
-                        <span class="stat-number">{{ marques|length }}</span>
-                        <span class="stat-label">Marques</span>
+                        <span class="stat-number">{{ caMois|number_format(0, ',', ' ') }} €</span>
+                        <span class="stat-label">CA du mois</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-number">{{ models|length }}</span>
-                        <span class="stat-label">Modèles</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-number">{{ reparations|length }}</span>
-                        <span class="stat-label">Réparations</span>
+                        <span class="stat-number">{{ commandesAExpedier|length }}</span>
+                        <span class="stat-label">À expédier</span>
                     </div>
                     <div class="stat-box">
                         <span class="stat-number">{{ articles|length }}</span>
                         <span class="stat-label">Articles</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">{{ nbClients }}</span>
+                        <span class="stat-label">Clients</span>
                     </div>
                 </div>
             </div>
@@ -254,26 +254,8 @@
 
                     {# KPI cards #}
                     <div class="row mb-4">
-                        <div class="col-md-2 mb-3">
-                            <div class="dash-card" onclick="showContent('marques')">
-                                <i class="fas fa-tags"></i>
-                                <h4>Marques</h4>
-                                <p>{{ marques|length }} enregistrée(s)</p>
-                            </div>
                         </div>
-                        <div class="col-md-2 mb-3">
-                            <div class="dash-card" onclick="showContent('modeles')">
-                                <i class="fas fa-mobile-alt"></i>
-                                <h4>Modèles</h4>
-                                <p>{{ models|length }} enregistré(s)</p>
-                            </div>
                         </div>
-                        <div class="col-md-2 mb-3">
-                            <div class="dash-card" onclick="showContent('reparations')">
-                                <i class="fas fa-tools"></i>
-                                <h4>Réparations</h4>
-                                <p>{{ reparations|length }} enregistrée(s)</p>
-                            </div>
                         </div>
                         <div class="col-md-2 mb-3">
                             <a href="{{ path('admin_article_index') }}" style="text-decoration:none;">
@@ -302,13 +284,6 @@
                                 </div>
                             </a>
                         </div>
-                        <div class="col-md-2 mb-3">
-                            <a href="{{ path('admin_partenaires') }}" style="text-decoration:none;">
-                                <div class="dash-card">
-                                    <i class="fas fa-handshake"></i>
-                                    <h4>Partenaires</h4>
-                                    <p>Gérer le réseau</p>
-                                </div>
                             </a>
                         </div>
                         <div class="col-md-2 mb-3">
