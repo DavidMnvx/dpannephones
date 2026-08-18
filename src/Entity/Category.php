@@ -55,6 +55,11 @@ class Category
     #[ORM\Column]
     private int $position = 0;
 
+    /** Famille (menu déroulant de la boutique) : les catégories partageant la même famille
+     *  sont regroupées sous un volet « Famille ▾ ». Null = catégorie seule dans la barre. */
+    #[ORM\Column(length: 60, nullable: true)]
+    private ?string $family = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getSlug(): ?string { return $this->slug; }
@@ -74,4 +79,12 @@ class Category
 
     public function getPosition(): int { return $this->position; }
     public function setPosition(int $position): self { $this->position = $position; return $this; }
+
+    public function getFamily(): ?string { return $this->family; }
+    public function setFamily(?string $family): self
+    {
+        $family = trim((string) $family);
+        $this->family = $family === '' ? null : mb_substr($family, 0, 60);
+        return $this;
+    }
 }

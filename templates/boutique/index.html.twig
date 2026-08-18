@@ -51,25 +51,15 @@
         <div class="boutique-page-title">Boutique</div>
     </div>
 
-    {# ── Barre de catégories — ordre géré dans Admin > Catégories.
-       Les catégories sont regroupées en FAMILLES d'après leur gabarit technique :
-       les PC (gamer/bureautique/portable) sous « PC ▾ », coques/hydrogel/verre trempé
-       sous « Protection ▾ ». Une famille à un seul membre reste une pill simple.
+    {# ── Barre de catégories — ordre et FAMILLES gérés dans Admin > Catégories.
+       Les catégories partageant la même famille (champ « Famille ») sont regroupées
+       sous un volet « Famille ▾ » ; une famille à un seul membre reste une pill simple.
        Le volet s'ouvre au survol (souris) ou au clic (tactile). ── #}
-    {% set familleDe = {
-        'pc_gamer': 'pc', 'pc_bureautique': 'pc', 'pc_portable': 'pc',
-        'coque': 'protection', 'film_hydrogel': 'protection'
-    } %}
-    {% set familleLabels = {'pc': 'PC', 'protection': 'Protection'} %}
-    {% set familleIcons  = {'pc': 'fas fa-desktop', 'protection': 'fas fa-shield-alt'} %}
-
-    {# Regroupement (ordre = ordre admin de la première catégorie de chaque famille) #}
     {% set groupes = [] %}
     {% for slug, label in categories %}
         {% if categoryCounts[slug]|default(0) > 0 %}
-            {% set tpl = categoryTemplates[slug]|default(slug) %}
-            {% set fam = familleDe[tpl]|default(null) %}
-            {% set cle = fam ?: slug %}
+            {% set fam = categoryFamilies[slug]|default(null) %}
+            {% set cle = fam ? ('fam:' ~ fam|lower) : slug %}
             {% set existant = groupes|filter(g => g.cle == cle)|first %}
             {% if existant %}
                 {% set groupes = groupes|map(g => g.cle == cle ? g|merge({membres: g.membres|merge([slug])}) : g) %}
@@ -101,7 +91,7 @@
                     <button type="button" class="cat-topbar-pill cat-topbar-pill--fam {{ famActive ? 'active' : '' }}"
                             aria-haspopup="true" aria-expanded="false"
                             onclick="var f=this.parentElement;var o=f.classList.toggle('open');this.setAttribute('aria-expanded',o);">
-                        <i class="{{ familleIcons[g.famille] }}"></i> {{ familleLabels[g.famille] }}
+                        <i class="{{ categoryIcons[g.membres|first]|default('fas fa-box') }}"></i> {{ g.famille }}
                         <span class="cat-topbar-count">{{ famTotal }}</span>
                         <i class="fas fa-chevron-down cat-fam-caret"></i>
                     </button>

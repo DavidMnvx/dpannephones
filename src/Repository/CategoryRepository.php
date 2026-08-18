@@ -58,6 +58,28 @@ class CategoryRepository extends ServiceEntityRepository
     }
 
     /** Map slug => tier de livraison */
+    /** slug => famille (null si la catégorie est seule) */
+    public function getSlugFamilyMap(): array
+    {
+        $map = [];
+        foreach ($this->findAllOrdered() as $c) {
+            $map[$c->getSlug()] = $c->getFamily();
+        }
+        return $map;
+    }
+
+    /** Familles existantes (dédoublonnées, ordre d'apparition) — pour l'autocomplétion admin */
+    public function getFamilies(): array
+    {
+        $out = [];
+        foreach ($this->findAllOrdered() as $c) {
+            if ($c->getFamily() && !in_array($c->getFamily(), $out, true)) {
+                $out[] = $c->getFamily();
+            }
+        }
+        return $out;
+    }
+
     public function getSlugTierMap(): array
     {
         $map = [];

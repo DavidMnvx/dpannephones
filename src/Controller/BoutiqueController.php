@@ -193,6 +193,7 @@ class BoutiqueController extends AbstractController
             'categories'       => $categories,
             'categoryIcons'    => $categoryRepo->getSlugIconMap(),
             'categoryTemplates' => $categoryRepo->getSlugSpecsTemplateMap(),
+            'categoryFamilies' => $categoryRepo->getSlugFamilyMap(),
             'categoryCounts'   => $categoryCounts,
             'availableBrands'  => $availableBrands,
             'currentBrand'     => $brand,

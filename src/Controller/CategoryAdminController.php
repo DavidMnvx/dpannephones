@@ -55,6 +55,7 @@ class CategoryAdminController extends AbstractController
             'articleCounts'  => $counts,
             'iconChoices'    => self::ICON_CHOICES,
             'specsTemplates' => Category::SPECS_TEMPLATES,
+            'families'       => $repo->getFamilies(),
         ]);
     }
 
@@ -89,6 +90,7 @@ class CategoryAdminController extends AbstractController
             ->setIcon($this->sanitizeIcon((string) $request->request->get('icon', '')))
             ->setShippingTier((int) $request->request->get('shipping_tier', 1))
             ->setSpecsTemplate($this->sanitizeTemplate((string) $request->request->get('specs_template', '')))
+            ->setFamily((string) $request->request->get('family', ''))
             ->setPosition($maxPosition + 10);
 
         $em->persist($category);
@@ -113,6 +115,7 @@ class CategoryAdminController extends AbstractController
         $category->setShippingTier((int) $request->request->get('shipping_tier', $category->getShippingTier()));
         $category->setSpecsTemplate($this->sanitizeTemplate((string) $request->request->get('specs_template', '')));
         $category->setPosition((int) $request->request->get('position', $category->getPosition()));
+        $category->setFamily((string) $request->request->get('family', ''));
 
         $em->flush();
         $this->addFlash('success', 'Catégorie "' . $category->getLabel() . '" mise à jour.');
