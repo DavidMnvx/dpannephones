@@ -17759,7 +17759,7 @@ textarea.contact-input.is-invalid {
 }
 .blog-featured-badge {
     display: inline-flex;
-    align-items: baseline; /* l'étoile se cale sur la ligne de base du texte */
+    align-items: center;
     gap: 6px;
     background: #fef3c7;
     color: #92400e;
@@ -17770,7 +17770,7 @@ textarea.contact-input.is-invalid {
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
-.blog-featured-badge i { font-size: 9px; line-height: 1; transform: translateY(-2px); }
+.blog-featured-badge i { font-size: 9px; }
 .blog-featured-title { font-size: 25px; font-weight: 700; color: #1b2e45; line-height: 1.3; margin: 0; }
 .blog-featured:hover .blog-featured-title { color: rgb(9, 71, 113); }
 .blog-featured-excerpt { font-size: 14px; color: #7d8896; line-height: 1.6; margin: 0; }
@@ -18246,4 +18246,26 @@ textarea.contact-input.is-invalid {
 .review-container {
     padding-top: 6px;
     overflow-y: clip;
+}
+
+/* Toutes les pastilles à icône du site, même géométrie déterministe :
+   la boîte de l'icône se limite à son glyphe (sinon elle s'étire et se
+   perche — cf. feat-badge) et se centre sur le texte. */
+.feat-badge i,
+.reviews-eyebrow i,
+.blog-featured-badge i,
+.accueil-boutique-badge i,
+.home-articles-eyebrow i,
+.hydrogel-eyebrow i,
+.ordi-eyebrow i,
+.ordi-hero-eyebrow i,
+.rep-eyebrow i,
+.rep-hero-eyebrow i,
+.rev-badge-verified i,
+.sc-browser-badge i {
+    height: 1em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    align-self: center;
 }
