@@ -450,13 +450,16 @@
     <div class="home-articles-grid">
         {% for article in dernierArticles|slice(0, 4) %}
         <div class="product-card">
-            <div class="product-img-wrap">
-                {% if article.image %}
-                    <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
-                {% else %}
-                    <i class="fas fa-image no-img"></i>
-                {% endif %}
-            </div>
+            {# Toute la carte mène à la fiche produit — image et nom cliquables, comme en boutique #}
+            <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-img-link">
+                <div class="product-img-wrap">
+                    {% if article.image %}
+                        <img src="{{ asset('uploads/images/' ~ article.image) }}" alt="{{ article.name }}">
+                    {% else %}
+                        <i class="fas fa-image no-img"></i>
+                    {% endif %}
+                </div>
+            </a>
             <div class="product-body">
                 <div class="product-badges">
                     <span class="badge-etat {{ article.isNew ? 'badge-neuf' : 'badge-occasion' }}">
@@ -466,7 +469,9 @@
                         <span class="badge-grade">Grade {{ article.grade }}</span>
                     {% endif %}
                 </div>
-                <div class="product-name">{{ article.name }}</div>
+                <div class="product-name">
+                    <a href="{{ path('boutique_show', {id: article.id}) }}" class="product-name-link">{{ article.name }}</a>
+                </div>
                 <div class="product-footer">
                     <span class="product-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
                     {% if article.categorie is defined and article.categorie == 'film_hydrogel' %}
