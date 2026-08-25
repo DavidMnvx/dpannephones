@@ -31,3 +31,10 @@ framework:
             policy: sliding_window
             limit: 3
             interval: '1 hour'
+
+        # Demande de réinitialisation de mot de passe — chaque demande envoie
+        # un email : on borne pour éviter le spam d'une boîte tierce.
+        password_reset:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'

@@ -42,6 +42,30 @@ class RegistrationEmailService
         $this->mailer->send($email);
     }
 
+    public function sendPasswordResetEmail(User $user): void
+    {
+        // Même mécanique de lien signé que la confirmation d'email :
+        // aucune donnée à stocker, la signature porte l'expiration (1 h).
+        $signatureComponents = $this->verifyEmailHelper->generateSignature(
+            'app_reset_password',
+            (string) $user->getId(),
+            $user->getEmail(),
+            ['id' => $user->getId()]
+        );
+
+        $email = (new TemplatedEmail())
+            ->from(new Address($this->mailerFrom, $this->mailerFromName))
+            ->to(new Address($user->getEmail()))
+            ->subject('Réinitialiser votre mot de passe — D\'Panne Phones')
+            ->htmlTemplate('email/reset_password.html.twig')
+            ->context([
+                'signedUrl' => $signatureComponents->getSignedUrl(),
+                'user' => $user,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
     public function sendWelcomeEmail(User $user): void
     {
         $email = (new TemplatedEmail())
