@@ -18203,3 +18203,34 @@ textarea.contact-input.is-invalid {
 .btn-checkout {
     transition: background .2s, color .2s, box-shadow .2s, transform .15s;
 }
+
+/* Un seul langage de formes sur le parcours d'achat :
+   10px pour les boutons d'action, 16px + ombre douce pour les cartes.
+   (Avant : six rayons et trois ombres différents du produit à la confirmation.) */
+.btn-cart,
+.btn-voir-panier,
+.btn-cart-detail,
+.promo-apply-btn,
+.auth-btn-primary {
+    border-radius: 10px;
+}
+.cart-table-wrap,
+.cart-summary,
+.auth-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+}
+.login-form-card,
+.contact-form-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .06);
+}
+
+/* Rangées défilantes : la card se soulève de 2px au survol — sans place au-dessus,
+   elle déclenchait un ascenseur vertical dans la rangée. On lui donne l'espace
+   et on interdit tout défilement vertical dans un carrousel horizontal. */
+.cat-section-row,
+.home-conseils-row,
+.review-container {
+    padding-top: 6px;
+    overflow-y: clip;
+}

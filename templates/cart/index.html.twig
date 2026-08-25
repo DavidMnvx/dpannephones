@@ -102,7 +102,8 @@
                                     </td>
                                     <td class="cart-price">{{ (cartItem.article.price * cartItem.quantity)|number_format(2, ',', ' ') }} €</td>
                                     <td>
-                                        <a href="{{ path('cart_remove', {id: cartItem.id}) }}" class="btn-remove" onclick="return confirm('Retirer cet article ?')">
+                                        {# Suppression directe, sans dialogue système : l'action est réversible en un clic depuis la boutique #}
+                                        <a href="{{ path('cart_remove', {id: cartItem.id}) }}" class="btn-remove" title="Retirer l'article">
                                             <i class="fas fa-trash-alt"></i>
                                         </a>
                                     </td>

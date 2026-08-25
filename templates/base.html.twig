@@ -373,7 +373,7 @@
             <li><a href="{{ path('legal_mentions') }}"><i class="fas fa-info-circle mr-1"></i>Mentions légales</a></li>
             <li><a href="{{ path('legal_confidentialite') }}"><i class="fas fa-user-shield mr-1"></i>Confidentialité</a></li>
             {% if google_analytics_id and app.environment == 'prod' %}
-            <li><a href="#tarteaucitron" onclick="event.preventDefault(); if(typeof tarteaucitron !== 'undefined'){tarteaucitron.userInterface.openPanel();} else {alert('Panneau de cookies non disponible.');}"><i class="fas fa-cookie-bite mr-1"></i>Gérer les cookies</a></li>
+            <li><a href="{{ path('legal_confidentialite') }}" onclick="if(typeof tarteaucitron !== 'undefined'){event.preventDefault();tarteaucitron.userInterface.openPanel();}"><i class="fas fa-cookie-bite mr-1"></i>Gérer les cookies</a></li>
             {% endif %}
           </ul>
         </div>

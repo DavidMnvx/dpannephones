@@ -26,6 +26,14 @@ class ContactController extends AbstractController
         LoggerInterface $logger
     ): Response {
         $contact = new Contact();
+
+        // Un devis réparation peut arriver prérempli depuis la page des tarifs :
+        // le client retrouve son récap dans le message au lieu de tout retaper.
+        $devis = trim((string) $request->query->get('devis', ''));
+        if ($devis !== '' && !$request->isMethod('POST')) {
+            $contact->setMessage(mb_substr($devis, 0, 4000));
+        }
+
         $form = $this->createForm(ContactType::class, $contact);
 
         $form->handleRequest($request);

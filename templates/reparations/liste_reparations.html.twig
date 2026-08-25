@@ -230,6 +230,26 @@
         return n.toFixed(2).replace('.', ',');
     }
 
+    // Le CTA emmène le devis avec lui : le formulaire de contact arrive prérempli,
+    // le client n'a pas à retaper ce qu'il vient de composer.
+    const devisCtaEl  = document.getElementById('devisCta');
+    const mobileCtaEl = document.querySelector('.rep-mobile-devis-btn');
+    const contactBase = devisCtaEl.getAttribute('href').split('?')[0];
+    const modeleNom   = {{ (modele.marque.name ~ ' ' ~ modele.name)|json_encode|raw }};
+
+    function majLiensDevis(selected, total) {
+        let url = contactBase;
+        if (selected.length > 0) {
+            const lignes = selected.map(i => '- ' + i.name + ' : ' + (i.price === 0 ? 'offert' : formatPrice(i.price) + ' €'));
+            const texte = 'Bonjour,\n\nJe souhaite un devis pour mon ' + modeleNom + ' :\n'
+                + lignes.join('\n')
+                + '\n\nTotal estimé : ' + formatPrice(total) + ' €.\n\nQuand puis-je passer en boutique ?';
+            url += '?devis=' + encodeURIComponent(texte);
+        }
+        devisCtaEl.href = url;
+        if (mobileCtaEl) mobileCtaEl.href = url;
+    }
+
     function updateDevis() {
         const selected = [];
         let total = 0;
@@ -272,6 +292,8 @@
             devisSummary.style.display = 'block';
             mobileDevis.style.display = 'flex';
         }
+
+        majLiensDevis(selected, total);
 
         // Totaux
         totalEl.textContent = formatPrice(total);
