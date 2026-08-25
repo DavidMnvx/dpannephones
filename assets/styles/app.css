@@ -2669,6 +2669,7 @@ a.ck-step--done:hover .ck-step-dot { box-shadow: 0 0 0 4px rgba(22,163,74,0.15);
 .feat-badge i {
     font-size: 9px;
     line-height: 1;
+    transform: translateY(1px); /* le glyphe FA se dessine haut dans sa boîte : centrage optique */
 }
 
 .feat-title {
