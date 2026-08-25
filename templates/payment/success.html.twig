@@ -26,9 +26,10 @@
       </div>
     </div>
 
-    <h1 class="auth-title" style="color:#1a7f37;">Paiement confirmé !</h1>
+    <h1 class="auth-title" style="color:#1a7f37;">Paiement confirmé&nbsp;!</h1>
     <p class="check-email-intro">
-      Merci pour votre commande. Elle a bien été enregistrée et sera traitée dans les plus brefs délais.
+      Merci{% if app.user and app.user.prenom %} {{ app.user.prenom }}{% endif %}&nbsp;! Votre commande est entre nos mains —
+      on s'en occupe, et on vous tient au courant par email à chaque étape.
     </p>
 
     {# Récapitulatif #}

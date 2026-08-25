@@ -9,7 +9,7 @@ use Symfony\Component\Mime\Email;
 use Twig\Environment;
 
 /**
- * Envoie les messages du formulaire de contact au support D'panne Phones.
+ * Envoie les messages du formulaire de contact au support D'Panne Phones.
  */
 class ContactNotificationService
 {

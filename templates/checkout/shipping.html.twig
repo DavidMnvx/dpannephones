@@ -1,19 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Livraison — D'panne Phones{% endblock %}
+{% block title %}Livraison — D'Panne Phones{% endblock %}
 
 {% block body %}
 
 <div class="container mt-4 mb-5">
 
     {# Messages flash #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'info') }}" role="alert" style="border-radius:10px;font-size:14px;">
-                <i class="fas fa-exclamation-circle mr-1"></i> {{ message }}
-            </div>
-        {% endfor %}
-    {% endfor %}
+    {{ include('_partials/flashes.html.twig') }}
 
     {{ include('checkout/_steps.html.twig', { current: 2 }) }}
 
@@ -172,9 +166,10 @@
                 <a href="{{ stepComplete ? path('payment_checkout') : '#' }}"
                    id="btnGoPayment"
                    class="btn-checkout btn-checkout--stripe {{ stepComplete ? '' : 'btn-checkout--disabled' }}"
-                   {{ stepComplete ? '' : 'aria-disabled="true" tabindex="-1"' }}>
+                   {{ stepComplete ? '' : 'aria-disabled="true" tabindex="-1"' }}
+                   onclick="if(this.classList.contains('btn-checkout--disabled')||this.dataset.busy)return false;this.dataset.busy='1';this.style.opacity='.65';this.style.cursor='wait';this.textContent='Un instant — on prépare le paiement sécurisé…'">
                     <i class="fas fa-lock mr-2"></i>
-                    Procéder au paiement
+                    Continuer vers le paiement
                 </a>
                 <p id="paymentLockedHint" class="ck-locked-hint" style="{{ stepComplete ? 'display:none;' : '' }}">
                     <i class="fas fa-info-circle mr-1"></i>

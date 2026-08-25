@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon Panier — D'panne Phones{% endblock %}
+{% block title %}Mon Panier — D'Panne Phones{% endblock %}
 
 {% block body %}
 
@@ -19,13 +19,7 @@
 <div class="container mt-4 mb-5">
 
     {# Messages flash (erreur paiement, panier vide, etc.) #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'warning' ? 'warning' : 'info') }}" role="alert" style="border-radius:10px;font-size:14px;">
-                <i class="fas fa-exclamation-circle mr-1"></i> {{ message }}
-            </div>
-        {% endfor %}
-    {% endfor %}
+    {{ include('_partials/flashes.html.twig') }}
 
     {{ include('checkout/_steps.html.twig', { current: 1 }) }}
 
@@ -91,7 +85,7 @@
                                         <div class="cart-qty-ctrl">
                                             <a href="{{ path('cart_decrement', {id: cartItem.id}) }}"
                                                class="qty-btn qty-btn--minus"
-                                               title="{{ cartItem.quantity == 1 ? 'Retirer l\'article' : 'Diminuer' }}">
+                                               title="{{ cartItem.quantity == 1 ? 'Retirer l\'article' : 'En retirer un' }}">
                                                 {% if cartItem.quantity == 1 %}
                                                     <i class="fas fa-trash-alt" style="font-size:11px;"></i>
                                                 {% else %}
@@ -101,7 +95,7 @@
                                             <span class="qty-value">{{ cartItem.quantity }}</span>
                                             <a href="{{ path('cart_increment', {id: cartItem.id}) }}"
                                                class="qty-btn qty-btn--plus"
-                                               title="Ajouter un de plus">
+                                               title="En ajouter un">
                                                 <i class="fas fa-plus"></i>
                                             </a>
                                         </div>
@@ -226,7 +220,7 @@
                             </label>
                             <div class="promo-form-row">
                                 <input type="text" name="promo_code" class="promo-input"
-                                       placeholder="Ex: BIENVENUE10"
+                                       placeholder="Ex. : BIENVENUE10"
                                        autocomplete="off"
                                        style="text-transform:uppercase;">
                                 <button type="submit" class="promo-apply-btn">
@@ -237,7 +231,7 @@
                     {% endif %}
 
                     <a href="{{ path('checkout_shipping') }}" class="btn-checkout btn-checkout--stripe">
-                        Valider mon panier <i class="fas fa-arrow-right ml-2"></i>
+                        Passer la commande <i class="fas fa-arrow-right ml-2"></i>
                     </a>
                     <a href="{{ path('boutique_index') }}" class="btn-continue">
                         <i class="fas fa-arrow-left mr-1"></i> Continuer mes achats

@@ -148,7 +148,7 @@ class ReviewController extends AbstractController
 
             $this->addFlash(
                 'success',
-                '🙏 Merci pour votre avis ! Il est bien enregistré et sera publié après validation par notre équipe (sous 24-48h). Vous pouvez suivre son statut dans "Mon compte > Mes avis".'
+                '🙏 Merci pour votre avis ! On le relit et on le publie sous 24 à 48 h — vous pouvez le retrouver à tout moment dans « Mon compte › Mes avis ».'
             );
 
             // Redirection vers la page d'accueil : le client voit un flash vert

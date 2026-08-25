@@ -21,6 +21,12 @@
       </div>
     {% endfor %}
 
+    {% for message in app.flashes('error') %}
+      <div class="auth-flash auth-flash--error">
+        <i class="fas fa-times-circle mr-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+
     {% for message in app.flashes('verify_email_error') %}
       <div class="auth-flash auth-flash--error">
         <i class="fas fa-times-circle mr-2"></i>{{ message }}

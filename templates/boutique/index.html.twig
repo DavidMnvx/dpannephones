@@ -1,8 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Boutique — D'panne Phones{% endblock %}
+{% block title %}Boutique — D'Panne Phones{% endblock %}
 
 {% block body %}
+
+{# Messages flash : ajout au panier, retour de paiement différé (PayPal, Alma…) #}
+<div class="rev-flash-wrap" style="width:92%;max-width:1100px;margin:0 auto;padding:0 16px;">
+    {{ include('_partials/flashes.html.twig') }}
+</div>
 
 {# Bannière image classique — uniquement sur l'accueil, en repli quand aucun article n'est à la une.
    Les pages catégorie commencent directement (cohérence de navigation). #}
@@ -12,7 +17,7 @@
         <div class="carousel-item active">
             <img class="d-block w-100" src="{{ asset(site_image('banner_boutique', 'images/baner/Boutique.png')) }}" alt="Boutique">
             <div class="carousel-caption">
-                <h5 id="uneRep">Notre Boutique</h5>
+                <h5 id="uneRep">Notre boutique</h5>
             </div>
         </div>
     </div>
@@ -674,11 +679,11 @@
                                 </div>
                                 <span class="mini-cart-item-name">{{ cartItem.article.name }}{% if cartItem.options and cartItem.options.color is defined %} · {{ cartItem.options.color }}{% endif %}</span>
                                 <div class="mini-qty-ctrl">
-                                    <a href="{{ path('cart_decrement', {id: cartItem.id}) }}" class="mini-qty-btn" title="Retirer un">
+                                    <a href="{{ path('cart_decrement', {id: cartItem.id}) }}" class="mini-qty-btn" title="{{ cartItem.quantity == 1 ? 'Retirer l\'article' : 'En retirer un' }}">
                                         {% if cartItem.quantity == 1 %}<i class="fas fa-trash-alt" style="font-size:9px;"></i>{% else %}<i class="fas fa-minus"></i>{% endif %}
                                     </a>
                                     <span class="mini-qty-val">{{ cartItem.quantity }}</span>
-                                    <a href="{{ path('cart_increment', {id: cartItem.id}) }}" class="mini-qty-btn" title="Ajouter un">
+                                    <a href="{{ path('cart_increment', {id: cartItem.id}) }}" class="mini-qty-btn" title="En ajouter un">
                                         <i class="fas fa-plus"></i>
                                     </a>
                                 </div>
@@ -691,7 +696,7 @@
                             <span class="mini-cart-total-amount">{{ cartTotal|number_format(2, ',', ' ') }} €</span>
                         </div>
                         <a href="{{ path('checkout_shipping') }}" class="btn-voir-panier">
-                            <i class="fas fa-lock mr-1"></i> Commander
+                            <i class="fas fa-lock mr-1"></i> Passer la commande
                         </a>
                         <a href="{{ path('cart_index') }}" class="side-cart-link">Aller au panier</a>
                     </div>
@@ -746,7 +751,7 @@
         </div>
         <div class="reassurance-item">
             <i class="fas fa-tools"></i>
-            <strong>SAV Expert</strong>
+            <strong>SAV expert</strong>
             <span>Réparation en boutique par nos techniciens</span>
         </div>
         <div class="reassurance-item">

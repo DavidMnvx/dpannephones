@@ -5,6 +5,12 @@
 <div class="auth-page-wrap">
   <div class="auth-card auth-card--center check-email-card">
 
+    {% for message in app.flashes('warning') %}
+      <div class="auth-flash auth-flash--warning">
+        <i class="fas fa-exclamation-triangle mr-2"></i>{{ message }}
+      </div>
+    {% endfor %}
+
     {# Icône animée #}
     <div class="check-email-icon-wrap">
       <div class="check-email-icon-ring"></div>

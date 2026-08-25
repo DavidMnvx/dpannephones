@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ post.seoTitle ?: post.title }} — D'panne Phones{% endblock %}
+{% block title %}{{ post.seoTitle ?: post.title }} — D'Panne Phones{% endblock %}
 {% block meta_description %}{{ post.metaDescription ?: (post.excerpt ?: post.title) }}{% endblock %}
 {% block og_title %}{{ post.seoTitle ?: post.title }}{% endblock %}
 {% block og_description %}{{ post.metaDescription ?: (post.excerpt ?: post.title) }}{% endblock %}
@@ -40,7 +40,7 @@
             <div class="blog-article-meta">
                 <span><i class="far fa-calendar-alt"></i>
                     Publié le {{ post.publishedAt ? post.publishedAt|date('d/m/Y') : '' }}</span>
-                <span><i class="fas fa-store"></i> Par l'atelier D'panne Phones, Pélissanne</span>
+                <span><i class="fas fa-store"></i> Par l'atelier D'Panne Phones, Pélissanne</span>
             </div>
         </header>
 
@@ -97,8 +97,8 @@
     {% if post.image %}"image": {{ absolute_url(asset('uploads/images/' ~ post.image))|json_encode|raw }},{% endif %}
     "datePublished": "{{ post.publishedAt ? post.publishedAt|date('c') : '' }}",
     "dateModified": "{{ post.updatedAt ? post.updatedAt|date('c') : '' }}",
-    "author": { "@type": "Organization", "name": "D'panne Phones" },
-    "publisher": { "@type": "Organization", "name": "D'panne Phones" }
+    "author": { "@type": "Organization", "name": "D'Panne Phones" },
+    "publisher": { "@type": "Organization", "name": "D'Panne Phones" }
 }
 </script>
 {% endblock %}

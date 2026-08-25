@@ -96,42 +96,44 @@
                 Bonjour {{ user.prenom | default(user.email) }},
             </div>
 
-            <p>Votre compte a été créé avec succès ! Vous pouvez maintenant explorer notre boutique et découvrir une sélection de produits reconditionnés de qualité.</p>
+            <p>Bienvenue chez nous&nbsp;! Votre compte est prêt — vous pouvez explorer la boutique et découvrir nos produits reconditionnés, testés un par un à l'atelier.</p>
 
             <div class="features">
                 <div class="feature-item">
-                    <strong>📱 Smartphones & Accessoires</strong><br>
+                    <strong>📱 Smartphones & accessoires</strong><br>
                     Une large gamme de téléphones reconditionnés en excellent état
                 </div>
                 <div class="feature-item">
-                    <strong>💻 Ordinateurs & Composants</strong><br>
+                    <strong>💻 Ordinateurs & composants</strong><br>
                     PC portables, bureautiques et gaming, testés et garantis
                 </div>
                 <div class="feature-item">
-                    <strong>🛡️ Garantie & Confiance</strong><br>
+                    <strong>🛡️ Garantie & confiance</strong><br>
                     Garantie légale 2 ans neuf / 1 an occasion + retours sous 14 jours
                 </div>
                 <div class="feature-item">
-                    <strong>🚚 Retrait en Boutique</strong><br>
+                    <strong>🚚 Retrait en boutique</strong><br>
                     Disponible sous 1-2 jours ouvrés à Pélissanne
                 </div>
             </div>
 
             <div class="button-container">
-                <a href="{{ url('boutique_index') }}" class="shop-button">Découvrir la Boutique</a>
+                <a href="{{ url('boutique_index') }}" class="shop-button">Découvrir la boutique</a>
             </div>
 
             <div class="contact-info">
                 <strong>📍 Nous trouver :</strong><br>
                 D'Panne Phones - Pélissanne, France<br>
-                <strong>Support :</strong> contact@dpannephones.com
+                <strong>Écrivez-nous :</strong> contact@dpannephones.com
             </div>
 
-            <p>Si vous avez des questions ou besoin d'assistance, n'hésitez pas à nous contacter. Nous sommes là pour vous aider !</p>
+            <p>Une question, un doute, un appareil qui fait des siennes&nbsp;? Écrivez-nous — il y a toujours quelqu'un de l'atelier pour vous répondre.</p>
+
+            <p style="margin-top:22px;">À bientôt,<br><strong>l'équipe D'Panne Phones</strong> 💙</p>
         </div>
 
         <div class="footer">
-            <p>© 2024 D'Panne Phones - Tous droits réservés<br>
+            <p>© {{ "now"|date("Y") }} D'Panne Phones — Tous droits réservés<br>
             Électronique reconditionnée · Pélissanne, France</p>
         </div>
     </div>

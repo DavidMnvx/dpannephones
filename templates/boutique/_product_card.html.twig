@@ -117,7 +117,7 @@
             {% elseif catTpl in ['coque', 'film_hydrogel'] %}
                 {# Gabarit coque/hydrogel (ex. verre trempé) : choix du modèle obligatoire #}
                 <button type="button" class="btn-cart" data-toggle="modal" data-target="#hydrogelModal{{ article.id }}">
-                    <i class="fas fa-mobile-alt"></i> Choisir le modèle
+                    <i class="fas fa-mobile-alt"></i> Choisir mon modèle
                 </button>
             {% else %}
                 <a href="{{ path('cart_add', {id: article.id}) }}" class="btn-cart">

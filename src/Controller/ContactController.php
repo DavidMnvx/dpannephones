@@ -37,7 +37,7 @@ class ContactController extends AbstractController
                     'ip' => $request->getClientIp(),
                 ]);
                 // On retourne la même réponse qu'un succès pour ne pas donner d'info au bot
-                $this->addFlash('success', '✅ Votre message a bien été envoyé — nous vous répondons sous 24-48h.');
+                $this->addFlash('success', 'Votre message est bien parti — on vous répond sous 24 à 48 h.');
                 return $this->redirectToRoute('contact');
             }
 
@@ -48,7 +48,7 @@ class ContactController extends AbstractController
                 $retryAfter = $limit->getRetryAfter()->getTimestamp() - time();
                 $minutes = max(1, (int) ceil($retryAfter / 60));
                 $this->addFlash('error', sprintf(
-                    '⏱️ Trop de demandes envoyées. Merci de patienter %d minute%s avant de réessayer, ou appelez-nous directement au 07 83 74 83 11.',
+                    'Trop de demandes envoyées d\'un coup. Merci de patienter %d minute%s avant de réessayer, ou appelez-nous directement au 07 83 74 83 11.',
                     $minutes,
                     $minutes > 1 ? 's' : ''
                 ));
@@ -58,14 +58,14 @@ class ContactController extends AbstractController
             // ─── 3. Cloudflare Turnstile : vérification du captcha ───
             $token = $request->request->get('cf-turnstile-response');
             if (!$turnstile->verify((string) $token, $request->getClientIp())) {
-                $this->addFlash('error', '❌ La vérification anti-spam a échoué. Veuillez recharger la page et réessayer.');
+                $this->addFlash('error', 'La vérification anti-spam a échoué. Veuillez recharger la page et réessayer.');
                 return $this->redirectToRoute('contact');
             }
 
             // ─── 4. Tout est OK → envoi du message ───
             try {
                 $contactService->sendContactMessage($contact);
-                $this->addFlash('success', '✅ Votre message a bien été envoyé — nous vous répondons sous 24-48h.');
+                $this->addFlash('success', 'Votre message est bien parti — on vous répond sous 24 à 48 h.');
             } catch (\Throwable $e) {
                 $logger->error('[Contact] Échec envoi : ' . $e->getMessage());
                 $this->addFlash('error', 'Une erreur est survenue lors de l\'envoi. Appelez-nous au 07 83 74 83 11 ou réessayez plus tard.');

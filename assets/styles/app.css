@@ -10628,6 +10628,16 @@ textarea.contact-input.is-invalid {
     color: #991b1b;
     border: 1px solid #fecaca;
 }
+.account-flash--warning {
+    background: #fef3c7;
+    color: #78350f;
+    border: 1px solid #fde68a;
+}
+.account-flash--info {
+    background: #eff6ff;
+    color: #0c4a6e;
+    border: 1px solid #bfdbfe;
+}
 
 /* ── Bouton modifier profil ── */
 .account-edit-toggle {
@@ -18132,4 +18142,64 @@ textarea.contact-input.is-invalid {
 #tarteaucitronRoot .tarteaucitronH1,
 #tarteaucitronRoot .tarteaucitronH2 {
     font-family: inherit !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   FINITIONS — détails qui rendent le site plus naturel
+   (passe d'affinage : chiffres, appui, clavier)
+═══════════════════════════════════════════════════ */
+
+/* Les prix et totaux s'alignent au chiffre près : plus de colonnes qui dansent
+   quand une quantité change. */
+.product-price,
+.coque-card-price,
+.hlp-price-amount,
+.cart-price,
+.receipt-item-price,
+.receipt-tax-row,
+.receipt-total-amount,
+.account-stat-num,
+.account-order-total,
+.account-order-item-subtotal,
+.payment-recap-table,
+.mini-cart-total-amount,
+.rep-mobile-devis-info {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Le clic s'enfonce légèrement : le geste a un retour physique.
+   (Les hovers lèvent déjà les boutons — l'appui fait le contraire.) */
+.btn-cart:active,
+.btn-cart-detail:active,
+.btn-voir-panier:active,
+.btn-checkout:active,
+.promo-apply-btn:active,
+.contact-submit-btn:active,
+.login-submit-btn:active,
+.rev-submit-btn:active,
+.auth-btn-primary:active,
+.err-btn:active {
+    transform: scale(.96);
+}
+
+/* Navigation au clavier : les étapes clés du parcours d'achat se voient. */
+.btn-cart:focus-visible,
+.btn-cart-detail:focus-visible,
+.btn-voir-panier:focus-visible,
+.btn-checkout:focus-visible,
+.promo-apply-btn:focus-visible,
+.promo-input:focus-visible,
+.qty-btn:focus-visible,
+.mini-qty-btn:focus-visible,
+.shipping-option:focus-within,
+.contact-submit-btn:focus-visible,
+.login-submit-btn:focus-visible {
+    outline: 3px solid rgba(9, 71, 113, .45);
+    outline-offset: 2px;
+}
+
+/* Les transitions couvrent tout ce qui change au survol, pas seulement le fond. */
+.btn-cart,
+.btn-checkout {
+    transition: background .2s, color .2s, box-shadow .2s, transform .15s;
 }

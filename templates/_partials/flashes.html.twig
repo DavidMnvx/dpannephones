@@ -1,0 +1,12 @@
+{# ── Messages flash — système rev-flash (styles dans app.css) ──
+   Un seul partial pour tout le site : les quatre types, la bonne icône,
+   et la croix pour fermer. À inclure en haut du contenu de la page. #}
+{% for label, icone in {'success': 'check-circle', 'error': 'times-circle', 'warning': 'exclamation-triangle', 'info': 'info-circle'} %}
+    {% for msg in app.flashes(label) %}
+        <div class="rev-flash rev-flash--{{ label }}">
+            <i class="fas fa-{{ icone }}"></i>
+            <div>{{ msg|raw }}</div>
+            <button type="button" class="rev-flash-close" onclick="this.parentElement.style.display='none'" aria-label="Fermer">&times;</button>
+        </div>
+    {% endfor %}
+{% endfor %}

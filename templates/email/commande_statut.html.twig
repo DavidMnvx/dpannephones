@@ -82,11 +82,11 @@
       {% elseif statut == 'expediee' %}
         Votre commande <strong>#{{ commande.id }}</strong> vient d'être expédiée ! Vous pouvez suivre votre colis grâce au numéro ci-dessous.
       {% elseif statut == 'livree' %}
-        Votre commande <strong>#{{ commande.id }}</strong> a été livrée. Nous espérons que vous êtes satisfait(e) de votre achat. N'hésitez pas à nous contacter si vous avez la moindre question.
+        Votre commande <strong>#{{ commande.id }}</strong> a été livrée. Nous espérons qu'elle vous plaît — au moindre doute ou à la moindre question, écrivez-nous, on est là.
       {% elseif statut == 'retiree' %}
         Votre retrait en boutique pour la commande <strong>#{{ commande.id }}</strong> a été confirmé. Merci pour votre visite !
       {% elseif statut == 'annulee' %}
-        Votre commande <strong>#{{ commande.id }}</strong> a été annulée. Si vous avez été débité(e), un remboursement sera effectué sous 5 à 10 jours ouvrés. Contactez-nous pour toute question.
+        Votre commande <strong>#{{ commande.id }}</strong> a été annulée. Si votre compte a été débité, le remboursement part automatiquement — comptez 5 à 10 jours ouvrés. Et si quelque chose vous semble étrange, écrivez-nous.
       {% endif %}
     </p>
 
@@ -227,6 +227,11 @@
     <div class="cta">
       <a href="{{ absolute_url(path('account_index')) }}">Voir mes commandes →</a>
     </div>
+
+    <p style="margin:26px 0 0;font-size:14px;color:#374151;">
+      À bientôt à l'atelier,<br>
+      <strong>l'équipe D'Panne Phones</strong> 💙
+    </p>
 
   </div>
 

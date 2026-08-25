@@ -89,7 +89,7 @@
                                 {% endif %}
                             </div>
                             <div class="rev-card-date">
-                                {{ review.publishedAt ? review.publishedAt|date('d F Y') : review.createdAt|date('d F Y') }}
+                                {{ review.publishedAt ? review.publishedAt|date('d/m/Y') : review.createdAt|date('d/m/Y') }}
                             </div>
                         </div>
 

@@ -110,7 +110,7 @@
         <div class="contact-form-col">
             <div class="contact-form-card">
 
-                <h2 class="contact-form-title">Envoyer un message</h2>
+                <h2 class="contact-form-title">Écrivez-nous</h2>
 
                 {# Flash messages #}
                 {% set hasSuccess = false %}
@@ -144,7 +144,7 @@
                         <label class="contact-label"><i class="fas fa-user mr-1"></i>Prénom <span class="contact-required">*</span></label>
                         {{ form_widget(form.firstName, {'attr': {
                             'class': 'contact-input',
-                            'placeholder': 'Votre prénom',
+                            'placeholder': 'Jean',
                             'autocomplete': 'given-name',
                             'maxlength': 60,
                             'required': 'required'
@@ -155,7 +155,7 @@
                         <label class="contact-label"><i class="fas fa-user mr-1"></i>Nom <span class="contact-required">*</span></label>
                         {{ form_widget(form.lastName, {'attr': {
                             'class': 'contact-input',
-                            'placeholder': 'Votre nom',
+                            'placeholder': 'Dupont',
                             'autocomplete': 'family-name',
                             'maxlength': 60,
                             'required': 'required'
@@ -209,7 +209,7 @@
                         <i class="fas fa-lock mr-1"></i>
                         Vos données sont utilisées uniquement pour répondre à votre demande. Conformément au RGPD, vous disposez d'un droit d'accès et de suppression.
                     </p>
-                    {{ form_widget(form.submit, {'label': '  Envoyer le message', 'attr': {'class': 'contact-submit-btn'}}) }}
+                    {{ form_widget(form.submit, {'label': 'Envoyer mon message', 'attr': {'class': 'contact-submit-btn'}}) }}
                 </div>
 
                 {{ form_end(form) }}
@@ -231,20 +231,20 @@
                 firstName: {
                     test: function (v) { return /^[\p{L}\p{M}'\- ]{2,60}$/u.test(v.trim()); },
                     error: 'Au moins 2 caractères, lettres uniquement.',
-                    success: 'Prénom valide ✓'
+                    success: 'Enchanté ✓'
                 },
                 lastName: {
                     test: function (v) { return /^[\p{L}\p{M}'\- ]{2,60}$/u.test(v.trim()); },
                     error: 'Au moins 2 caractères, lettres uniquement.',
-                    success: 'Nom valide ✓'
+                    success: 'C\'est noté ✓'
                 },
                 email: {
                     test: function (v) {
                         v = v.trim();
                         return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && v.length <= 180;
                     },
-                    error: 'Adresse email invalide.',
-                    success: 'Email valide ✓'
+                    error: 'Cette adresse semble incomplète — vérifiez-la pour qu\'on puisse vous répondre.',
+                    success: 'Parfait, on pourra vous répondre ✓'
                 },
                 phone: {
                     optional: true, // facultatif : vide = OK
@@ -253,8 +253,8 @@
                         if (v === '') return true;
                         return /^(?:\+?[0-9][0-9 .\-]{8,20})$/.test(v);
                     },
-                    error: 'Numéro invalide. Ex : 06 12 34 56 78',
-                    success: 'Numéro valide ✓'
+                    error: 'Ce numéro semble incomplet. Ex : 06 12 34 56 78',
+                    success: 'Bien noté ✓'
                 },
                 message: {
                     test: function (v) {
@@ -269,7 +269,7 @@
                         }
                         return 'Maximum 4000 caractères.';
                     },
-                    success: 'Message OK ✓'
+                    success: 'C\'est tout bon ✓'
                 }
             };
 

@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ article.name }} — D'panne Phones{% endblock %}
+{% block title %}{{ article.name }} — D'Panne Phones{% endblock %}
 
 {# ── JSON-LD Product (pour rich snippets Google Search) ── #}
 {% block jsonld %}
@@ -62,6 +62,8 @@
 {# Pas de bannière générique ici : le client vient voir SON produit, on va droit au but.
    Marge basse généreuse pour que le widget d'avis flottant ne recouvre pas la fin de page. #}
 <div style="width:90%;max-width:1200px;margin:28px auto 120px;padding:0 16px;">
+
+    {{ include('_partials/flashes.html.twig') }}
 
     {# Fil d'Ariane #}
     <nav class="article-breadcrumb">
@@ -133,8 +135,8 @@
                 </div>
             {% else %}
                 <div class="article-detail-no-img">
-                    <i class="fas fa-image"></i>
-                    <span>Pas d'image disponible</span>
+                    <i class="fas fa-camera"></i>
+                    <span>La photo arrive bientôt — l'article, lui, est bien en boutique</span>
                 </div>
             {% endif %}
 
@@ -775,7 +777,7 @@
                     <span class="article-reviews-count">({{ articleReviews|length }} avis)</span>
                 </div>
             {% else %}
-                <span style="color:#6b7280;font-size:13px;">Aucun avis pour ce produit pour l'instant</span>
+                <span style="color:#6b7280;font-size:13px;">Cet article n'a pas encore d'avis — le vôtre sera le premier</span>
             {% endif %}
         </div>
 
@@ -804,7 +806,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="rev-card-date">
-                                    {{ review.publishedAt ? review.publishedAt|date('d F Y') : review.createdAt|date('d F Y') }}
+                                    {{ review.publishedAt ? review.publishedAt|date('d/m/Y') : review.createdAt|date('d/m/Y') }}
                                 </div>
                             </div>
                             <div class="rev-card-stars">

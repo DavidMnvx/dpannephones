@@ -25,7 +25,7 @@ class ReparationType extends AbstractType
             ->add('isUniversal', CheckboxType::class, [
                 'label'    => 'Service commun (s\'applique à tous les modèles)',
                 'required' => false,
-                'help'     => 'Coche cette case pour les réparations universelles : Tiroir SIM, Désoxydation, Diagnostique, etc. Le modèle devient alors facultatif.',
+                'help'     => 'Coche cette case pour les réparations universelles : Tiroir SIM, Désoxydation, Diagnostic, etc. Le modèle devient alors facultatif.',
             ])
             ->add('model', EntityType::class, [
                 'class' => Model::class,

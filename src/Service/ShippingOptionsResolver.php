@@ -72,7 +72,7 @@ class ShippingOptionsResolver
             'icon'       => 'fas fa-store',
             'color'      => '#16a34a',
             'carrier'    => 'Retrait boutique',
-            'description'=> 'Pélissanne · D\'panne Phones',
+            'description'=> 'Pélissanne · D\'Panne Phones',
         ],
         'courrier' => [
             'label'      => 'Lettre suivie',

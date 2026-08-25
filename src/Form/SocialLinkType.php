@@ -46,7 +46,7 @@ class SocialLinkType extends AbstractType
 
             ->add('label', TextType::class, [
                 'label'    => 'Libellé affiché (optionnel)',
-                'help'     => 'Par défaut : nom de la plateforme. Utile pour "Autre" ou pour afficher "D\'panne Phones" au lieu de "Facebook".',
+                'help'     => 'Par défaut : nom de la plateforme. Utile pour "Autre" ou pour afficher "D\'Panne Phones" au lieu de "Facebook".',
                 'required' => false,
             ])
 

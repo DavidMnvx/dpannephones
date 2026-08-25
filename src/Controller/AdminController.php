@@ -1404,7 +1404,7 @@ private const SETTINGS_CATEGORIES = [
     'boutique_accroche' => [
         'label' => 'Accroches boutique',
         'icon'  => 'fas fa-bullhorn',
-        'description' => 'Phrase de réassurance affichée au-dessus des articles de chaque catégorie de la boutique (ex : "Montage rapide et soigné avec D\'panne Phones…"). Laissez un champ vide pour ne rien afficher sur cette catégorie.',
+        'description' => 'Phrase de réassurance affichée au-dessus des articles de chaque catégorie de la boutique (ex : "Montage rapide et soigné avec D\'Panne Phones…"). Laissez un champ vide pour ne rien afficher sur cette catégorie.',
     ],
     'livraison' => [
         'label' => 'Livraison',

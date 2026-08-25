@@ -52,14 +52,14 @@ class SecurityController extends AbstractController
             $limiter = $registrationLimiter->create($request->getClientIp() ?? 'unknown');
             $limit = $limiter->consume(1);
             if (!$limit->isAccepted()) {
-                $this->addFlash('error', '⏱️ Trop de tentatives d\'inscription depuis cette connexion. Réessaie dans 1 heure.');
+                $this->addFlash('error', 'Trop de tentatives d\'inscription depuis cette connexion. Réessayez dans une heure.');
                 return $this->redirectToRoute('app_register');
             }
 
             // ─── 3. Cloudflare Turnstile ───
             $token = $request->request->get('cf-turnstile-response');
             if (!$turnstile->verify((string) $token, $request->getClientIp())) {
-                $this->addFlash('error', '❌ La vérification anti-spam a échoué. Recharge la page et réessaie.');
+                $this->addFlash('error', 'La vérification anti-spam a échoué. Veuillez recharger la page et réessayer.');
                 return $this->redirectToRoute('app_register');
             }
 
@@ -118,7 +118,7 @@ class SecurityController extends AbstractController
             if (!$this->getUser()) {
                 $security->login($user, 'form_login', 'main');
             }
-            $this->addFlash('success', '✅ Votre email est déjà confirmé. Bienvenue !');
+            $this->addFlash('success', 'Votre email est déjà confirmé. Bienvenue !');
             return $this->redirectToRoute('account_index');
         }
 
@@ -146,7 +146,7 @@ class SecurityController extends AbstractController
         // Connexion automatique
         $security->login($user, 'form_login', 'main');
 
-        $this->addFlash('success', '🎉 Email confirmé ! Bienvenue sur D\'Panne Phones.');
+        $this->addFlash('success', 'Email confirmé — bienvenue chez D\'Panne Phones.');
 
         return $this->redirectToRoute('account_index');
     }

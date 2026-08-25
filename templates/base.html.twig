@@ -15,7 +15,7 @@
         <meta property="og:type"        content="website">
         <meta property="og:site_name"   content="D'Panne Phones">
         <meta property="og:title"       content="{% block og_title %}D'Panne Phones — Réparation & Vente à Pélissanne{% endblock %}">
-        <meta property="og:description" content="{% block og_description %}Réparation smartphone, tablette et ordinateur à Pélissanne. Diagnostique gratuit, pièces de qualité, garantie 6 mois. Depuis 2017.{% endblock %}">
+        <meta property="og:description" content="{% block og_description %}Réparation smartphone, tablette et ordinateur à Pélissanne. Diagnostic gratuit, pièces de qualité, garantie 6 mois. Depuis 2017.{% endblock %}">
         <meta property="og:image"       content="{% block og_image %}{{ absolute_url(asset('images/logo_dpannephones/Logo_dpannephones.png')) }}{% endblock %}">
         <meta property="og:locale"      content="fr_FR">
 
@@ -184,7 +184,7 @@
                     {# Boutique — masqué si désactivée #}
                     {% if page_enabled('boutique') %}
                     <li class="nav-item {{ isBoutique ? 'active' : '' }}">
-                        <a class="nav-link" href="{{ path('boutique_index') }}">La Boutique</a>
+                        <a class="nav-link" href="{{ path('boutique_index') }}">La boutique</a>
                     </li>
                     {% endif %}
 
@@ -244,10 +244,10 @@
                                 </div>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{ path('account_index') }}">
-                                    <i class="fas fa-user mr-2"></i>Mon Compte
+                                    <i class="fas fa-user mr-2"></i>Mon compte
                                 </a>
                                 <a class="dropdown-item" href="{{ path('cart_index') }}">
-                                    <i class="fas fa-shopping-cart mr-2"></i>Mon Panier
+                                    <i class="fas fa-shopping-cart mr-2"></i>Mon panier
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item dropdown-item--logout" href="{{ path('app_logout') }}">
@@ -343,7 +343,7 @@
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <h5 class="text mb-4">Qui sommes-nous ?</h5>
           <p>
-            D'panne Phones vous accueille depuis 2017, spécialisé dans la réparation de tous types de smartphones, tablettes et ordinateurs.
+            D'Panne Phones vous accueille depuis 2017, spécialisé dans la réparation de tous types de smartphones, tablettes et ordinateurs.
           </p>
           <p>
             Nous vous proposons également un large choix de téléphones, ordinateurs et accessoires pour vos appareils électroniques.
@@ -352,7 +352,7 @@
 
         <!-- Col 2 — Contactez-nous + réseaux sociaux centrés -->
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-          <h5 class="text mb-4 pb-1">Contactez-nous !</h5>
+          <h5 class="text mb-4 pb-1">Contactez-nous</h5>
           <ul class="footer-contact-list">
             <li class="mb-3">Avenue Pasteur — Centre Commercial Le Galion (Parking Aldi), 13330 Pélissanne</li>
             <li class="mb-3"><a href="mailto:contact@dpannephones.com" class="footer-contact-link">contact@dpannephones.com</a></li>
@@ -367,7 +367,7 @@
 
         <!-- Col 3 — Informations légales -->
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
-          <h5 class="text mb-4">Informations</h5>
+          <h5 class="text mb-4">Infos pratiques</h5>
           <ul class="footer-legal-links">
             <li><a href="{{ path('legal_cgv') }}"><i class="fas fa-file-contract mr-1"></i>CGV</a></li>
             <li><a href="{{ path('legal_mentions') }}"><i class="fas fa-info-circle mr-1"></i>Mentions légales</a></li>
@@ -425,7 +425,7 @@
     <!-- Copyright -->
 
     <div class="footer-copyright">
-      <span>© {{ "now"|date("Y") }} D'panne Phones — Tous droits réservés</span>
+      <span>© {{ "now"|date("Y") }} D'Panne Phones — Tous droits réservés</span>
       <span class="footer-made-by">Site réalisé par <a href="https://nosweb.fr" target="_blank" rel="noopener">NosWeb</a></span>
       <span class="footer-legal-inline">
         <a href="{{ path('legal_cgv') }}">CGV</a>

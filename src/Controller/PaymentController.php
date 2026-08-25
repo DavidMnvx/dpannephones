@@ -385,7 +385,7 @@ class PaymentController extends AbstractController
             // L'email échoue silencieusement — la commande est quand même sauvegardée
         }
 
-        // Notification à l'équipe D'panne Phones (nouvelle commande à préparer)
+        // Notification à l'équipe D'Panne Phones (nouvelle commande à préparer)
         try {
             $this->notif->notifyAdminNewCommande($commande);
         } catch (\Exception $e) {
@@ -516,7 +516,7 @@ class PaymentController extends AbstractController
                 // Silencieux
             }
 
-            // Notification à l'équipe D'panne Phones
+            // Notification à l'équipe D'Panne Phones
             try {
                 $this->notif->notifyAdminNewCommande($commande);
             } catch (\Exception $e) {

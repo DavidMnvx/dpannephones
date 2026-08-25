@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon Compte — D'Panne Phones{% endblock %}
+{% block title %}Mon compte — D'Panne Phones{% endblock %}
 
 {% block body %}
 
@@ -8,9 +8,9 @@
 <div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
-            <img class="d-block w-100" src="{{ asset(site_image('banner_account', 'images/baner/connexion.png')) }}" alt="Mon Compte">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_account', 'images/baner/connexion.png')) }}" alt="Mon compte">
             <div class="carousel-caption">
-                <h5 id="uneRep">Mon Compte</h5>
+                <h5 id="uneRep">Mon compte</h5>
             </div>
         </div>
     </div>
@@ -24,6 +24,12 @@
     {% endfor %}
     {% for msg in app.flashes('error') %}
         <div class="account-flash account-flash--error"><i class="fas fa-times-circle mr-2"></i>{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('warning') %}
+        <div class="account-flash account-flash--warning"><i class="fas fa-exclamation-triangle mr-2"></i>{{ msg }}</div>
+    {% endfor %}
+    {% for msg in app.flashes('info') %}
+        <div class="account-flash account-flash--info"><i class="fas fa-info-circle mr-2"></i>{{ msg }}</div>
     {% endfor %}
 
     {# ── En-tête bienvenue ── #}
@@ -186,14 +192,14 @@
                 <a href="{{ path('boutique_index') }}" class="account-shortcut">
                     <div class="account-shortcut-icon"><i class="fas fa-shopping-bag"></i></div>
                     <div>
-                        <strong>La Boutique</strong>
+                        <strong>La boutique</strong>
                         <span>Acheter un article</span>
                     </div>
                 </a>
                 <a href="{{ path('cart_index') }}" class="account-shortcut">
                     <div class="account-shortcut-icon"><i class="fas fa-shopping-cart"></i></div>
                     <div>
-                        <strong>Mon Panier</strong>
+                        <strong>Mon panier</strong>
                         <span>Voir mes articles</span>
                     </div>
                 </a>
@@ -207,8 +213,8 @@
                 <a href="{{ path('contact') }}" class="account-shortcut">
                     <div class="account-shortcut-icon account-shortcut-icon--green"><i class="fas fa-headset"></i></div>
                     <div>
-                        <strong>SAV & Support</strong>
-                        <span>Contacter l'équipe</span>
+                        <strong>Après-vente</strong>
+                        <span>Un souci ? On s'en occupe</span>
                     </div>
                 </a>
                 <a href="{{ path('legal_cgv') }}" class="account-shortcut-icon--gray account-shortcut">
@@ -227,11 +233,11 @@
         <div class="account-card account-card--contact">
             <div class="account-card-header">
                 <i class="fas fa-headset"></i>
-                <h2>Contacter le vendeur</h2>
+                <h2>Contacter l'atelier</h2>
             </div>
             <div class="account-card-body">
                 <p class="account-contact-intro">
-                    Une question sur votre commande ? Un problème avec un produit ? Notre équipe est disponible pour vous aider.
+                    Une question sur votre commande ? Un souci avec un produit ? Écrivez-nous — il y a toujours quelqu'un de l'atelier pour vous répondre.
                 </p>
                 <div class="account-contact-options">
                     <a href="{{ path('contact') }}" class="account-contact-btn account-contact-btn--primary">
@@ -241,7 +247,7 @@
                             <span>Via le formulaire de contact</span>
                         </div>
                     </a>
-                    <a href="tel:+33000000000" class="account-contact-btn account-contact-btn--secondary">
+                    <a href="tel:+33783748311" class="account-contact-btn account-contact-btn--secondary">
                         <i class="fas fa-phone mr-2"></i>
                         <div>
                             <strong>Nous appeler</strong>
@@ -279,8 +285,8 @@
 
         {% if commandesEnCours is empty %}
             <div class="account-orders-empty">
-                <i class="fas fa-check-double"></i>
-                <p>Aucune commande en cours pour le moment.</p>
+                <i class="fas fa-store"></i>
+                <p>Rien en cours pour le moment — la boutique vous attend.</p>
                 <a href="{{ path('boutique_index') }}" class="account-orders-cta">
                     <i class="fas fa-shopping-bag mr-1"></i> Découvrir la boutique
                 </a>
@@ -306,7 +312,7 @@
         {% if commandesTerminees is empty %}
             <div class="account-orders-empty">
                 <i class="fas fa-box-open"></i>
-                <p>Aucune commande finalisée pour le moment.</p>
+                <p>Votre historique s'écrira ici, commande après commande.</p>
             </div>
         {% else %}
             <div class="account-orders-list">
@@ -403,7 +409,7 @@
         {% if enCours %}
             <div class="account-order-footer">
                 <a href="{{ path('contact') }}" class="account-order-contact">
-                    <i class="fas fa-headset mr-1"></i> Contacter le SAV pour cette commande
+                    <i class="fas fa-headset mr-1"></i> Un souci avec cette commande ? Écrivez-nous
                 </a>
             </div>
         {% else %}

@@ -38,7 +38,7 @@ class Reparation
 
     /**
      * Réparation "universelle" / "service commun" : s'applique à tous les modèles.
-     * Exemple : Tiroir SIM, Désoxydation, Transfert de données, Diagnostique.
+     * Exemple : Tiroir SIM, Désoxydation, Transfert de données, Diagnostic.
      * Quand true, le champ `model` est généralement null.
      */
     #[ORM\Column(options: ['default' => false])]

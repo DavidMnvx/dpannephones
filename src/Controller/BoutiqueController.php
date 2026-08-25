@@ -266,6 +266,12 @@ class BoutiqueController extends AbstractController
         $em->persist($cartItem);
         $em->flush();
 
+        $this->addFlash('success', sprintf(
+            '«&nbsp;%s&nbsp;» est dans votre panier. <a href="%s">Voir le panier</a>',
+            htmlspecialchars($article->getName(), ENT_QUOTES),
+            $this->generateUrl('cart_index')
+        ));
+
         return $this->redirectToRoute('boutique_index');
     }
 
@@ -444,7 +450,7 @@ class BoutiqueController extends AbstractController
         $code = trim($code);
 
         if ($code === '') {
-            $this->addFlash('error', 'Saisissez un code promo.');
+            $this->addFlash('error', 'Le champ est vide — collez votre code promo et on l\'applique.');
             return $this->redirectToRoute('cart_index');
         }
 
@@ -459,13 +465,13 @@ class BoutiqueController extends AbstractController
         [$promo, $err] = $promoRepo->findValidByCode($code, $subtotal);
 
         if (!$promo) {
-            $this->addFlash('error', $err ?? 'Code promo invalide.');
+            $this->addFlash('error', $err ?? 'Ce code ne fonctionne pas — vérifiez l\'orthographe ou sa date de validité.');
             return $this->redirectToRoute('cart_index');
         }
 
         $session->set('promo_code', $promo->getCode());
         $this->addFlash('success', sprintf(
-            'Code "%s" appliqué : remise de %s',
+            'Code «&nbsp;%s&nbsp;» appliqué — %s de remise, c\'est déduit du total.',
             $promo->getCode(),
             $promo->getDisplayValue()
         ));
@@ -477,7 +483,7 @@ class BoutiqueController extends AbstractController
     public function removePromo(SessionInterface $session): Response
     {
         $session->remove('promo_code');
-        $this->addFlash('info', 'Code promo retiré du panier.');
+        $this->addFlash('info', 'C\'est noté, le code promo est retiré.');
         return $this->redirectToRoute('cart_index');
     }
 
