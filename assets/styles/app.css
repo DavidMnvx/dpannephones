@@ -5243,14 +5243,30 @@ body.admin-body { background-color: #f0f2f5; }
 .stat-box .stat-label  { font-size: 11px; opacity: 0.8; }
 
 /* Cards KPI dashboard */
+/* Une seule grille de tuiles au gabarit unique : pastille d'icône à gauche,
+   texte à droite. Une couleur de marque partout — la couleur ne sert plus
+   de décoration, elle est réservée aux états (badges, « à modérer »…). */
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 14px;
+}
+.dash-grid > a { text-decoration: none; }
+
 .dash-card {
+    position: relative;
+    height: 100%;
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    padding: 28px 20px;
-    text-align: center;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 14px;
+    align-items: center;
+    text-align: left;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
     border: 2px solid transparent;
 }
 
@@ -5259,44 +5275,34 @@ body.admin-body { background-color: #f0f2f5; }
     box-shadow: 0 6px 20px rgba(9,71,113,0.12);
     transform: translateY(-2px);
 }
+.dash-card:active { transform: scale(.98); }
 
-.dash-card i  { font-size: 28px; color: rgb(9,71,113); margin-bottom: 12px; display: block; }
-.dash-card h4 { font-size: 14px; font-weight: 700; color: #1b2e45; margin-bottom: 4px; }
-.dash-card p  { font-size: 12px; color: #adb5bd; margin: 0; }
-
-/* Vignettes Commandes & Clients — accent coloré */
-.dash-card--commandes {
-    border-color: rgba(9,71,113,0.18) !important;
-    background: linear-gradient(135deg, #fff 70%, rgba(9,71,113,0.06));
+.dash-card > i {
+    grid-row: span 2;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(9,71,113,0.08);
+    color: rgb(9,71,113);
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0;
 }
-.dash-card--commandes i { color: rgb(9,71,113); }
-.dash-card--commandes:hover { border-color: rgb(9,71,113) !important; }
+.dash-card h4 { font-size: 13.5px; font-weight: 700; color: #1b2e45; margin: 0 0 2px; align-self: end; }
+.dash-card p  { font-size: 12.5px; color: #6c757d; margin: 0; align-self: start; line-height: 1.45; font-variant-numeric: tabular-nums; }
 
-.dash-card--clients {
-    border-color: rgba(40,167,69,0.2) !important;
-    background: linear-gradient(135deg, #fff 70%, rgba(40,167,69,0.06));
-}
-.dash-card--clients i { color: #16a34a; }
-.dash-card--clients:hover { border-color: #16a34a !important; }
+/* Les états gardent la couleur : c'est elle qui signale qu'une action attend. */
+.dash-card--blog-pending,
+.dash-card--reviews-pending { border-color: #f59e0b !important; }
 
-/* Rangée 2 du dashboard : pilotage */
-.dash-card--ca { border-color: rgba(22,163,74,0.25) !important; background: linear-gradient(135deg, #fff 70%, rgba(22,163,74,0.08)); }
-.dash-card--ca i { color: #16a34a; }
-.dash-card--ca:hover { border-color: #16a34a !important; }
-.dash-card--blog { border-color: rgba(245,158,11,0.22) !important; background: linear-gradient(135deg, #fff 70%, rgba(245,158,11,0.07)); }
-.dash-card--blog i { color: #d97706; }
-.dash-card--blog:hover { border-color: #d97706 !important; }
-.dash-card--blog-pending { border-color: #f59e0b !important; }
-.dash-card--catalogue i { color: #2563eb; }
-.dash-card--catalogue:hover { border-color: #2563eb !important; }
-.dash-card--categories i { color: #65a30d; }
-.dash-card--categories:hover { border-color: #65a30d !important; }
-.dash-card--promos i { color: #16a34a; }
-.dash-card--promos:hover { border-color: #16a34a !important; }
-.dash-card--site { border-style: dashed !important; }
-.dash-card--site i { color: #8a94a0; }
-.dash-card--site:hover { border-color: rgb(9,71,113) !important; }
-.dash-card--site:hover i { color: rgb(9,71,113); }
+/* Lien externe : bordure pointillée, sémantique « ça sort de l'admin » */
+.dash-card--site { border-style: dashed; border-color: #d8dfe6; }
+.dash-card--site > i { background: #f1f4f7; color: #8a94a0; }
+.dash-card--site:hover { border-color: rgb(9,71,113); border-style: solid; }
+.dash-card--site:hover > i { background: rgba(9,71,113,0.08); color: rgb(9,71,113); }
 
 
 /* -------------------------------------------------------------
