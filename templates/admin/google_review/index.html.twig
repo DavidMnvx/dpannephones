@@ -9,7 +9,7 @@
 <div class="admin-welcome">
     <div>
         <h2><i class="fab fa-google mr-2"></i>Avis Google</h2>
-        <p>Gérez les avis Google affichés sur la page d'accueil</p>
+        <p>La note et les avis de votre fiche Google, en direct sur le site — et les avis saisis à la main, en secours</p>
     </div>
     <div class="admin-stats">
         <div class="stat-box">
@@ -41,8 +41,98 @@
     </div>
 {% endfor %}
 
+{# ── Avis Google EN DIRECT (GooglePlacesService) : état, note, et les 5 avis lus sur la fiche ── #}
+{% set state = google.state %}
+{% set place = google.place %}
+<div class="admin-card" id="google-direct">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+        <h3 style="margin:0;"><i class="fas fa-satellite-dish"></i> En direct de Google
+            {% if state == 'en_direct' %}
+                <span class="badge badge-success" style="font-size:12px;vertical-align:middle;">Branché</span>
+            {% elseif state == 'injoignable' %}
+                <span class="badge badge-warning" style="font-size:12px;vertical-align:middle;">Google ne répond pas</span>
+            {% else %}
+                <span class="badge badge-secondary" style="font-size:12px;vertical-align:middle;">Pas branché</span>
+            {% endif %}
+        </h3>
+        {% if state in ['en_direct', 'injoignable'] %}
+            <form method="post" action="{{ path('admin_google_live_refresh') }}" style="margin:0;">
+                <input type="hidden" name="_token" value="{{ csrf_token('google_live') }}">
+                <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-sync-alt mr-1"></i> Actualiser</button>
+            </form>
+        {% endif %}
+    </div>
+
+    {% if state == 'sans_cle' %}
+        <p style="font-size:13.5px;color:#475569;margin:0;">
+            Il manque la clé de l'API Google Places sur le serveur (<code>GOOGLE_PLACES_API_KEY</code>) : NosWeb s'en occupe.
+            En attendant, le site affiche les avis saisis à la main ci-dessous.
+        </p>
+    {% elseif state == 'sans_fiche' %}
+        <p style="font-size:13.5px;color:#475569;margin:0;">
+            L'identifiant de la fiche Google n'est pas valable : corrigez-le dans
+            <a href="{{ path('admin_settings') }}">Paramètres › Avis Google</a> (il commence par « ChIJ »).
+            En attendant, le site affiche les avis saisis à la main ci-dessous.
+        </p>
+    {% elseif state == 'injoignable' %}
+        <p style="font-size:13.5px;color:#475569;margin:0;">
+            {{ google.error }} En attendant, le site affiche les avis saisis à la main ci-dessous.
+        </p>
+    {% else %}
+        <p style="font-size:13.5px;color:#475569;">
+            <strong style="color:#0f172a;">{{ place.rating|number_format(1, ',') }} ⭐ sur 5, {{ place.total }} avis</strong>,
+            lus sur Google à {{ place.read_at|date('H\\hi', 'Europe/Paris') }}.
+            Le site affiche cette note et ces avis, sauf ceux que vous masquez. Google relit la fiche toutes les heures,
+            et ne donne que les 5 avis qu'il juge les plus pertinents.
+        </p>
+        {% if place.reviews is empty %}
+            <p style="font-size:13px;color:#6b7280;margin:0;">La fiche n'a pas encore d'avis commenté : le site affiche les avis saisis à la main ci-dessous.</p>
+        {% else %}
+            <div class="row">
+                {% for r in place.reviews %}
+                    {% set off = r.hidden or not r.text %}
+                    <div class="col-md-6 col-xl-4" style="margin-bottom:14px;">
+                        <div style="height:100%;display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid #e5e7eb;border-radius:10px;background:{{ off ? '#f8fafc' : '#fff' }};">
+                            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;">
+                                <strong>{{ r.author_name }}</strong>
+                                <span style="color:#f59e0b;font-size:14px;{{ off ? 'opacity:.55;' : '' }}" aria-label="{{ r.rating }} étoile{{ r.rating > 1 ? 's' }} sur 5">
+                                    {%- for i in 1..5 %}<span style="{{ i > r.rating ? 'color:#e5e7eb;' : '' }}">★</span>{% endfor -%}
+                                </span>
+                                {% if r.relative_time %}<span style="font-size:12px;color:#6b7280;">{{ r.relative_time }}</span>{% endif %}
+                                {% if r.hidden %}<span class="badge badge-secondary">Masqué</span>{% endif %}
+                            </div>
+                            {% if r.text %}
+                                <p style="font-size:12.5px;color:#4b5563;margin:0;white-space:pre-line;{{ off ? 'opacity:.55;' : '' }}">{{ r.text }}</p>
+                                <form method="post" action="{{ path('admin_google_live_toggle') }}" style="margin:auto 0 0;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('google_live') }}">
+                                    <input type="hidden" name="key" value="{{ r.key }}">
+                                    {% if r.hidden %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success"><i class="fas fa-eye mr-1"></i> Réafficher sur le site</button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye-slash mr-1"></i> Masquer sur le site</button>
+                                    {% endif %}
+                                </form>
+                            {% else %}
+                                <p style="font-size:12px;color:#6b7280;margin:0;">Des étoiles sans commentaire : rien à afficher, le site ne le montre pas.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
 <div class="admin-card">
-    <h3><i class="fas fa-plus-circle"></i> Ajouter un avis Google</h3>
+    <h3><i class="fas fa-plus-circle"></i> Ajouter un avis Google (secours)</h3>
+
+    <p style="font-size:13px;color:#475569;">
+        {% if state == 'en_direct' %}
+            Le direct marche : les avis saisis à la main ne s'affichent que si Google cesse de répondre, ou si vous masquez tous ceux de Google.
+        {% else %}
+            Ce sont les avis saisis à la main qui s'affichent sur le site en ce moment.
+        {% endif %}
+    </p>
 
     <div style="background:#eff6fb;border-left:3px solid rgb(9,71,113);padding:12px 16px;border-radius:8px;margin-bottom:20px;">
         <div style="font-size:13px;font-weight:700;color:rgb(9,71,113);margin-bottom:4px;">

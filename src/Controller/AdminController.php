@@ -853,7 +853,7 @@ public function togglePartenaire(Partenaire $partenaire, Request $request, Entit
 // ───────────────────────────────────────────────
 
 #[Route('/admin/avis-google', name: 'admin_google_reviews')]
-public function googleReviews(Request $request, EntityManagerInterface $em): Response
+public function googleReviews(Request $request, EntityManagerInterface $em, \App\Service\GooglePlacesService $googlePlaces): Response
 {
     $review = new GoogleReview();
     $form   = $this->createForm(GoogleReviewType::class, $review);
@@ -874,7 +874,55 @@ public function googleReviews(Request $request, EntityManagerInterface $em): Res
     return $this->render('admin/google_review/index.html.twig', [
         'form'    => $form->createView(),
         'reviews' => $reviews,
+        'google'  => $googlePlaces,
     ]);
+}
+
+// Avis Google EN DIRECT (GooglePlacesService) : relire la fiche tout de suite, sans attendre l'heure de cache.
+#[Route('/admin/avis-google/direct/actualiser', name: 'admin_google_live_refresh', methods: ['POST'])]
+public function refreshGoogleLive(Request $request, \App\Service\GooglePlacesService $googlePlaces): Response
+{
+    if (!$this->isCsrfTokenValid('google_live', $request->request->get('_token'))) {
+        $this->addFlash('error', 'Token de sécurité invalide.');
+        return $this->redirectToRoute('admin_google_reviews');
+    }
+
+    $googlePlaces->refresh();
+    if ($googlePlaces->getState() === \App\Service\GooglePlacesService::STATE_LIVE) {
+        $this->addFlash('success', 'Les avis viennent d\'être relus sur Google.');
+    } else {
+        $this->addFlash('error', $googlePlaces->getError() ?? 'Les avis Google en direct ne sont pas branchés.');
+    }
+
+    return $this->redirect($this->generateUrl('admin_google_reviews') . '#google-direct');
+}
+
+// Avis Google EN DIRECT : masquer un avis sur le site, ou le réafficher.
+#[Route('/admin/avis-google/direct/masquer', name: 'admin_google_live_toggle', methods: ['POST'])]
+public function toggleGoogleLive(Request $request, \App\Service\GooglePlacesService $googlePlaces): Response
+{
+    if (!$this->isCsrfTokenValid('google_live', $request->request->get('_token'))) {
+        $this->addFlash('error', 'Token de sécurité invalide.');
+        return $this->redirectToRoute('admin_google_reviews');
+    }
+
+    $key = (string) $request->request->get('key');
+    $author = 'ce client';
+    foreach ($googlePlaces->getPlace()['reviews'] ?? [] as $review) {
+        if ($review['key'] === $key) {
+            $author = $review['author_name'];
+        }
+    }
+
+    $hidden = $googlePlaces->toggleHidden($key);
+    if ($hidden === null) {
+        throw $this->createNotFoundException('Cet avis n\'est pas sur la fiche Google.');
+    }
+    $this->addFlash('success', $hidden
+        ? sprintf('L\'avis de %s est masqué sur le site.', $author)
+        : sprintf('L\'avis de %s s\'affiche de nouveau sur le site.', $author));
+
+    return $this->redirect($this->generateUrl('admin_google_reviews') . '#google-direct');
 }
 
 #[Route('/admin/avis-google/edit/{id}', name: 'admin_google_review_edit', requirements: ['id' => '\d+'])]
@@ -1411,6 +1459,11 @@ private const SETTINGS_CATEGORIES = [
         'icon'  => 'fas fa-truck',
         'description' => 'Paramètres des transporteurs. Le code enseigne Mondial Relay est fourni à l\'ouverture de votre contrat — en attendant, le code "BDTEST" permet de tester le sélecteur de point relais en mode démonstration.',
     ],
+    'avis_google' => [
+        'label' => 'Avis Google',
+        'icon'  => 'fab fa-google',
+        'description' => 'La fiche Google dont la note et les avis s\'affichent en direct sur le site (Admin > Avis Google). Le direct demande en plus la clé GOOGLE_PLACES_API_KEY sur le serveur.',
+    ],
     // D'autres catégories viendront s'ajouter ici (livraison gratuite, notifications…)
 ];
 
@@ -1566,8 +1619,12 @@ public function settings(
     }
 
     // GET : groupement par catégorie pour l'affichage
+    // (la catégorie « interne » n'est pas affichée : valeurs gérées ailleurs, ex. avis Google masqués)
     $grouped = [];
     foreach ($allSettings as $setting) {
+        if ($setting->getCategory() === 'interne') {
+            continue;
+        }
         $grouped[$setting->getCategory()][] = $setting;
     }
 

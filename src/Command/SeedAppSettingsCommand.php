@@ -258,6 +258,19 @@ class SeedAppSettingsCommand extends Command
             'category'    => 'blog',
             'sortOrder'   => 20,
         ],
+
+        // ═══════════════════════════════════════════════════════════════
+        // ⭐ AVIS GOOGLE EN DIRECT
+        // ═══════════════════════════════════════════════════════════════
+        [
+            'key'         => 'google_place_id',
+            'label'       => 'Identifiant de la fiche Google (Place ID)',
+            'description' => 'La fiche dont la note et les avis sont lus en direct (commence par « ChIJ »). Celle de D\'Panne Phones est déjà renseignée ; à changer seulement si la fiche Google change.',
+            'type'        => AppSetting::TYPE_STRING,
+            'default'     => \App\Service\GooglePlacesService::DEFAULT_PLACE_ID,
+            'category'    => 'avis_google',
+            'sortOrder'   => 10,
+        ],
     ];
 
     public function __construct(private EntityManagerInterface $em)

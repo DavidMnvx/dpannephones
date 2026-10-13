@@ -542,7 +542,12 @@
                     </div>
                 {% endif %}
                 <div class="review-meta">
-                    <div class="review-author">{{ review.author_name }}</div>
+                    {# Avis lu en direct : le nom renvoie au profil Google de l'auteur (Google le demande). #}
+                    {% if review.author_url ?? null %}
+                        <a class="review-author" href="{{ review.author_url }}" target="_blank" rel="noopener nofollow" style="display:block;color:inherit;text-decoration:none;">{{ review.author_name }}</a>
+                    {% else %}
+                        <div class="review-author">{{ review.author_name }}</div>
+                    {% endif %}
                     <div class="review-time">
                         {{ review.relative_time ?? review.relative_time_description ?? '' }}
                         {% if review.rating == 5 %}

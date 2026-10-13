@@ -173,7 +173,11 @@
                             </div>
                         {% endif %}
                         <div class="rev-google-meta">
-                            <div class="rev-google-author">{{ name }}</div>
+                            {% if review.author_url ?? null %}
+                                <a class="rev-google-author" href="{{ review.author_url }}" target="_blank" rel="noopener nofollow" style="display:block;color:inherit;text-decoration:none;">{{ name }}</a>
+                            {% else %}
+                                <div class="rev-google-author">{{ name }}</div>
+                            {% endif %}
                             <div class="rev-google-time">{{ review.relative_time ?? '' }}</div>
                         </div>
                         <div class="rev-google-badge" title="Avis publié sur Google">
