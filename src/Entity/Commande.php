@@ -31,6 +31,23 @@ class Commande
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $stripeSessionId = null;
 
+    /**
+     * Commande passée sans compte (achat invité) : coordonnées collectées
+     * par Stripe Checkout au moment du paiement.
+     */
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $guestEmail = null;
+
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $guestName = null;
+
+    /**
+     * Adresse de livraison saisie au paiement (Stripe) :
+     * {name, line1, line2, postal_code, city, country}. Snapshot figé.
+     */
+    #[ORM\Column(name: 'shipping_address', type: 'json', nullable: true)]
+    private ?array $shippingAddress = null;
+
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $numeroSuivi = null;
 
@@ -99,6 +116,41 @@ class Commande
 
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $user): static { $this->user = $user; return $this; }
+
+    public function getGuestEmail(): ?string { return $this->guestEmail; }
+    public function setGuestEmail(?string $guestEmail): static { $this->guestEmail = $guestEmail; return $this; }
+
+    public function getGuestName(): ?string { return $this->guestName; }
+    public function setGuestName(?string $guestName): static { $this->guestName = $guestName; return $this; }
+
+    public function getShippingAddress(): ?array { return $this->shippingAddress; }
+    public function setShippingAddress(?array $shippingAddress): static { $this->shippingAddress = $shippingAddress; return $this; }
+
+    /** Email du client, compte ou invité. */
+    public function getClientEmail(): ?string
+    {
+        return $this->user?->getEmail() ?? $this->guestEmail;
+    }
+
+    /** Nom affichable du client, compte ou invité. */
+    public function getClientName(): string
+    {
+        if ($this->user) {
+            return trim($this->user->getPrenom() . ' ' . $this->user->getNom());
+        }
+
+        return $this->guestName ?: 'Client';
+    }
+
+    /** Prénom pour le « Bonjour X » des emails (premier mot du nom invité). */
+    public function getClientFirstName(): ?string
+    {
+        if ($this->user) {
+            return $this->user->getPrenom();
+        }
+
+        return $this->guestName ? explode(' ', trim($this->guestName))[0] : null;
+    }
 
     public function getStripeSessionId(): ?string { return $this->stripeSessionId; }
     public function setStripeSessionId(?string $v): static { $this->stripeSessionId = $v; return $this; }

@@ -71,7 +71,7 @@
 
   <div class="body">
 
-    <p class="greeting">Bonjour <strong>{{ user.prenom }}</strong>,</p>
+    <p class="greeting">Bonjour{% if prenom %} <strong>{{ prenom }}</strong>{% endif %},</p>
 
     {# Message personnalisé selon statut #}
     <p class="message">

@@ -77,6 +77,9 @@
                 {{ commande.user.prenom }} {{ commande.user.nom }}
               </a>
               <br><small class="text-muted">{{ commande.user.email }}</small>
+            {% elseif commande.guestEmail or commande.guestName %}
+              {{ commande.guestName|default('Invité') }} <span class="badge badge-light" title="Achat sans compte">invité</span>
+              <br><small class="text-muted">{{ commande.guestEmail }}</small>
             {% else %}
               <span class="text-muted">— Client supprimé</span>
             {% endif %}

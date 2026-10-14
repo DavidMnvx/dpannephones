@@ -41,9 +41,9 @@ class CommandeNotificationService
             return;
         }
 
-        // Pas de client associé
-        $user = $commande->getUser();
-        if (!$user) {
+        // Email du client : compte ou invité (collecté par Stripe)
+        $toEmail = $commande->getClientEmail();
+        if (!$toEmail) {
             return;
         }
 
@@ -52,14 +52,14 @@ class CommandeNotificationService
         $this->logger->info('[Notif] Tentative envoi email', [
             'commande' => $commande->getId(),
             'statut'   => $statut,
-            'to'       => $user->getEmail(),
+            'to'       => $toEmail,
             'from'     => $this->mailerFrom,
         ]);
 
         try {
             $html = $this->twig->render('email/commande_statut.html.twig', [
                 'commande' => $commande,
-                'user'     => $user,
+                'prenom'   => $commande->getClientFirstName(),
                 'statut'   => $statut,
             ]);
         } catch (\Exception $e) {
@@ -69,13 +69,13 @@ class CommandeNotificationService
 
         $email = (new Email())
             ->from(sprintf('%s <%s>', $this->mailerFromName, $this->mailerFrom))
-            ->to($user->getEmail())
+            ->to($toEmail)
             ->subject($subject)
             ->html($html);
 
         try {
             $this->mailer->send($email);
-            $this->logger->info('[Notif] Email envoyé avec succès à ' . $user->getEmail());
+            $this->logger->info('[Notif] Email envoyé avec succès à ' . $toEmail);
         } catch (\Exception $e) {
             $this->logger->error('[Notif] Erreur envoi SMTP : ' . $e->getMessage());
             throw $e;
@@ -115,9 +115,9 @@ class CommandeNotificationService
             ->subject($subject)
             ->html($html);
 
-        // Reply-To = email du client si on en a un
-        if ($commande->getUser() && $commande->getUser()->getEmail()) {
-            $email->replyTo($commande->getUser()->getEmail());
+        // Reply-To = email du client si on en a un (compte ou invité)
+        if ($commande->getClientEmail()) {
+            $email->replyTo($commande->getClientEmail());
         }
 
         try {

@@ -238,8 +238,31 @@
             <i class="fas fa-user mr-1"></i>Voir la fiche client
           </a>
         </div>
+        {% elseif commande.guestEmail or commande.guestName %}
+        <div class="admin-client-info">
+          <div class="admin-client-avatar">{{ commande.clientName|first|upper }}</div>
+          <div>
+            <strong>{{ commande.clientName }}</strong> <span class="badge badge-light">achat invité</span><br>
+            {% if commande.guestEmail %}<a href="mailto:{{ commande.guestEmail }}" class="admin-link">{{ commande.guestEmail }}</a><br>{% endif %}
+            {% if commande.shippingAddress %}
+              <small class="text-muted">
+                {{ commande.shippingAddress.line1|default('') }} {{ commande.shippingAddress.line2|default('') }},
+                {{ commande.shippingAddress.postal_code|default('') }} {{ commande.shippingAddress.city|default('') }}
+              </small>
+            {% endif %}
+          </div>
+        </div>
         {% else %}
           <p class="text-muted p-3">Client supprimé du système.</p>
+        {% endif %}
+        {% if commande.user and commande.shippingAddress %}
+          <div class="px-3 pb-3">
+            <small class="text-muted"><i class="fas fa-truck mr-1"></i>Livraison :
+              {{ commande.shippingAddress.name|default('') }} —
+              {{ commande.shippingAddress.line1|default('') }} {{ commande.shippingAddress.line2|default('') }},
+              {{ commande.shippingAddress.postal_code|default('') }} {{ commande.shippingAddress.city|default('') }}
+            </small>
+          </div>
         {% endif %}
       </div>
 

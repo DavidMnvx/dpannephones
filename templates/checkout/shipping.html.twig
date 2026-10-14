@@ -181,6 +181,10 @@
                 </p>
 
                 {{ include('_partials/payment_methods_row.html.twig') }}
+                <p class="guest-checkout-hint">
+                    <i class="fas fa-bolt mr-1"></i>
+                    Pas besoin de compte : vos coordonnées sont saisies à l'étape de paiement sécurisé.
+                </p>
 
                 <a href="{{ path('cart_index') }}" class="btn-continue">
                     <i class="fas fa-arrow-left mr-1"></i> Revenir au panier

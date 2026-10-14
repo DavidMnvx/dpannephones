@@ -219,7 +219,12 @@ class PaymentController extends AbstractController
         }
 
         // On stocke l'ID utilisateur + mode de livraison + promo dans les métadonnées Stripe
+        // (achat invité : user_id vide, Stripe collecte email et coordonnées)
         $userId = $this->getUser()?->getId();
+
+        // Livraison à domicile : Stripe collecte l'adresse sur sa page de paiement
+        // (le point relais Mondial Relay et le retrait boutique n'en ont pas besoin)
+        $needsHomeAddress = in_array($shippingMode, ['courrier', 'colissimo', 'chronopost', 'chronopost_xl', 'ups'], true);
 
         $checkoutParams = [
             // Pas de 'payment_method_types' : Checkout applique alors automatiquement les
@@ -229,7 +234,6 @@ class PaymentController extends AbstractController
             // éligibles au montant et à la devise du panier.
             'line_items'           => $lineItems,
             'mode'                 => 'payment',
-            'customer_email'       => $this->getUser()?->getEmail(),
             'metadata'             => [
                 'cart_id'         => $cart->getId(),
                 'user_id'         => $userId,
@@ -245,6 +249,15 @@ class PaymentController extends AbstractController
                 . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url'  => $this->generateUrl('payment_cancel', [], UrlGeneratorInterface::ABSOLUTE_URL),
         ];
+
+        // Client connecté : email prérempli sur la page Stripe ; invité : Stripe le demande
+        if ($this->getUser()?->getEmail()) {
+            $checkoutParams['customer_email'] = $this->getUser()->getEmail();
+        }
+
+        if ($needsHomeAddress) {
+            $checkoutParams['shipping_address_collection'] = ['allowed_countries' => ['FR']];
+        }
 
         // Appliquer le coupon Stripe si présent (permet l'affichage natif du discount)
         if ($stripeCoupon) {
@@ -321,11 +334,17 @@ class PaymentController extends AbstractController
             ? (float) $stripeSession->metadata->discount_amount
             : 0.0;
 
-        // Créer la commande
+        // Créer la commande — le client vient des métadonnées du checkout
+        // (source de vérité), sinon de la session en cours ; invité : null
+        $metaUserId = $stripeSession->metadata->user_id ?? null;
+        $user = $metaUserId
+            ? $em->getRepository(User::class)->find((int) $metaUserId)
+            : $this->getUser();
+
         $commande = new Commande();
         $commande->setStripeSessionId($sessionId);
         $commande->setStatut('payee');
-        $commande->setUser($this->getUser());
+        $this->fillClientAndShipping($commande, $stripeSession, $user);
 
         if ($shippingMode) {
             $commande->setShippingMode($shippingMode);
@@ -396,6 +415,39 @@ class PaymentController extends AbstractController
     }
 
     /**
+     * Renseigne l'identité du client (compte ou invité) et l'adresse de livraison
+     * collectée par Stripe Checkout sur la commande.
+     */
+    private function fillClientAndShipping(Commande $commande, object $stripeSession, ?User $user): void
+    {
+        $commande->setUser($user);
+
+        $details = $stripeSession->customer_details ?? null;
+        if (!$user && $details) {
+            $commande->setGuestEmail($details->email ?? null);
+            $commande->setGuestName($details->name ?? null);
+        }
+
+        // L'emplacement varie selon la version de l'API Stripe
+        $shipping = $stripeSession->shipping_details
+            ?? ($stripeSession->collected_information->shipping_details ?? null);
+
+        if ($shipping && isset($shipping->address)) {
+            $adresse = array_filter([
+                'name'        => $shipping->name ?? null,
+                'line1'       => $shipping->address->line1 ?? null,
+                'line2'       => $shipping->address->line2 ?? null,
+                'postal_code' => $shipping->address->postal_code ?? null,
+                'city'        => $shipping->address->city ?? null,
+                'country'     => $shipping->address->country ?? null,
+            ]);
+            if ($adresse) {
+                $commande->setShippingAddress($adresse);
+            }
+        }
+    }
+
+    /**
      * Page d'annulation — Stripe redirige ici si l'utilisateur quitte la page de paiement.
      */
     #[Route('/cancel', name: 'payment_cancel', methods: ['GET'])]
@@ -462,7 +514,7 @@ class PaymentController extends AbstractController
             $commande = new Commande();
             $commande->setStripeSessionId($stripeSession->id);
             $commande->setStatut('payee');
-            $commande->setUser($user);
+            $this->fillClientAndShipping($commande, $stripeSession, $user);
 
             if ($shippingMode) {
                 $commande->setShippingMode($shippingMode);

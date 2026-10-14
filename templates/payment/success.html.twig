@@ -122,6 +122,13 @@
       <a href="{{ path('account_index') }}" class="auth-btn-primary" style="text-decoration:none;display:inline-flex;">
         <i class="fas fa-user mr-2"></i> Suivre ma commande
       </a>
+      {% else %}
+      <p class="guest-account-hint">
+        <i class="fas fa-user-plus mr-1"></i>
+        Envie de suivre vos commandes et retrouver vos achats ?
+        <a href="{{ path('app_register') }}">Créez votre compte en 1 minute</a> — votre
+        confirmation arrive par e-mail dans tous les cas.
+      </p>
       {% endif %}
       <a href="{{ path('boutique_index') }}" class="auth-btn-secondary" style="text-decoration:none;display:inline-flex;margin-top:10px;">
         <i class="fas fa-shopping-bag mr-2"></i> Continuer mes achats

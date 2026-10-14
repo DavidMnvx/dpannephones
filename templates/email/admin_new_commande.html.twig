@@ -111,8 +111,24 @@
           </div>
         {% endif %}
       {% else %}
-        <div class="client-row" style="color:#9ca3af;font-style:italic;">
-          Commande invité (pas de compte créé)
+        <div class="client-row">
+          <strong>Nom</strong>
+          {{ commande.guestName|default('Invité') }} <em style="color:#9ca3af;">(achat sans compte)</em>
+        </div>
+        {% if commande.guestEmail %}
+        <div class="client-row">
+          <strong>Email</strong>
+          <a href="mailto:{{ commande.guestEmail }}">{{ commande.guestEmail }}</a>
+        </div>
+        {% endif %}
+      {% endif %}
+      {% if commande.shippingAddress %}
+        <div class="client-row">
+          <strong>Adresse de livraison</strong>
+          {{ commande.shippingAddress.name|default('') }}
+          {{ commande.shippingAddress.line1|default('') }}
+          {{ commande.shippingAddress.line2|default('') }},
+          {{ commande.shippingAddress.postal_code|default('') }} {{ commande.shippingAddress.city|default('') }}
         </div>
       {% endif %}
     </div>

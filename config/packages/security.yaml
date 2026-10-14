@@ -56,9 +56,10 @@ security:
         - { path: ^/logout,     roles: ROLE_USER }
         - { path: ^/avis/laisser, roles: ROLE_USER }
 
-        # Paiement / panier — pas de restriction (invité possible)
-        # sauf checkout qui nécessite d'être connecté (mieux pour le suivi commande)
-        - { path: ^/payment, roles: ROLE_USER }
+        # Paiement / panier — achat invité : aucune connexion requise, Stripe
+        # Checkout collecte email et adresse au paiement. Ce chemin couvre aussi
+        # /payment/webhook, que Stripe appelle sans session : il ne doit jamais
+        # repasser derrière ROLE_USER.
 
 when@test:
     security:
