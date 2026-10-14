@@ -20,6 +20,14 @@ class LegalController extends AbstractController
         return $this->render('legal/cgv.html.twig');
     }
 
+    #[Route('/livraison-retours', name: 'legal_livraison', methods: ['GET'])]
+    public function livraison(): Response
+    {
+        return $this->render('legal/livraison_retours.html.twig', [
+            'modes' => \App\Service\ShippingOptionsResolver::OPTIONS,
+        ]);
+    }
+
     #[Route('/confidentialite', name: 'legal_confidentialite', methods: ['GET'])]
     public function confidentialite(): Response
     {

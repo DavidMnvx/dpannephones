@@ -220,10 +220,19 @@ class BoutiqueController extends AbstractController
         EntityManagerInterface $em,
         SessionInterface $session,
         \App\Repository\ReviewRepository $reviewRepo,
-        CategoryRepository $categoryRepo
+        CategoryRepository $categoryRepo,
+        \App\Service\ShippingOptionsResolver $shippingResolver
     ): Response
     {
         $cart = $this->getCurrentCart($em, $session);
+
+        // « Livraison dès X € » : l'option d'expédition la moins chère pour cette catégorie
+        $shippingFrom = null;
+        foreach ($shippingResolver->getAvailableOptions([$article->getCategorie()]) as $code => $opt) {
+            if ($code !== 'retrait' && ($shippingFrom === null || $opt['price'] < $shippingFrom)) {
+                $shippingFrom = $opt['price'];
+            }
+        }
 
         // Avis approuvés pour cet article
         $articleReviews      = $reviewRepo->findApprovedForArticle($article);
@@ -231,6 +240,7 @@ class BoutiqueController extends AbstractController
         $articleRatingDist   = $reviewRepo->getRatingDistribution($article);
 
         return $this->render('boutique/show.html.twig', [
+            'shippingFrom'      => $shippingFrom,
             'article'           => $article,
             'cart'              => $cart ? $cart->getItems() : [],
             'categories'        => $categoryRepo->getSlugLabelMap(),

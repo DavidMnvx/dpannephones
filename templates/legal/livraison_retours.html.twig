@@ -1,0 +1,167 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Livraison & retours — D'Panne Phones{% endblock %}
+{% block meta_description %}Livraison partout en France dès 2,90 € ou retrait gratuit en boutique à Pélissanne sous 24-48h. Retour sous 14 jours, garantie 2 ans sur le neuf et 12 mois sur l'occasion.{% endblock %}
+
+{% block body %}
+
+{# Bannière #}
+<div id="carouselExampleIndicators2" class="carousel slide mb-5" data-ride="carousel">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img class="d-block w-100" src="{{ asset(site_image('banner_livraison', 'images/baner/connexion.png')) }}" alt="Livraison et retours">
+            <div class="carousel-caption">
+                <h5 id="uneRep">Livraison & retours</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="legal-page-wrap">
+
+    <div class="legal-toc">
+        <div class="legal-toc-title"><i class="fas fa-list mr-2"></i>Sommaire</div>
+        <a href="#modes">1. Modes de livraison & tarifs</a>
+        <a href="#preparation">2. Préparation & suivi</a>
+        <a href="#retours">3. Retours & remboursement</a>
+        <a href="#garanties">4. Garanties</a>
+        <a href="#faq">5. Questions fréquentes</a>
+    </div>
+
+    <div class="legal-content">
+
+        <section id="modes">
+            <h2 class="legal-h2"><i class="fas fa-truck mr-2"></i>1. Modes de livraison & tarifs</h2>
+            <p>
+                Chaque commande est préparée et testée dans notre boutique de Pélissanne.
+                Les tarifs et délais exacts pour votre panier sont toujours affichés
+                <strong>avant le paiement</strong>, à l'étape Livraison.
+            </p>
+            <div class="ship-modes-table">
+                {% for code, mode in modes %}
+                    <div class="ship-mode-row">
+                        <span class="ship-mode-icon" style="color: {{ mode.color }};"><i class="{{ mode.icon }}"></i></span>
+                        <span class="ship-mode-label">
+                            <strong>{{ mode.label }}</strong>
+                            <small>{{ mode.description }}</small>
+                        </span>
+                        <span class="ship-mode-delay">{{ mode.delay }}</span>
+                        <span class="ship-mode-price">{{ mode.price > 0 ? (mode.price|number_format(2, ',', ' ') ~ ' €') : 'Gratuit' }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+            <p class="legal-note">
+                <i class="fas fa-info-circle mr-1"></i>
+                Les options proposées dépendent du contenu du panier : un PC voyage uniquement en colis
+                renforcé (Chronopost XL ou UPS), un accessoire léger peut partir en lettre suivie.
+            </p>
+        </section>
+
+        <section id="preparation">
+            <h2 class="legal-h2"><i class="fas fa-box-open mr-2"></i>2. Préparation & suivi</h2>
+            <p>
+                Les commandes sont expédiées sous <strong>24 à 48 h ouvrées</strong> après confirmation du paiement.
+                Dès l'envoi, vous recevez un e-mail avec le <strong>numéro de suivi</strong> de votre colis.
+            </p>
+            <p>
+                En <strong>retrait boutique</strong> (gratuit), votre commande vous attend sous 24-48 h au
+                Centre Commercial Le Galion (parking Aldi), Avenue Pasteur, 13330 Pélissanne —
+                du lundi au vendredi de 9h à 18h et le samedi de 9h à 12h.
+            </p>
+        </section>
+
+        <section id="retours">
+            <h2 class="legal-h2"><i class="fas fa-undo-alt mr-2"></i>3. Retours & remboursement</h2>
+            <p>
+                Vous disposez de <strong>14 jours</strong> après réception pour changer d'avis,
+                conformément au droit de rétractation. Le produit doit être retourné complet,
+                dans son état d'origine et non endommagé.
+            </p>
+            <p>
+                Le remboursement est effectué sous <strong>14 jours</strong> après réception du retour,
+                sur le moyen de paiement utilisé. Pour lancer un retour : un e-mail à
+                <a href="mailto:contact@dpannephones.com">contact@dpannephones.com</a>,
+                un appel au <a href="tel:+33783748311">07 83 74 83 11</a>, ou un passage en boutique.
+            </p>
+            <p class="legal-note">
+                <i class="fas fa-info-circle mr-1"></i>
+                Exception : les films hydrogel déjà posés sur un appareil (produit personnalisé,
+                découpé sur mesure) ne peuvent pas être retournés. Le détail complet figure dans les
+                <a href="{{ path('legal_cgv') }}">CGV</a>.
+            </p>
+        </section>
+
+        <section id="garanties">
+            <h2 class="legal-h2"><i class="fas fa-shield-alt mr-2"></i>4. Garanties</h2>
+            <p>
+                <strong>Produits neufs</strong> — garantie légale de conformité de <strong>2 ans</strong>
+                (articles L.217-3 et suivants du Code de la consommation).
+            </p>
+            <p>
+                <strong>Produits d'occasion et reconditionnés</strong> — garantie légale de conformité de
+                <strong>12 mois</strong>, pièces et main-d'œuvre. Chaque appareil est révisé et testé par
+                notre atelier avant la mise en vente, et son état est annoncé par un
+                <strong>grade</strong> : A (excellent état), B (légères traces d'usage), C (traces visibles —
+                le prix en tient compte).
+            </p>
+            <p>
+                En cas de souci, le SAV se fait <strong>directement en boutique</strong> à Pélissanne :
+                vous parlez au technicien qui a préparé votre appareil, pas à une plateforme.
+            </p>
+        </section>
+
+        <section id="faq">
+            <h2 class="legal-h2"><i class="fas fa-question-circle mr-2"></i>5. Questions fréquentes</h2>
+
+            <details class="faq-item">
+                <summary>Puis-je voir ou essayer un produit avant de l'acheter ?</summary>
+                <p>Oui ! Tous nos produits sont visibles en boutique à Pélissanne. Vous pouvez aussi commander
+                en ligne et choisir le retrait gratuit : vous vérifiez le produit sur place au moment du retrait.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Les téléphones et PC d'occasion sont-ils fiables ?</summary>
+                <p>Chaque appareil d'occasion passe entre les mains de notre atelier : nettoyage, tests complets,
+                remplacement des pièces faibles. Il est ensuite garanti 12 mois, pièces et main-d'œuvre.
+                Le grade (A, B ou C) décrit honnêtement son état esthétique.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Quand ma commande est-elle expédiée ?</summary>
+                <p>Sous 24 à 48 h ouvrées après le paiement. Vous recevez le numéro de suivi par e-mail dès
+                que le colis part. En retrait boutique, votre commande est prête sous 24-48 h.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Comment se passe un retour ?</summary>
+                <p>Vous avez 14 jours après réception pour changer d'avis. Contactez-nous par e-mail ou téléphone,
+                ou passez directement en boutique : le remboursement part sous 14 jours après réception du produit.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Le paiement en ligne est-il sécurisé ?</summary>
+                <p>Oui : le paiement est traité par <strong>Stripe</strong>, leader mondial du paiement en ligne.
+                Vos données bancaires ne transitent jamais par notre site.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Et si mon appareil tombe en panne après l'achat ?</summary>
+                <p>Vous êtes couvert par la garantie (2 ans pour le neuf, 12 mois pour l'occasion). Et comme nous
+                sommes avant tout un atelier de réparation, le SAV se fait sur place, sans intermédiaire : apportez
+                l'appareil en boutique ou appelez-nous.</p>
+            </details>
+        </section>
+
+        <div class="legal-contact-cta">
+            <p><strong>Une autre question ?</strong> On vous répond vite :</p>
+            <p>
+                <a href="tel:+33783748311"><i class="fas fa-phone mr-1"></i>07 83 74 83 11</a> ·
+                <a href="mailto:contact@dpannephones.com"><i class="fas fa-envelope mr-1"></i>contact@dpannephones.com</a> ·
+                <a href="{{ path('contact') }}"><i class="fas fa-comment mr-1"></i>Formulaire de contact</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

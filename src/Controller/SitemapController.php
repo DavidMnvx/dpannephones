@@ -35,6 +35,7 @@ class SitemapController extends AbstractController
             'about'                => ['priority' => 0.5,  'freq' => 'monthly'],
             'partenaires_index'    => ['priority' => 0.5,  'freq' => 'monthly'],
             'reviews_index'        => ['priority' => 0.7,  'freq' => 'weekly'],
+            'legal_livraison'      => ['priority' => 0.5,  'freq' => 'monthly'],
             'legal_cgv'            => ['priority' => 0.3,  'freq' => 'yearly'],
             'legal_mentions'       => ['priority' => 0.3,  'freq' => 'yearly'],
             'legal_confidentialite'=> ['priority' => 0.3,  'freq' => 'yearly'],

@@ -180,6 +180,8 @@
                     {% endif %}
                 </p>
 
+                {{ include('_partials/payment_methods_row.html.twig') }}
+
                 <a href="{{ path('cart_index') }}" class="btn-continue">
                     <i class="fas fa-arrow-left mr-1"></i> Revenir au panier
                 </a>

@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ article.name }} — D'Panne Phones{% endblock %}
+{% block meta_description %}{{ article.description|striptags|replace({"\n": ' '})|slice(0, 152)|trim }}…{% endblock %}
 
 {# ── JSON-LD Product (pour rich snippets Google Search) ── #}
 {% block jsonld %}
@@ -471,10 +472,13 @@
                     {% endif %}
 
                     <div class="article-buy-reassurance">
-                        <span><i class="fas fa-store mr-1"></i> Retrait en boutique 1–2 jours</span>
-                        <span><i class="fas fa-undo-alt mr-1"></i> Retour 14 jours</span>
-                        <span><i class="fas fa-lock mr-1"></i> Paiement sécurisé</span>
+                        <span><i class="fas fa-store mr-1"></i> Retrait gratuit en boutique 24-48h</span>
+                        {% if shippingFrom %}
+                            <span><a href="{{ path('legal_livraison') }}" class="reassurance-link"><i class="fas fa-truck mr-1"></i> Livraison dès {{ shippingFrom|number_format(2, ',', ' ') }} €</a></span>
+                        {% endif %}
+                        <span><a href="{{ path('legal_livraison') }}#retours" class="reassurance-link"><i class="fas fa-undo-alt mr-1"></i> Retour 14 jours</a></span>
                     </div>
+                    {{ include('_partials/payment_methods_row.html.twig') }}
                 </div>
             </div>
 

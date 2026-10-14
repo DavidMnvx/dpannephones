@@ -6,7 +6,7 @@
         <title>{% block title %}D'Panne Phones — Réparation Smartphone, Tablette & PC à Pélissanne{% endblock %}</title>
 
         {# ── Balises SEO surchargeables par chaque page ── #}
-        <meta name="description"    content="{% block meta_description %}D'Panne Phones, spécialiste réparation smartphone, tablette et ordinateur à Pélissanne depuis 2017. Devis gratuit, pièces de qualité, garantie 6 mois.{% endblock %}">
+        <meta name="description"    content="{% block meta_description %}D'Panne Phones, spécialiste réparation smartphone, tablette et ordinateur à Pélissanne depuis 2017. Boutique en ligne, devis gratuit, interventions garanties.{% endblock %}">
         <meta name="keywords"       content="{% block meta_keywords %}réparation téléphone Pélissanne, réparation smartphone, réparation iPhone, réparation Samsung, réparation tablette, réparation PC, D'Panne Phones{% endblock %}">
         <meta name="robots"         content="{% block meta_robots %}index, follow{% endblock %}">
         <link rel="canonical"       href="{% block canonical %}{% endblock %}">
@@ -370,6 +370,7 @@
         <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <h5 class="text mb-4">Infos pratiques</h5>
           <ul class="footer-legal-links">
+            <li><a href="{{ path('legal_livraison') }}"><i class="fas fa-truck mr-1"></i>Livraison & retours</a></li>
             <li><a href="{{ path('legal_cgv') }}"><i class="fas fa-file-contract mr-1"></i>CGV</a></li>
             <li><a href="{{ path('legal_mentions') }}"><i class="fas fa-info-circle mr-1"></i>Mentions légales</a></li>
             <li><a href="{{ path('legal_confidentialite') }}"><i class="fas fa-user-shield mr-1"></i>Confidentialité</a></li>
