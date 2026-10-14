@@ -24,7 +24,7 @@
 </div>
 {% endif %}
 
-<div style="width:80%;margin:0 auto 60px;padding:0 16px;">
+<div class="boutique-wrap">
 
     {# Fil d'ariane #}
     <nav class="bt-breadcrumb" aria-label="Fil d'ariane">
@@ -157,7 +157,7 @@
     </script>
     <a href="{{ path('cart_index') }}" class="cat-topbar-cart">
         <i class="fas fa-shopping-cart"></i>
-        Panier{% if cart is not empty %} · {{ cart|length }}{% endif %}
+        <span class="cat-cart-label">Panier</span>{% if cart is not empty %}<span class="cat-cart-count"> · {{ cart|length }}</span>{% endif %}
     </a>
     </div>
 
@@ -415,7 +415,8 @@
                                         <p class="coque-card-desc">{{ article.description|length > 90 ? article.description|slice(0, 90) ~ '…' : article.description }}</p>
                                     {% endif %}
                                     <div class="coque-card-footer">
-                                        <span class="coque-card-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
+                                        {% set prixParts = article.price|number_format(2, ',', ' ')|split(',') %}
+                                        <span class="coque-card-price">{{ prixParts[0] }}<sup class="price-cents">{{ prixParts[1] }}</sup>&nbsp;€</span>
                                         <button type="button" class="btn-cart btn-cart--coque"
                                                 data-toggle="modal" data-target="#hydrogelModal{{ article.id }}">
                                             <i class="fas fa-mobile-alt mr-1"></i> Choisir mon modèle

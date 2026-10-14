@@ -18269,3 +18269,108 @@ textarea.contact-input.is-invalid {
     align-items: center;
     align-self: center;
 }
+
+/* ═══════════════════════════════════════════════════
+   BOUTIQUE MOBILE — calibrage façon Amazon (14/10)
+   Accueil : rangées défilantes, 2 cards par écran.
+   Catégorie/recherche : une card par ligne, photo à
+   gauche, prix en évidence, bouton pilule pleine largeur.
+═══════════════════════════════════════════════════ */
+
+/* Conteneur (remplace le width:80% inline) */
+.boutique-wrap { width: 80%; margin: 0 auto 60px; padding: 0 16px; }
+
+/* Centimes en exposant, sur tous les écrans */
+.price-cents {
+    font-size: 0.6em;
+    font-weight: 600;
+    top: -0.55em;
+    margin-left: 1px;
+}
+
+@media (max-width: 640px) {
+    /* Plein écran : plus de bandes vides sur les côtés */
+    .boutique-wrap { width: 100%; padding: 0 10px; margin-bottom: 40px; }
+
+    /* Bannière vedette : compacte, sans l'image (déjà masquée à 860px) */
+    .feat-slide { padding: 20px 38px 40px; }
+    .feat-title { font-size: 18px; }
+    .feat-arrow { width: 30px; height: 30px; }
+
+    /* Barre de catégories : pills défilables bord à bord, panier réduit à son icône */
+    .cat-topbar-wrap { padding: 8px; gap: 6px; }
+    .cat-topbar-pill { padding: 8px 12px; font-size: 13.5px; }
+    .cat-topbar-cart { padding: 9px 13px; }
+    .cat-topbar-cart .cat-cart-label { display: none; }
+
+    /* Rangées de l'accueil : deux cards par largeur d'écran, compactes */
+    .cat-section-row { gap: 10px; }
+    .cat-section-row .product-card { flex: 0 0 calc(50% - 10px); }
+    .cat-section-row .product-img-wrap { height: 128px; padding: 8px; }
+    .cat-section-row .product-body { padding: 10px 11px 12px; }
+    .cat-section-row .product-name { font-size: 13.5px; min-height: 0; }
+    .cat-section-row .product-badges { gap: 4px; }
+    .cat-section-row .badge-etat,
+    .cat-section-row .badge-grade { font-size: 10px; padding: 2px 7px; white-space: nowrap; }
+    .cat-section-row .product-desc,
+    .cat-section-row .pc-specs-list { display: none; }
+    .cat-section-row .product-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding-top: 10px;
+    }
+    .cat-section-row .btn-cart { justify-content: center; }
+
+    /* Pages catégorie et recherche : une card par ligne, format liste Amazon */
+    .products-grid { grid-template-columns: 1fr; gap: 12px; }
+    .products-grid .product-card { flex-direction: row; align-items: stretch; }
+    .products-grid .product-img-link { flex: 0 0 37%; max-width: 165px; display: flex; }
+    .products-grid .product-img-wrap {
+        height: auto;
+        min-height: 158px;
+        width: 100%;
+        border-bottom: none;
+        border-right: 1px solid #f2f4f7;
+    }
+    .products-grid .product-body { padding: 12px 14px; min-width: 0; }
+    .products-grid .product-name { min-height: 0; -webkit-line-clamp: 3; }
+    .products-grid .product-desc { min-height: 0; margin-bottom: 8px; }
+    .products-grid .pc-specs-list { display: none; }
+    .products-grid .product-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 9px;
+        border-top: none;
+        padding-top: 4px;
+    }
+    .products-grid .product-price { font-size: 22px; }
+    .products-grid .btn-cart {
+        justify-content: center;
+        padding: 10px 15px;
+        border-radius: 999px;
+        font-size: 14px;
+    }
+
+    /* Coques : même format liste */
+    .coque-grid { grid-template-columns: 1fr; gap: 12px; }
+    .coque-card { flex-direction: row; }
+    .coque-card .coque-card-img { flex: 0 0 37%; max-width: 165px; aspect-ratio: auto; min-height: 150px; }
+    .coque-card-body { padding: 12px 14px; min-width: 0; flex: 1; }
+    .coque-card-footer { flex-direction: column; align-items: stretch; gap: 9px; }
+    .coque-card-price { font-size: 22px; }
+    .btn-cart--coque { justify-content: center; border-radius: 999px; padding: 10px 15px; }
+
+    /* Filtres marque/matériel + tri : une ligne défilable */
+    .brand-filter-bar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .brand-filter-bar::-webkit-scrollbar { display: none; }
+    .brand-pill { flex-shrink: 0; }
+
+    /* L'encart hydrogel et l'accroche de catégorie respirent moins large */
+    .cat-accroche { padding: 11px 13px; font-size: 13px; }
+}

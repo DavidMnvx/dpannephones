@@ -108,7 +108,8 @@
         {% endif %}
 
         <div class="product-footer">
-            <span class="product-price">{{ article.price|number_format(2, ',', ' ') }} €</span>
+            {% set prixParts = article.price|number_format(2, ',', ' ')|split(',') %}
+            <span class="product-price">{{ prixParts[0] }}<sup class="price-cents">{{ prixParts[1] }}</sup>&nbsp;€</span>
 
             {% if article.categorie == 'film_hydrogel' %}
                 <a href="{{ path('boutique_index', {categorie: 'film_hydrogel'}) }}" class="btn-cart btn-cart--hydrogel">
