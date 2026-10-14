@@ -156,7 +156,8 @@
         {% set isAbout        = (currentPath starts with '/about') %}
         {% set isAccount      = (currentPath starts with '/compte') or (currentPath starts with '/login') or (currentPath starts with '/register') or (currentPath starts with '/account') %}
 
-        <nav class="navbar navbar-expand-lg navbar-light bg-light ">
+        {# expand-xl : à 992-1199px (tablette paysage) le menu horizontal débordait de l'écran — on garde le burger jusqu'à 1200px où les 8 entrées tiennent #}
+        <nav class="navbar navbar-expand-xl navbar-light bg-light ">
             <a class="navbar-brand " href="{{ path('home') }}"><img src="{{asset ('images/logo_dpannephones/Logo_engrenage.png') }}" alt="Logo" height="65" ></a>
             <a class="navbar-brand " href="{{ path('home') }}"><img src="{{asset ('images/logo_dpannephones/Logo_dpannephones.png') }}" alt="Logo" height="35" ></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
