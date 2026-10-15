@@ -187,7 +187,7 @@
         </thead>
         <tbody>
             {% for r in reviews %}
-                <tr>
+                <tr id="greview-{{ r.id }}" class="anchor-row">
                     <td><span class="badge badge-secondary">{{ r.sortOrder }}</span></td>
                     <td><strong>{{ r.authorName }}</strong></td>
                     <td style="color:#f59e0b;font-size:14px;">

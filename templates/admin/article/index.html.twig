@@ -59,7 +59,7 @@
         </thead>
         <tbody>
             {% for article in articles %}
-                <tr data-cat="{{ article.categorie ?? '__none__' }}">
+                <tr id="article-{{ article.id }}" class="anchor-row" data-cat="{{ article.categorie ?? '__none__' }}">
                     <td>
                         {% if article.image %}
                             <img src="{{ asset('uploads/images/' ~ article.image) }}" width="46" height="46"

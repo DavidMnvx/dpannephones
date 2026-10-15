@@ -79,6 +79,23 @@ class BlogAdminController extends AbstractController
         ]);
     }
 
+    /**
+     * Reprend l'onglet et la page d'origine (transportés en query par les liens
+     * de la liste) pour y renvoyer après une action — on retombe où on était.
+     */
+    private function contexteListe(Request $request): array
+    {
+        $contexte = [];
+        if (in_array($request->query->get('statut'), ['publies', 'brouillons'], true)) {
+            $contexte['statut'] = $request->query->get('statut');
+        }
+        if ($request->query->getInt('page', 1) > 1) {
+            $contexte['page'] = $request->query->getInt('page');
+        }
+
+        return $contexte;
+    }
+
     #[Route('/prompt', name: 'admin_blog_prompt_save', methods: ['POST'])]
     public function savePrompt(Request $request, EntityManagerInterface $em): Response
     {
@@ -93,7 +110,8 @@ class BlogAdminController extends AbstractController
             $this->addFlash('success', "Prompt de l'agent IA enregistré.");
         }
 
-        return $this->redirectToRoute('admin_blog_index');
+        // Retour sur l'encart de l'agent IA, pas en haut de page
+        return $this->redirectToRoute('admin_blog_index', ['_fragment' => 'agent-ia']);
     }
 
     #[Route('/nouveau', name: 'admin_blog_new', methods: ['GET', 'POST'])]
@@ -111,7 +129,11 @@ class BlogAdminController extends AbstractController
                 ? 'Article publié — il est en ligne sur /blog.'
                 : 'Brouillon enregistré (invisible sur le site).');
 
-            return $this->redirectToRoute('admin_blog_index');
+            // Atterrir sur le nouvel article, dans l'onglet où il vit
+            return $this->redirectToRoute('admin_blog_index', [
+                'statut'    => $post->isPublished() ? 'publies' : 'brouillons',
+                '_fragment' => 'post-' . $post->getId(),
+            ]);
         }
 
         return $this->render('admin/blog/new.html.twig', ['form' => $form->createView()]);
@@ -128,7 +150,10 @@ class BlogAdminController extends AbstractController
             $em->flush();
             $this->addFlash('success', 'Article mis à jour.');
 
-            return $this->redirectToRoute('admin_blog_index');
+            // Retour à l'endroit exact de la liste d'où l'on venait
+            return $this->redirectToRoute('admin_blog_index', $this->contexteListe($request) + [
+                '_fragment' => 'post-' . $post->getId(),
+            ]);
         }
 
         return $this->render('admin/blog/edit.html.twig', [
@@ -162,7 +187,7 @@ class BlogAdminController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'Article supprimé.');
 
-        return $this->redirectToRoute('admin_blog_index');
+        return $this->redirectToRoute('admin_blog_index', $this->contexteListe($request));
     }
 
     // ─────────────────────────────────────────────────────────────────────

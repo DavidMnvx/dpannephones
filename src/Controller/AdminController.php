@@ -936,7 +936,8 @@ public function editGoogleReview(Request $request, GoogleReview $review, EntityM
     if ($form->isSubmitted() && $form->isValid()) {
         $em->flush();
         $this->addFlash('success', 'Avis modifié avec succès.');
-        return $this->redirectToRoute('admin_google_reviews');
+        // Retour sur la ligne de l'avis dans la liste
+        return $this->redirectToRoute('admin_google_reviews', ['_fragment' => 'greview-' . $review->getId()]);
     }
 
     return $this->render('admin/google_review/edit.html.twig', [
@@ -968,7 +969,8 @@ public function toggleGoogleReview(GoogleReview $review, Request $request, Entit
         $this->addFlash('success', $review->isActive() ? 'Avis activé.' : 'Avis désactivé.');
     }
 
-    return $this->redirectToRoute('admin_google_reviews');
+    // On reste sur la ligne que l'on vient de basculer
+    return $this->redirectToRoute('admin_google_reviews', ['_fragment' => 'greview-' . $review->getId()]);
 }
 
 // ───────────────────────────────────────────────
@@ -1017,7 +1019,8 @@ public function approveReview(Review $review, Request $request, EntityManagerInt
         $this->addFlash('success', 'Avis approuvé et publié sur le site. Le client a été notifié.');
     }
 
-    return $this->redirectToRoute('admin_client_reviews');
+    // On reste dans l'onglet où l'on travaillait
+    return $this->redirectToRoute('admin_client_reviews', ['filter' => $request->query->get('filter', 'pending')]);
 }
 
 #[Route('/admin/avis-clients/{id}/reject', name: 'admin_review_reject', methods: ['POST'], requirements: ['id' => '\d+'])]
@@ -1029,7 +1032,7 @@ public function rejectReview(Review $review, Request $request, EntityManagerInte
         $this->addFlash('success', 'Avis rejeté (non publié).');
     }
 
-    return $this->redirectToRoute('admin_client_reviews');
+    return $this->redirectToRoute('admin_client_reviews', ['filter' => $request->query->get('filter', 'pending')]);
 }
 
 #[Route('/admin/avis-clients/{id}/respond', name: 'admin_review_respond', methods: ['POST'], requirements: ['id' => '\d+'])]
@@ -1042,7 +1045,11 @@ public function respondReview(Review $review, Request $request, EntityManagerInt
         $this->addFlash('success', 'Réponse enregistrée.');
     }
 
-    return $this->redirectToRoute('admin_client_reviews');
+    // Retour sur la carte de l'avis auquel on vient de répondre
+    return $this->redirectToRoute('admin_client_reviews', [
+        'filter'    => $request->query->get('filter', 'pending'),
+        '_fragment' => 'review-' . $review->getId(),
+    ]);
 }
 
 #[Route('/admin/avis-clients/{id}/delete', name: 'admin_review_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
@@ -1054,7 +1061,7 @@ public function deleteReview(Review $review, Request $request, EntityManagerInte
         $this->addFlash('success', 'Avis supprimé définitivement.');
     }
 
-    return $this->redirectToRoute('admin_client_reviews');
+    return $this->redirectToRoute('admin_client_reviews', ['filter' => $request->query->get('filter', 'pending')]);
 }
 
 // ───────────────────────────────────────────────

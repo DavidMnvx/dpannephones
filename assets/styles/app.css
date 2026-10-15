@@ -18662,3 +18662,18 @@ a.stats-top-name:hover { color: rgb(9,71,113); }
     line-height: 1.55;
 }
 .guest-account-hint a { color: rgb(9, 71, 113); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════
+   BO — RETOUR À SA PLACE (16/10)
+   Après créer/éditer/répondre, on revient sur la ligne
+   concernée : l'ancre ne se cache pas sous l'entête et
+   la ligne s'illumine une seconde pour se signaler.
+═══════════════════════════════════════════════════ */
+.anchor-row { scroll-margin-top: 96px; }
+.anchor-row:target { animation: ligne-retrouvee 2.4s ease-out; }
+tr.anchor-row:target > td { animation: ligne-retrouvee 2.4s ease-out; }
+@keyframes ligne-retrouvee {
+    0%   { background-color: #fff3c4; }
+    60%  { background-color: #fff8dd; }
+    100% { background-color: transparent; }
+}

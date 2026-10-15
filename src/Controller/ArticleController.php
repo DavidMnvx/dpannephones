@@ -146,7 +146,8 @@ class ArticleController extends AbstractController
             $em->flush();
             $this->addFlash('success', 'Article ajouté avec succès !');
 
-            return $this->redirectToRoute('admin_article_index');
+            // Atterrir sur la ligne du nouvel article dans la liste
+            return $this->redirectToRoute('admin_article_index', ['_fragment' => 'article-' . $article->getId()]);
         }
 
         return $this->render('admin/article/new.html.twig', [
@@ -177,7 +178,8 @@ class ArticleController extends AbstractController
             $em->flush();
             $this->addFlash('success', 'Article modifié avec succès !');
 
-            return $this->redirectToRoute('admin_article_index');
+            // Retour sur la ligne de l'article dans la liste
+            return $this->redirectToRoute('admin_article_index', ['_fragment' => 'article-' . $article->getId()]);
         }
 
         return $this->render('admin/article/edit.html.twig', [

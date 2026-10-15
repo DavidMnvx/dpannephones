@@ -167,7 +167,7 @@
         <tbody>
             {% for category in categories %}
                 {% set nb = articleCounts[category.slug] ?? 0 %}
-                <tr>
+                <tr id="cat-{{ category.id }}" class="anchor-row">
                     <form method="post" action="{{ path('admin_categories_edit', {id: category.id}) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('edit-category-' ~ category.id) }}">
                     <td><span class="cat-icon-preview"><i class="{{ category.icon }}"></i></span></td>

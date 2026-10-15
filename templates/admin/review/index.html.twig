@@ -75,7 +75,7 @@
     </div>
 {% else %}
     {% for review in reviews %}
-        <div class="admin-card" style="margin-bottom:14px;padding:20px 22px;">
+        <div class="admin-card anchor-row" id="review-{{ review.id }}" style="margin-bottom:14px;padding:20px 22px;">
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;">
                 <div style="flex:1;min-width:200px;">
                     <div style="font-size:15px;font-weight:700;color:#1a2b4b;">
@@ -124,13 +124,13 @@
             {# Actions #}
             <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #f1f5f9;margin-top:10px;">
                 {% if review.status == 'pending' %}
-                    <form method="post" action="{{ path('admin_review_approve', {id: review.id}) }}" style="display:inline;">
+                    <form method="post" action="{{ path('admin_review_approve', {id: review.id, filter: filter}) }}" style="display:inline;">
                         <input type="hidden" name="_token" value="{{ csrf_token('review_approve_' ~ review.id) }}">
                         <button type="submit" class="btn btn-sm btn-success">
                             <i class="fas fa-check"></i> Approuver et publier
                         </button>
                     </form>
-                    <form method="post" action="{{ path('admin_review_reject', {id: review.id}) }}" style="display:inline;"
+                    <form method="post" action="{{ path('admin_review_reject', {id: review.id, filter: filter}) }}" style="display:inline;"
                           onsubmit="return confirm('Rejeter cet avis ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('review_reject_' ~ review.id) }}">
                         <button type="submit" class="btn btn-sm btn-warning">
@@ -138,7 +138,7 @@
                         </button>
                     </form>
                 {% elseif review.status == 'approved' %}
-                    <form method="post" action="{{ path('admin_review_reject', {id: review.id}) }}" style="display:inline;"
+                    <form method="post" action="{{ path('admin_review_reject', {id: review.id, filter: filter}) }}" style="display:inline;"
                           onsubmit="return confirm('Dépublier cet avis ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('review_reject_' ~ review.id) }}">
                         <button type="submit" class="btn btn-sm btn-warning">
@@ -146,7 +146,7 @@
                         </button>
                     </form>
                 {% elseif review.status == 'rejected' %}
-                    <form method="post" action="{{ path('admin_review_approve', {id: review.id}) }}" style="display:inline;">
+                    <form method="post" action="{{ path('admin_review_approve', {id: review.id, filter: filter}) }}" style="display:inline;">
                         <input type="hidden" name="_token" value="{{ csrf_token('review_approve_' ~ review.id) }}">
                         <button type="submit" class="btn btn-sm btn-success">
                             <i class="fas fa-check"></i> Publier finalement
@@ -160,7 +160,7 @@
                     <i class="fas fa-reply"></i> {{ review.adminResponse ? 'Modifier la réponse' : 'Répondre' }}
                 </button>
 
-                <form method="post" action="{{ path('admin_review_delete', {id: review.id}) }}" style="display:inline;margin-left:auto;"
+                <form method="post" action="{{ path('admin_review_delete', {id: review.id, filter: filter}) }}" style="display:inline;margin-left:auto;"
                       onsubmit="return confirm('⚠️ Supprimer définitivement cet avis ?');">
                     <input type="hidden" name="_token" value="{{ csrf_token('review_delete_' ~ review.id) }}">
                     <button type="submit" class="btn btn-sm btn-danger">
@@ -171,7 +171,7 @@
 
             {# Formulaire de réponse (caché par défaut) #}
             <div id="response-form-{{ review.id }}" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid #f1f5f9;">
-                <form method="post" action="{{ path('admin_review_respond', {id: review.id}) }}">
+                <form method="post" action="{{ path('admin_review_respond', {id: review.id, filter: filter}) }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('review_respond_' ~ review.id) }}">
                     <label style="font-size:12px;font-weight:700;color:#1a2b4b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;display:block;">
                         Votre réponse publique

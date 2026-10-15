@@ -105,7 +105,8 @@ class CategoryAdminController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'Catégorie "' . $label . '" ajoutée — elle est disponible immédiatement dans la boutique et le formulaire article.');
 
-        return $this->redirectToRoute('admin_categories_index');
+        // Atterrir sur la nouvelle catégorie dans la liste
+        return $this->redirectToRoute('admin_categories_index', ['_fragment' => 'cat-' . $category->getId()]);
     }
 
     #[Route('/{id}/edit', name: 'admin_categories_edit', methods: ['POST'], requirements: ['id' => '\d+'])]
@@ -128,7 +129,8 @@ class CategoryAdminController extends AbstractController
         $em->flush();
         $this->addFlash('success', 'Catégorie "' . $category->getLabel() . '" mise à jour.');
 
-        return $this->redirectToRoute('admin_categories_index');
+        // Retour sur la ligne éditée (les positions changent souvent plusieurs lignes d'affilée)
+        return $this->redirectToRoute('admin_categories_index', ['_fragment' => 'cat-' . $category->getId()]);
     }
 
     #[Route('/{id}/delete', name: 'admin_categories_delete', methods: ['POST'], requirements: ['id' => '\d+'])]

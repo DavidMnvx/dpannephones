@@ -60,8 +60,10 @@
             </tr>
         </thead>
         <tbody>
+            {% set ctx = currentStatut ? {statut: currentStatut} : {} %}
+            {% set ctx = currentPage > 1 ? ctx|merge({page: currentPage}) : ctx %}
             {% for post in posts %}
-                <tr>
+                <tr id="post-{{ post.id }}" class="anchor-row">
                     <td>
                         {% if post.image %}
                             <img src="{{ asset('uploads/images/' ~ post.image) }}" width="46" height="46"
@@ -99,8 +101,8 @@
                            class="btn btn-sm btn-outline-secondary" title="Voir l'article tel qu'il apparaîtra sur le site">
                             <i class="fas fa-eye"></i> Aperçu
                         </a>
-                        <a href="{{ path('admin_blog_edit', {id: post.id}) }}" class="btn btn-sm btn-warning">Éditer</a>
-                        <form method="post" action="{{ path('admin_blog_delete', {id: post.id}) }}" style="display:inline;"
+                        <a href="{{ path('admin_blog_edit', ctx|merge({id: post.id})) }}" class="btn btn-sm btn-warning">Éditer</a>
+                        <form method="post" action="{{ path('admin_blog_delete', ctx|merge({id: post.id})) }}" style="display:inline;"
                               onsubmit="return confirm('Supprimer cet article ?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete-blog-' ~ post.id) }}">
                             <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
@@ -131,7 +133,7 @@
 </div>
 
 {# ── Encart : connecter un agent IA ── #}
-<div class="admin-card" style="margin-top:22px;">
+<div class="admin-card anchor-row" id="agent-ia" style="margin-top:22px;">
     <h3><i class="fas fa-robot"></i> Connecter un agent IA (dépôt de brouillons)</h3>
     <p style="font-size:13.5px;color:#6c757d;line-height:1.6;">
         Un agent IA (assistant, script, automatisation…) peut déposer des articles via l'API.
