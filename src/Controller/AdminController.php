@@ -14,6 +14,7 @@ use App\Entity\SocialLink;
 use App\Entity\User;
 use App\Repository\AppSettingRepository;
 use App\Repository\CommandeRepository;
+use App\Repository\DailyStatRepository;
 use App\Repository\PromoCodeRepository;
 use App\Repository\ReviewRepository;
 use App\Repository\SocialLinkRepository;
@@ -42,7 +43,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class AdminController extends AbstractController
 {
     #[Route('/admin', name: 'admin_index')]
-    public function index(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, CommandeRepository $commandeRepo): Response
+    public function index(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger, CommandeRepository $commandeRepo, DailyStatRepository $dailyStatRepo): Response
     {
         $marque = new Marque();
         $model = new Model();
@@ -298,6 +299,7 @@ class AdminController extends AbstractController
             'reparationsByModel' => $reparationsByModel,
             'reparationsUniverselles' => $reparationsUniverselles,
             'marquesRep'         => $marquesRep,
+            'visiteursDuJour'    => $dailyStatRepo->visiteursDuJour(),
             'selectedMarqueRep'  => $selectedMarqueRep,
             'currentPageRep'     => $currentPageRep,
             'totalPagesRep'      => $totalPagesRep,

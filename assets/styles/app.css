@@ -15504,6 +15504,151 @@ textarea.contact-input.is-invalid {
     color: #cbd5e1;
 }
 
+/* ═══════════════════════════════════════════════════
+   PAGE FRÉQUENTATION — /admin/stats
+═══════════════════════════════════════════════════ */
+
+/* Onglets Ventes / Fréquentation, dans le bandeau bleu */
+.stats-welcome-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+.stats-tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 10px;
+}
+.stats-tab {
+    padding: 7px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+}
+.stats-tab:hover { color: #fff; background: rgba(255,255,255,0.12); text-decoration: none; }
+.stats-tab--active,
+.stats-tab--active:hover { background: #fff; color: rgb(9,71,113); }
+
+/* Bandeau « l'historique se remplit » */
+.stats-notice {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #eff6fb;
+    border: 1px solid rgba(9,71,113,0.15);
+    color: rgb(9,71,113);
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin: -12px 0 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.stats-chart-card--wide .stats-chart-body--audience { max-height: none; height: 280px; }
+.stats-chart-card--wide .stats-chart-body--audience canvas { max-height: 280px !important; }
+
+/* Entonnoir + top articles : barres horizontales */
+.stats-funnel,
+.stats-top {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.stats-funnel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.stats-funnel-label { font-size: 13px; font-weight: 600; color: #1a2b4b; }
+.stats-funnel-label i { width: 18px; margin-right: 6px; color: #94a3b8; text-align: center; }
+.stats-funnel-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.stats-funnel-value small {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 6px;
+}
+.stats-funnel-track {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+}
+.stats-funnel-bar {
+    height: 100%;
+    background: linear-gradient(90deg, rgb(9,71,113), #3b82f6);
+    border-radius: 999px;
+}
+.stats-funnel-bar--amber { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.stats-funnel-step:last-child .stats-funnel-bar { background: linear-gradient(90deg, #15803d, #22c55e); }
+.stats-funnel-note { font-size: 11.5px; color: #94a3b8; margin: 16px 0 0; }
+
+.stats-top-row {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    align-items: center;
+    gap: 12px;
+}
+.stats-top-rank {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stats-top-main { min-width: 0; }
+.stats-top-name {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a2b4b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+}
+a.stats-top-name:hover { color: rgb(9,71,113); }
+.stats-top-name--gone { color: #94a3b8; font-style: italic; }
+.stats-top-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.stats-top-value small { font-size: 11px; font-weight: 600; color: #94a3b8; }
+
+@media (max-width: 768px) {
+    .admin-welcome:has(.stats-tabs) { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .stats-welcome-actions { align-items: flex-start; }
+}
+
 /* ── Section Trafic (placeholder) ── */
 .stats-traffic-card {
     background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);

@@ -1,0 +1,209 @@
+{% extends 'admin/layout.html.twig' %}
+{% set active_section = 'stats_audience' %}
+{% block title %}Fréquentation — D'Panne Phones Admin{% endblock %}
+
+{% block admin_content %}
+<div class="breadcrumb-admin">
+    <a href="{{ path('admin_index') }}">Dashboard</a> › Statistiques › Fréquentation
+</div>
+
+<div class="admin-welcome">
+    <div>
+        <h2><i class="fas fa-users mr-2"></i>Fréquentation de la boutique</h2>
+        <p>Compteurs maison : ni cookie de suivi, ni adresse IP. Robots et administrateurs exclus.</p>
+    </div>
+    <nav class="stats-tabs" aria-label="Statistiques">
+        <a href="{{ path('admin_stats') }}" class="stats-tab">Ventes</a>
+        <a href="{{ path('admin_stats_audience') }}" class="stats-tab stats-tab--active" aria-current="page">Fréquentation</a>
+    </nav>
+</div>
+
+{% if joursAvecDonnees < 7 %}
+    <div class="stats-notice">
+        <i class="fas fa-seedling"></i>
+        <span>Le comptage a démarré le 15/10/2026 : l'historique se remplit jour après jour.</span>
+    </div>
+{% endif %}
+
+{# ══ KPI 30 jours ══ #}
+<div class="stats-kpi-grid">
+    <div class="stats-kpi stats-kpi--ca">
+        <div class="stats-kpi-icon"><i class="fas fa-store"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Visiteurs boutique · 30 j</div>
+            <div class="stats-kpi-value">{{ visiteurs30|number_format(0, ',', ' ') }}</div>
+            <div class="stats-kpi-trend">Une visite par personne et par jour</div>
+        </div>
+    </div>
+    <div class="stats-kpi stats-kpi--cart">
+        <div class="stats-kpi-icon"><i class="fas fa-cart-plus"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Ajouts au panier · 30 j</div>
+            <div class="stats-kpi-value">{{ paniers30|number_format(0, ',', ' ') }}</div>
+            <div class="stats-kpi-trend">Chaque clic « Ajouter au panier »</div>
+        </div>
+    </div>
+    <div class="stats-kpi stats-kpi--clients">
+        <div class="stats-kpi-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stats-kpi-content">
+            <div class="stats-kpi-label">Commandes payées · 30 j</div>
+            <div class="stats-kpi-value">{{ commandes30 }}</div>
+            <div class="stats-kpi-trend">
+                {% if visiteurs30 > 0 %}
+                    Conversion {{ (commandes30 / visiteurs30 * 100)|number_format(1, ',', ' ') }} %
+                {% else %}
+                    Conversion : en attente de visites
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-charts-grid">
+
+    {# ══ Graphique 30 jours ══ #}
+    <div class="stats-chart-card stats-chart-card--wide">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-chart-line mr-2" style="color:rgb(9,71,113);"></i>Les 30 derniers jours</h3>
+            <span class="stats-chart-total">{{ serie.labels|first }} → {{ serie.labels|last }}</span>
+        </div>
+        <div class="stats-chart-body stats-chart-body--audience">
+            <canvas id="chartAudience" aria-label="Visiteurs boutique, ajouts au panier et commandes par jour sur 30 jours" role="img"></canvas>
+        </div>
+    </div>
+
+    {# ══ Entonnoir 7 jours ══ #}
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-filter mr-2" style="color:#3b82f6;"></i>Entonnoir · 7 derniers jours</h3>
+            <span class="stats-chart-total">{{ entonnoir.ca|number_format(2, ',', ' ') }} €</span>
+        </div>
+        {% set etapes = [
+            {label: 'Visiteurs boutique', nb: entonnoir.visiteurs, icon: 'fa-store'},
+            {label: 'Vues de fiches',     nb: entonnoir.fiches,    icon: 'fa-eye'},
+            {label: 'Ajouts au panier',   nb: entonnoir.paniers,   icon: 'fa-cart-plus'},
+            {label: 'Passages au paiement', nb: entonnoir.paiements, icon: 'fa-credit-card'},
+            {label: 'Commandes payées',   nb: entonnoir.commandes, icon: 'fa-receipt'},
+        ] %}
+        {% set maxEtape = max(etapes|map(e => e.nb)|merge([1])) %}
+        <ol class="stats-funnel">
+            {% for e in etapes %}
+                <li class="stats-funnel-step">
+                    <div class="stats-funnel-head">
+                        <span class="stats-funnel-label"><i class="fas {{ e.icon }}"></i>{{ e.label }}</span>
+                        <span class="stats-funnel-value">
+                            {{ e.nb|number_format(0, ',', ' ') }}
+                            {% if not loop.first %}
+                                {% set precedent = etapes[loop.index0 - 1].nb %}
+                                <small>{{ precedent > 0 ? (e.nb / precedent * 100)|round ~ ' %' : '—' }}</small>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="stats-funnel-track">
+                        <div class="stats-funnel-bar" style="width: {{ e.nb > 0 ? max(2, e.nb / maxEtape * 100) : 0 }}%;"></div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+        <p class="stats-funnel-note">Le pourcentage compare chaque étape à la précédente. CA : commandes payées, hors annulées.</p>
+    </div>
+
+    {# ══ Top 5 fiches 7 jours ══ #}
+    <div class="stats-chart-card">
+        <div class="stats-chart-header">
+            <h3><i class="fas fa-eye mr-2" style="color:#f59e0b;"></i>Articles les plus vus · 7 jours</h3>
+        </div>
+        {% if topFiches is not empty %}
+            {% set maxVues = topFiches|first.vues %}
+            <ol class="stats-top">
+                {% for f in topFiches %}
+                    <li class="stats-top-row">
+                        <span class="stats-top-rank">{{ loop.index }}</span>
+                        <div class="stats-top-main">
+                            {% if f.nom %}
+                                <a href="{{ path('boutique_show', {id: f.id}) }}" target="_blank" rel="noopener" class="stats-top-name">{{ f.nom }}</a>
+                            {% else %}
+                                <span class="stats-top-name stats-top-name--gone">Article n° {{ f.id }} (supprimé)</span>
+                            {% endif %}
+                            <div class="stats-funnel-track"><div class="stats-funnel-bar stats-funnel-bar--amber" style="width: {{ f.vues / maxVues * 100 }}%;"></div></div>
+                        </div>
+                        <span class="stats-top-value">{{ f.vues }}<small> vue{{ f.vues > 1 ? 's' : '' }}</small></span>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <div class="stats-empty">
+                <i class="fas fa-eye-slash"></i>
+                <span>Aucune fiche vue sur les 7 derniers jours</span>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block admin_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const serie = {{ serie|json_encode|raw }};
+    const ctx = document.getElementById('chartAudience');
+    if (!ctx || typeof Chart === 'undefined') return;
+
+    Chart.defaults.font.family = "'Inter', 'Segoe UI', sans-serif";
+    Chart.defaults.font.size = 11;
+    Chart.defaults.color = '#374151';
+
+    new Chart(ctx, {
+        data: {
+            labels: serie.labels,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Visiteurs boutique',
+                    data: serie.visiteurs,
+                    borderColor: 'rgb(9,71,113)',
+                    backgroundColor: 'rgba(9,71,113,0.10)',
+                    borderWidth: 2.5,
+                    pointRadius: 2,
+                    pointHoverRadius: 5,
+                    tension: 0.3,
+                    fill: true,
+                    order: 3
+                },
+                {
+                    type: 'bar',
+                    label: 'Ajouts au panier',
+                    data: serie.paniers,
+                    backgroundColor: 'rgba(59,130,246,0.55)',
+                    borderRadius: 4,
+                    maxBarThickness: 14,
+                    order: 2
+                },
+                {
+                    type: 'bar',
+                    label: 'Commandes payées',
+                    data: serie.commandes,
+                    backgroundColor: '#16a34a',
+                    borderRadius: 4,
+                    maxBarThickness: 14,
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkipPadding: 12 } },
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f1f5f9' } }
+            },
+            plugins: {
+                legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14, usePointStyle: true } }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

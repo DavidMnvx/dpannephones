@@ -303,6 +303,14 @@
                                        · {{ nbCommandesMois }} commande{{ nbCommandesMois > 1 ? 's' : '' }}</p>
                                 </div>
                             </a>
+                            <a href="{{ path('admin_stats_audience') }}" style="text-decoration:none;">
+                                <div class="dash-card dash-card--stats">
+                                    <i class="fas fa-chart-line"></i>
+                                    <h4>Statistiques</h4>
+                                    <p>{{ visiteursDuJour }} visiteur{{ visiteursDuJour > 1 ? 's' : '' }} boutique aujourd'hui
+                                       <br><span style="font-size:11px;">Fréquentation &amp; entonnoir</span></p>
+                                </div>
+                            </a>
                             <a href="{{ path('admin_blog_index') }}" style="text-decoration:none;">
                                 <div class="dash-card dash-card--blog {{ nbBlogBrouillons > 0 ? 'dash-card--blog-pending' : '' }}">
                                     {% if nbBlogBrouillons > 0 %}

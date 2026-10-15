@@ -339,6 +339,12 @@
                         <i class="fas fa-chart-line"></i> Statistiques
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ active_section is defined and active_section == 'stats_audience' ? 'active' : '' }}"
+                       href="{{ path('admin_stats_audience') }}">
+                        <i class="fas fa-users"></i> Fréquentation
+                    </a>
+                </li>
 
                 {# ── Boutique ── #}
                 <li class="sidebar-section-title">Boutique</li>
